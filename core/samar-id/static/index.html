@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Samar ID — Apple ID & macOS Sequoia Edition</title>
+    <title>Samar ID — The Sovereign Identity</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-window: rgba(22, 24, 30, 0.85);
-            --bg-sidebar: rgba(16, 18, 23, 0.9);
-            --bg-card: rgba(30, 34, 45, 0.65);
-            --bg-card-hover: rgba(38, 43, 58, 0.8);
+            --bg-window: rgba(20, 22, 28, 0.88);
+            --bg-sidebar: rgba(15, 17, 22, 0.94);
+            --bg-card: rgba(30, 34, 46, 0.6);
+            --bg-card-hover: rgba(40, 46, 62, 0.75);
             --border: rgba(255, 255, 255, 0.08);
-            --border-focused: #0a84ff;
+            --border-hover: rgba(255, 255, 255, 0.16);
             --accent: #0a84ff;
-            --accent-gradient: linear-gradient(135deg, #0a84ff, #5e5ce6);
+            --accent-gradient: linear-gradient(135deg, #0a84ff 0%, #5e5ce6 100%);
+            --accent-glow: rgba(10, 132, 255, 0.35);
             --text-primary: #ffffff;
-            --text-secondary: #98989d;
-            --text-tertiary: #636366;
+            --text-secondary: #94949e;
+            --text-tertiary: #5e606a;
             --status-green: #30d158;
             --status-red: #ff453a;
             --status-orange: #ff9f0a;
@@ -43,29 +44,37 @@
             justify-content: center;
             padding: 30px 16px;
             background-image: 
-                radial-gradient(circle at 50% 0%, rgba(10, 132, 255, 0.12) 0%, transparent 60%),
-                radial-gradient(circle at 100% 100%, rgba(94, 92, 230, 0.08) 0%, transparent 50%);
+                radial-gradient(circle at 50% 0%, rgba(10, 132, 255, 0.14) 0%, transparent 60%),
+                radial-gradient(circle at 100% 100%, rgba(94, 92, 230, 0.09) 0%, transparent 50%),
+                radial-gradient(circle at 0% 100%, rgba(10, 132, 255, 0.06) 0%, transparent 40%);
             background-attachment: fixed;
+            overflow-x: hidden;
         }
 
-        /* Apple Window Frame */
+        /* Apple Window Container */
         .macos-window {
             width: 100%;
             max-width: 980px;
-            min-height: 600px;
+            min-height: 620px;
             background: var(--bg-window);
-            backdrop-filter: blur(40px);
-            -webkit-backdrop-filter: blur(40px);
+            backdrop-filter: blur(50px);
+            -webkit-backdrop-filter: blur(50px);
             border: 1px solid var(--border);
             border-radius: var(--radius-window);
-            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.06);
             overflow: hidden;
             display: flex;
             flex-direction: column;
             position: relative;
+            transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* macOS Window Titlebar with Traffic Lights */
+        .window-fade-out {
+            opacity: 0;
+            transform: scale(0.97);
+        }
+
+        /* Titlebar */
         .titlebar {
             height: 48px;
             padding: 0 20px;
@@ -73,7 +82,7 @@
             align-items: center;
             justify-content: space-between;
             border-bottom: 1px solid var(--border);
-            background: rgba(12, 14, 18, 0.5);
+            background: rgba(12, 14, 18, 0.55);
             user-select: none;
         }
 
@@ -87,6 +96,7 @@
             height: 12px;
             border-radius: 50%;
             display: inline-block;
+            transition: opacity 0.2s;
         }
         .dot-close { background: #ff5f56; }
         .dot-min { background: #ffbd2e; }
@@ -104,6 +114,7 @@
             border-radius: 6px;
             object-fit: cover;
             border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
         }
 
         .titlebar-text {
@@ -113,77 +124,113 @@
             letter-spacing: -0.2px;
         }
 
+        .titlebar-status {
+            font-size: 11px;
+            color: var(--status-green);
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-pulse {
+            width: 7px;
+            height: 7px;
+            background: var(--status-green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--status-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
         /* ----------------- AUTHENTICATION VIEW ----------------- */
         .auth-view {
-            padding: 48px 24px;
+            padding: 44px 24px;
             max-width: 440px;
             margin: auto;
             width: 100%;
             text-align: center;
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .auth-logo-hero {
-            width: 80px;
-            height: 80px;
-            border-radius: 20px;
+            width: 82px;
+            height: 82px;
+            border-radius: 22px;
             margin: 0 auto 16px;
             object-fit: cover;
-            box-shadow: 0 12px 30px rgba(10, 132, 255, 0.35);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 14px 34px rgba(10, 132, 255, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: transform 0.3s;
+        }
+
+        .auth-logo-hero:hover {
+            transform: scale(1.04);
         }
 
         .auth-hero-title {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 700;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.6px;
             margin-bottom: 6px;
         }
 
         .auth-hero-sub {
-            font-size: 13px;
+            font-size: 13.5px;
             color: var(--text-secondary);
             margin-bottom: 24px;
         }
 
+        /* 2-Tab Segmented Control (Apple Style) */
         .segmented-tabs {
             display: flex;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.45);
             border: 1px solid var(--border);
-            padding: 3px;
-            border-radius: 12px;
-            margin-bottom: 22px;
+            padding: 4px;
+            border-radius: 13px;
+            margin-bottom: 24px;
         }
 
         .seg-tab {
             flex: 1;
-            padding: 8px 12px;
+            padding: 9px 14px;
             background: transparent;
             border: none;
             color: var(--text-secondary);
-            font-size: 12.5px;
+            font-size: 13px;
             font-weight: 600;
             border-radius: 9px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .seg-tab.active {
-            background: var(--bg-card);
+            background: rgba(255, 255, 255, 0.1);
             color: var(--text-primary);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
         }
 
         .form-row {
-            margin-bottom: 14px;
+            margin-bottom: 15px;
             text-align: left;
         }
 
         .form-row label {
             display: block;
-            font-size: 11px;
+            font-size: 11.5px;
             font-weight: 600;
             color: var(--text-secondary);
-            margin-bottom: 5px;
+            margin-bottom: 6px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -191,7 +238,7 @@
         .input-apple {
             width: 100%;
             padding: 12px 14px;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.35);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
             color: var(--text-primary);
@@ -202,43 +249,43 @@
 
         .input-apple:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.2);
+            box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.22);
             background: rgba(0, 0, 0, 0.5);
         }
 
-        .captcha-box {
-            background: rgba(10, 132, 255, 0.06);
-            border: 1px solid rgba(10, 132, 255, 0.2);
-            border-radius: var(--radius-sm);
-            padding: 10px 14px;
+        .input-apple::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .auth-actions-row {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
+            justify-content: flex-end;
+            margin-top: -6px;
+            margin-bottom: 18px;
         }
 
-        .captcha-label {
-            font-size: 12px;
+        .btn-link-subtle {
+            background: none;
+            border: none;
             color: var(--accent);
-            font-weight: 600;
-            font-family: 'JetBrains Mono', monospace;
+            font-size: 12.5px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity 0.2s;
+            padding: 2px 0;
         }
 
-        .captcha-input {
-            width: 70px;
-            padding: 6px 10px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: white;
-            font-size: 13px;
-            text-align: center;
-            outline: none;
+        .btn-link-subtle:hover {
+            opacity: 0.8;
+            text-decoration: underline;
         }
 
+        /* Buttons with tactile feedback & spinners */
         .btn-apple-primary {
             width: 100%;
-            padding: 12px;
+            padding: 13px 18px;
             background: var(--accent-gradient);
             border: none;
             border-radius: var(--radius-sm);
@@ -246,44 +293,166 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            box-shadow: 0 4px 14px rgba(10, 132, 255, 0.35);
+            box-shadow: 0 6px 18px rgba(10, 132, 255, 0.35);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+        }
+
+        .btn-apple-primary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(10, 132, 255, 0.45);
+        }
+
+        .btn-apple-primary:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .btn-apple-primary:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-apple-secondary {
+            width: 100%;
+            padding: 12px 18px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-apple-secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--border-hover);
+        }
+
+        .btn-apple-secondary:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        /* Apple Loading Spinner */
+        .spinner {
+            width: 15px;
+            height: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            display: inline-block;
+            animation: spin 0.65s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Recovery Drawer (Modal sheet) */
+        .recovery-sheet {
+            background: rgba(25, 28, 38, 0.95);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            padding: 22px;
+            margin-top: 18px;
+            text-align: left;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+            animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .recovery-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .recovery-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .recovery-options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .recovery-opt-btn {
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
             transition: all 0.2s;
         }
 
-        .btn-apple-primary:hover {
-            opacity: 0.95;
-            transform: translateY(-1px);
+        .recovery-opt-btn:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
         }
 
-        /* QR Login Canvas */
-        .qr-card-view {
-            padding: 20px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-card);
-            margin-bottom: 20px;
+        .recovery-opt-btn.active {
+            background: rgba(10, 132, 255, 0.15);
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
-        .qr-box-inner {
-            width: 180px;
-            height: 180px;
-            background: white;
-            padding: 12px;
-            border-radius: 14px;
-            margin: 0 auto 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* Toast Notifications */
+        .toast-msg {
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            margin-bottom: 18px;
+            display: none;
+            font-weight: 500;
+            animation: fadeIn 0.3s ease;
         }
 
-        /* ----------------- DASHBOARD VIEW (macOS SYSTEM SETTINGS) ----------------- */
+        .toast-msg.success {
+            background: rgba(48, 209, 88, 0.14);
+            border: 1px solid rgba(48, 209, 88, 0.35);
+            color: var(--status-green);
+            display: block;
+        }
+
+        .toast-msg.error {
+            background: rgba(255, 69, 58, 0.14);
+            border: 1px solid rgba(255, 69, 58, 0.35);
+            color: var(--status-red);
+            display: block;
+        }
+
+        /* ----------------- DASHBOARD VIEW (SYSTEM SETTINGS) ----------------- */
         .dashboard-body {
             display: flex;
             flex: 1;
-            min-height: 560px;
+            min-height: 570px;
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* Left Frosted Sidebar */
+        /* Frosted Left Sidebar */
         .sidebar {
             width: 290px;
             background: var(--bg-sidebar);
@@ -301,15 +470,15 @@
 
         .user-hero-badge {
             text-align: center;
-            padding-bottom: 20px;
+            padding-bottom: 22px;
+            margin-bottom: 18px;
             border-bottom: 1px solid var(--border);
-            margin-bottom: 16px;
         }
 
         .hero-avatar-wrap {
             position: relative;
-            width: 84px;
-            height: 84px;
+            width: 72px;
+            height: 72px;
             margin: 0 auto 12px;
         }
 
@@ -319,7 +488,7 @@
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid var(--accent);
-            box-shadow: 0 0 20px rgba(10, 132, 255, 0.3);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
         }
 
         .hero-avatar-fallback {
@@ -327,58 +496,60 @@
             height: 100%;
             border-radius: 50%;
             background: var(--accent-gradient);
+            color: white;
+            font-size: 26px;
+            font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 34px;
-            font-weight: 800;
-            color: white;
-            border: 2px solid var(--accent);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
         }
 
         .hero-avatar-edit {
             position: absolute;
-            bottom: 0;
-            right: 0;
-            background: #1c2230;
-            border: 1px solid var(--accent);
+            bottom: -2px;
+            right: -2px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
-            width: 28px;
-            height: 28px;
+            background: #2c303e;
+            border: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             font-size: 13px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-            transition: transform 0.2s;
+            transition: all 0.2s;
         }
 
         .hero-avatar-edit:hover {
+            background: var(--accent);
             transform: scale(1.1);
         }
 
         .hero-user-name {
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 700;
             letter-spacing: -0.3px;
         }
 
         .hero-user-email {
-            font-family: 'JetBrains Mono', monospace;
             font-size: 12px;
-            color: var(--accent);
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
             margin-top: 3px;
         }
 
         .freeze-pill {
-            margin-top: 10px;
-            background: rgba(255, 159, 10, 0.12);
-            border: 1px solid rgba(255, 159, 10, 0.3);
+            display: inline-block;
+            margin-top: 8px;
+            padding: 3px 10px;
+            background: rgba(255, 159, 10, 0.15);
+            border: 1px solid rgba(255, 159, 10, 0.35);
+            border-radius: 20px;
             color: var(--status-orange);
             font-size: 11px;
-            padding: 4px 10px;
-            border-radius: 12px;
             font-weight: 600;
         }
 
@@ -394,16 +565,16 @@
             align-items: center;
             gap: 12px;
             padding: 10px 14px;
-            border-radius: var(--radius-sm);
+            background: transparent;
+            border: none;
             color: var(--text-secondary);
             font-size: 13.5px;
-            font-weight: 600;
+            font-weight: 500;
+            border-radius: var(--radius-sm);
             cursor: pointer;
-            border: none;
-            background: transparent;
-            width: 100%;
             text-align: left;
-            transition: all 0.15s;
+            transition: all 0.2s;
+            position: relative;
         }
 
         .sidebar-item:hover {
@@ -412,54 +583,69 @@
         }
 
         .sidebar-item.active {
-            background: var(--accent);
-            color: white;
-            box-shadow: 0 3px 10px rgba(10, 132, 255, 0.35);
+            background: rgba(10, 132, 255, 0.16);
+            color: #ffffff;
+            font-weight: 600;
         }
 
         .sidebar-icon {
             font-size: 16px;
+            width: 20px;
+            text-align: center;
         }
 
         .badge-count {
             margin-left: auto;
-            background: var(--status-red);
+            background: var(--accent);
             color: white;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 700;
-            padding: 2px 6px;
+            padding: 2px 7px;
             border-radius: 10px;
         }
 
+        /* Dedicated "Chiqish" Button in Footer */
         .sidebar-footer {
             padding-top: 16px;
             border-top: 1px solid var(--border);
         }
 
-        .btn-sidebar-signout {
+        .btn-exit {
             width: 100%;
-            padding: 9px;
-            background: transparent;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            color: var(--text-secondary);
-            font-size: 12.5px;
+            padding: 11px 16px;
+            background: rgba(255, 69, 58, 0.08);
+            border: 1px solid rgba(255, 69, 58, 0.22);
+            color: var(--status-red);
+            font-size: 13px;
             font-weight: 600;
+            border-radius: var(--radius-sm);
             cursor: pointer;
             transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
-        .btn-sidebar-signout:hover {
-            color: var(--status-red);
-            border-color: rgba(255, 69, 58, 0.3);
-            background: rgba(255, 69, 58, 0.08);
+        .btn-exit:hover {
+            background: rgba(255, 69, 58, 0.16);
+            border-color: rgba(255, 69, 58, 0.45);
         }
 
-        /* Right Content Panel */
+        .btn-exit:active {
+            transform: scale(0.98);
+        }
+
+        /* Content Area */
         .main-content-pane {
             flex: 1;
             padding: 32px 36px;
             overflow-y: auto;
+            background: rgba(20, 22, 28, 0.5);
+        }
+
+        @media (max-width: 600px) {
+            .main-content-pane { padding: 20px 16px; }
         }
 
         .pane-header {
@@ -478,17 +664,21 @@
             margin-top: 4px;
         }
 
-        /* Apple Styled Cards */
         .apple-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius-card);
-            padding: 20px 22px;
+            padding: 20px;
             margin-bottom: 20px;
+            transition: border-color 0.2s;
+        }
+
+        .apple-card:hover {
+            border-color: var(--border-hover);
         }
 
         .apple-card-title {
-            font-size: 14.5px;
+            font-size: 14px;
             font-weight: 700;
             margin-bottom: 14px;
             display: flex;
@@ -496,7 +686,7 @@
             justify-content: space-between;
         }
 
-        /* Device row */
+        /* Device and Notification Rows */
         .device-row {
             display: flex;
             align-items: center;
@@ -517,8 +707,8 @@
         }
 
         .device-symbol {
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             border-radius: 10px;
             background: rgba(255, 255, 255, 0.05);
             display: flex;
@@ -555,7 +745,6 @@
             background: rgba(255, 69, 58, 0.1);
         }
 
-        /* Notification Item */
         .notif-card {
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--border);
@@ -577,37 +766,13 @@
             color: var(--text-secondary);
             line-height: 1.5;
         }
-
-        /* Alert Toast */
-        .toast-msg {
-            padding: 12px 16px;
-            border-radius: var(--radius-sm);
-            font-size: 13px;
-            margin-bottom: 20px;
-            display: none;
-            font-weight: 500;
-        }
-
-        .toast-msg.success {
-            background: rgba(48, 209, 88, 0.15);
-            border: 1px solid rgba(48, 209, 88, 0.35);
-            color: var(--status-green);
-            display: block;
-        }
-
-        .toast-msg.error {
-            background: rgba(255, 69, 58, 0.15);
-            border: 1px solid rgba(255, 69, 58, 0.35);
-            color: var(--status-red);
-            display: block;
-        }
     </style>
 </head>
 <body>
 
-    <div class="macos-window">
+    <div class="macos-window" id="mainWindow">
         
-        <!-- Window Titlebar -->
+        <!-- Window Titlebar with Traffic Lights -->
         <div class="titlebar">
             <div class="traffic-lights">
                 <span class="traffic-dot dot-close"></span>
@@ -616,30 +781,31 @@
             </div>
             <div class="titlebar-center">
                 <img src="/static/assets/logo_citadel.jpg" class="titlebar-logo" alt="Samar Citadel Logo">
-                <span class="titlebar-text">Samar ID — The Sovereign Citadel</span>
+                <span class="titlebar-text">Samar ID</span>
             </div>
-            <div style="font-size: 11px; color: var(--status-green); font-weight: 600; font-family: 'JetBrains Mono', monospace;">
-                ● NEON SECURE
+            <div class="titlebar-status">
+                <span class="status-pulse"></span>
+                <span>SECURE</span>
             </div>
         </div>
 
-        <!-- ================= 1. AUTHENTICATION (KIRISH / RO'YXATDAN O'TISH) ================= -->
+        <!-- ================= 1. AUTHENTICATION SECTION ================= -->
         <div id="authSection" class="auth-view">
-            <img src="/static/assets/logo_citadel.jpg" class="auth-logo-hero" alt="Citadel Logo">
+            <img src="/static/assets/logo_citadel.jpg" class="auth-logo-hero" alt="Samar Logo">
             <h1 class="auth-hero-title">Samar ID</h1>
             <p class="auth-hero-sub">Shaxsiy va daxlsiz raqamli kalitingiz</p>
 
+            <!-- Strictly 2 Tabs: Kirish and Yangi Hisob -->
             <div class="segmented-tabs">
                 <button class="seg-tab active" id="tabLogin" onclick="switchAuthMode('login')">Kirish</button>
                 <button class="seg-tab" id="tabRegister" onclick="switchAuthMode('register')">Yangi Hisob</button>
-                <button class="seg-tab" id="tabQr" onclick="switchAuthMode('qr')">QR Kirish</button>
-                <button class="seg-tab" id="tabRecovery" onclick="switchAuthMode('recovery')">Do'st orqali</button>
             </div>
 
             <div id="authAlert" class="toast-msg"></div>
 
-            <!-- Standart Kirish / Ro'yxatdan O'tish Formasi -->
-            <form id="standardAuthForm" onsubmit="handleStandardAuth(event)">
+            <!-- Kirish & Ro'yxatdan O'tish Formasi -->
+            <form id="authForm" onsubmit="handleAuthSubmit(event)">
+                <!-- Ism faqat Yangi Hisobda chiqadi -->
                 <div class="form-row" id="authNameRow" style="display: none;">
                     <label>To'liq Ism</label>
                     <input type="text" class="input-apple" id="authFullNameInput" placeholder="Masalan: Samar Rahbar">
@@ -649,81 +815,106 @@
                     <label id="authIdLabel">Samar ID</label>
                     <div style="position: relative; display: flex; align-items: center;">
                         <input type="text" class="input-apple" id="authSamarIdInput" placeholder="masalan: samar" required>
-                        <span id="domainSuffix" style="position: absolute; right: 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); font-weight: 600;">@samar.os</span>
+                        <span id="domainSuffix" style="position: absolute; right: 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); font-weight: 600; display: none;">@samar.os</span>
                     </div>
                 </div>
 
-                <div class="form-row">
+                <div class="form-row" style="margin-bottom: 12px;">
                     <label>Parol</label>
                     <input type="password" class="input-apple" id="authPasswordInput" placeholder="••••••••" required>
                 </div>
 
-                <!-- Botlarga qarshi Kapcha -->
-                <div class="captcha-box">
-                    <div class="captcha-label" id="captchaQuestion">Bot Shield: Yuklanmoqda...</div>
-                    <input type="number" class="captcha-input" id="captchaAnswerInput" placeholder="Javob">
+                <!-- Yangi Hisobda Parolni Tasdiqlash (2-marta) -->
+                <div class="form-row" id="authConfirmPasswordRow" style="display: none;">
+                    <label>Parolni Tasdiqlang</label>
+                    <input type="password" class="input-apple" id="authConfirmPasswordInput" placeholder="Parolni qayta kiriting">
                 </div>
 
-                <button type="submit" class="btn-apple-primary" id="btnSubmitAuth">Tizimga Kirish</button>
+                <!-- "Parolni unutdingizmi?" link faqat Kirish rejimida -->
+                <div class="auth-actions-row" id="forgotPasswordRow">
+                    <button type="button" class="btn-link-subtle" onclick="toggleRecoverySheet()">Parolni unutdingizmi?</button>
+                </div>
+
+                <button type="submit" class="btn-apple-primary" id="btnSubmitAuth">
+                    <span id="authBtnSpinner" class="spinner" style="display: none;"></span>
+                    <span id="authBtnText">Tizimga Kirish</span>
+                </button>
             </form>
 
-            <!-- QR Kod orqali tezkor kirish -->
-            <div id="qrAuthView" style="display: none;">
-                <div class="qr-card-view">
-                    <div class="qr-box-inner" id="qrCanvasBox">
-                        <!-- Dinamik QR vizual -->
-                        <div id="qrPlaceholder" style="font-size: 12px; color: #333; text-align: center; font-weight: 600;">
-                            QR Kod Yuklanmoqda...
-                        </div>
-                    </div>
-                    <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
-                        Telefoningizdagi Samar ID ilovasi orqali skaner qiling. Parol terish shart emas.
+            <!-- Recovery & Quick Access Drawer (Parolni unutdingizmi? bosilganda ochiladi) -->
+            <div id="recoverySheet" class="recovery-sheet" style="display: none;">
+                <div class="recovery-header">
+                    <span class="recovery-title">Kirish yoki Hisobni Tiklash</span>
+                    <button type="button" class="btn-link-subtle" onclick="toggleRecoverySheet(false)">Yopish ✕</button>
+                </div>
+
+                <div class="recovery-options-grid">
+                    <button type="button" class="recovery-opt-btn active" id="btnOptGuardian" onclick="switchRecoverySubTab('guardian')">
+                        🛡️ Do'st orqali
+                    </button>
+                    <button type="button" class="recovery-opt-btn" id="btnOptQr" onclick="switchRecoverySubTab('qr')">
+                        📱 QR Kod bilan
+                    </button>
+                </div>
+
+                <!-- Sub-tab 1: Samar Guardian (Do'st orqali tiklash) -->
+                <div id="guardianSubView">
+                    <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px;">
+                        Ishonchli do'stingizga 1 martalik tasdiqlash kodi yuboriladi. U bergan kod orqali parolsiz kirishingiz mumkin.
                     </p>
-                </div>
-                <button class="btn-apple-primary" onclick="initQRLogin()">Yangi QR Yaratish</button>
-            </div>
-
-            <!-- Samar Guardian (Do'st orqali tiklash) -->
-            <div id="recoveryAuthView" style="display: none; text-align: left;">
-                <div class="apple-card" style="padding: 16px; margin-bottom: 16px;">
-                    <h4 style="font-size: 13.5px; font-weight: 700; color: var(--accent); margin-bottom: 4px;">Samar Guardian Tiklash</h4>
-                    <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
-                        Parolingizni unutdingizmi? Ishonchli do'stingizning pochtasiga 1 martalik kirish kodi yuboriladi.
-                    </p>
-                </div>
-
-                <div class="form-row">
-                    <label>Sizning Samar ID identifikatoringiz</label>
-                    <input type="text" class="input-apple" id="recTargetSamarId" placeholder="masalan: samar@samar.os">
-                </div>
-
-                <button class="btn-apple-primary" style="margin-bottom: 14px;" onclick="requestGuardianOTP()">Do'stga So'rov Yuborish</button>
-
-                <div id="otpInputArea" style="display: none; border-top: 1px solid var(--border); padding-top: 14px;">
                     <div class="form-row">
-                        <label>Do'stingiz bergan 6 xonali kod</label>
-                        <input type="text" class="input-apple" id="recOtpCode" placeholder="Masalan: 489210" maxlength="6" style="text-align: center; font-size: 18px; letter-spacing: 4px;">
+                        <label>Sizning Samar ID</label>
+                        <input type="text" class="input-apple" id="recTargetSamarId" placeholder="masalan: samar@samar.os">
                     </div>
-                    <button class="btn-apple-primary" style="background: var(--status-orange);" onclick="verifyGuardianOTP()">Kodni Tasdiqlash & Kirish</button>
-                    <p style="font-size: 11px; color: var(--status-orange); margin-top: 8px; text-align: center;">
-                        ⚠️ Xavfsizlik uchun hisob ma'lumotlari 10 kunga muzlatiladi.
-                    </p>
+                    <button type="button" class="btn-apple-secondary" id="btnRequestOtp" style="margin-bottom: 12px;" onclick="requestGuardianOTP()">
+                        <span id="otpBtnSpinner" class="spinner" style="display: none;"></span>
+                        <span id="otpBtnText">Do'stga So'rov Yuborish</span>
+                    </button>
+
+                    <div id="otpInputArea" style="display: none; border-top: 1px solid var(--border); padding-top: 14px;">
+                        <div class="form-row">
+                            <label>Do'stingiz bergan 6 xonali kod</label>
+                            <input type="text" class="input-apple" id="recOtpCode" placeholder="Masalan: 489210" maxlength="6" style="text-align: center; font-size: 18px; letter-spacing: 4px;">
+                        </div>
+                        <button type="button" class="btn-apple-primary" id="btnVerifyOtp" style="background: var(--status-orange);" onclick="verifyGuardianOTP()">
+                            <span id="verifyBtnSpinner" class="spinner" style="display: none;"></span>
+                            <span id="verifyBtnText">Kodni Tasdiqlash & Kirish</span>
+                        </button>
+                        <p style="font-size: 11px; color: var(--status-orange); margin-top: 8px; text-align: center;">
+                            ⚠️ Xavfsizlik uchun hisob ma'lumotlari 10 kunga muzlatiladi.
+                        </p>
+                    </div>
                 </div>
+
+                <!-- Sub-tab 2: QR Kod bilan tezkor kirish -->
+                <div id="qrSubView" style="display: none; text-align: center;">
+                    <div style="background: white; width: 170px; height: 170px; border-radius: 14px; margin: 0 auto 12px; padding: 10px; display: flex; align-items: center; justify-content: center;" id="qrCanvasBox">
+                        <div style="font-size: 12px; color: #555;">QR yuklanmoqda...</div>
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">
+                        Telefoningizdagi Samar ID ilovasi orqali skanerlang.
+                    </p>
+                    <button type="button" class="btn-apple-secondary" onclick="initQRLogin()">
+                        <span>↻ Yangilash</span>
+                    </button>
+                </div>
+
             </div>
 
         </div>
 
-        <!-- ================= 2. DASHBOARD (macOS SYSTEM SETTINGS BODY) ================= -->
+        <!-- ================= 2. DASHBOARD VIEW (macOS SYSTEM SETTINGS) ================= -->
         <div id="dashboardSection" class="dashboard-body" style="display: none;">
             
-            <!-- Left Sidebar -->
+            <!-- Left Frosted Sidebar -->
             <div class="sidebar">
                 <div>
+                    <!-- User Hero Profile Card -->
                     <div class="user-hero-badge">
                         <div class="hero-avatar-wrap">
-                            <img id="dashAvatarImg" class="hero-avatar-img" src="" style="display: none;">
+                            <img id="dashAvatarImg" class="hero-avatar-img" src="" style="display: none;" alt="User Avatar">
                             <div id="dashAvatarFallback" class="hero-avatar-fallback">S</div>
-                            <label class="hero-avatar-edit" title="Rasmni yangilash">
+                            <label class="hero-avatar-edit" title="Suratni yangilash">
                                 📷
                                 <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="handleAvatarUpload(event)">
                             </label>
@@ -735,6 +926,7 @@
                         </div>
                     </div>
 
+                    <!-- Navigation Items -->
                     <div class="sidebar-menu">
                         <button class="sidebar-item active" id="tabNavProfile" onclick="switchPane('profile')">
                             <span class="sidebar-icon">👤</span>
@@ -760,8 +952,12 @@
                     </div>
                 </div>
 
+                <!-- Strictly "Chiqish" button with micro-interaction -->
                 <div class="sidebar-footer">
-                    <button class="btn-sidebar-signout" onclick="logout()">Ekotizimdan Chiqish</button>
+                    <button class="btn-exit" id="btnExitApp" onclick="handleLogout()">
+                        <span id="exitSpinner" class="spinner" style="display: none; border-top-color: var(--status-red);"></span>
+                        <span id="exitText">Chiqish</span>
+                    </button>
                 </div>
             </div>
 
@@ -796,7 +992,10 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn-apple-primary" style="max-width: 220px;" id="btnSaveProfile">O'zgarishlarni Saqlash</button>
+                        <button type="submit" class="btn-apple-primary" style="max-width: 240px;" id="btnSaveProfile">
+                            <span id="saveProfileSpinner" class="spinner" style="display: none;"></span>
+                            <span id="saveProfileText">O'zgarishlarni Saqlash</span>
+                        </button>
                     </form>
                 </div>
 
@@ -823,22 +1022,28 @@
                                 <label>Yangi Parolni Tasdiqlang</label>
                                 <input type="password" class="input-apple" id="secConfirmPassword" placeholder="Qayta kiriting" required>
                             </div>
-                            <button type="submit" class="btn-apple-primary" style="max-width: 200px; background: var(--status-red);" id="btnSavePassword">Parolni Yangilash</button>
+                            <button type="submit" class="btn-apple-primary" style="max-width: 220px; background: var(--status-red);" id="btnSavePassword">
+                                <span id="savePasswordSpinner" class="spinner" style="display: none;"></span>
+                                <span id="savePasswordText">Parolni Yangilash</span>
+                            </button>
                         </form>
                     </div>
 
                     <!-- Samar Guardian Card -->
                     <div class="apple-card">
                         <div class="apple-card-title">
-                            <span>🛡️ Ishonchli Vasiy (Samar Guardian)</span>
+                            <span>🛡️ Ishonchli Do'st (Samar Guardian)</span>
                             <span id="currentGuardianBadge" style="font-size: 11px; color: var(--accent); font-family: 'JetBrains Mono', monospace;">Tayinlanmagan</span>
                         </div>
                         <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px;">
-                            Agar parolingizni unutib qo'ysangiz, ushbu do'stingiz sizga 1 martalik kirish kodini tasdiqlab beradi.
+                            Agar parolingizni unutib qo'ysangiz, ushbu do'stingiz sizga 1 martalik tasdiqlash kodini berib yordam bera oladi.
                         </p>
                         <div style="display: flex; gap: 10px;">
                             <input type="text" class="input-apple" id="guardianInput" placeholder="Do'stingiz Samar ID si (masalan: ali@samar.os)">
-                            <button class="btn-apple-primary" style="white-space: nowrap; max-width: 140px;" onclick="saveGuardianFriend()">Saqlash</button>
+                            <button class="btn-apple-primary" style="white-space: nowrap; max-width: 140px;" id="btnSaveGuardian" onclick="saveGuardianFriend()">
+                                <span id="saveGuardianSpinner" class="spinner" style="display: none;"></span>
+                                <span id="saveGuardianText">Saqlash</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -847,7 +1052,7 @@
                 <div id="paneDevices" style="display: none;">
                     <div class="pane-header">
                         <h2 class="pane-title">Ulangan Qurilmalar</h2>
-                        <p class="pane-sub">Samar ID ga ulangan kompyuter va smartfonlar tarmog'i</p>
+                        <p class="pane-sub">Samar ID ga ulangan faol qurilmalar tarmog'i</p>
                     </div>
 
                     <div class="apple-card">
@@ -861,7 +1066,7 @@
                 <div id="paneInbox" style="display: none;">
                     <div class="pane-header">
                         <h2 class="pane-title">Xabarnomalar va So'rovlar</h2>
-                        <p class="pane-sub">Tizim xabarlari va do'stlaringizdan kelgan so'rovlar</p>
+                        <p class="pane-sub">Tizim xabarlari va do'stlaringizdan kelgan xavfsizlik so'rovlari</p>
                     </div>
 
                     <div id="inboxContainer">
@@ -873,14 +1078,16 @@
                 <div id="paneVault" style="display: none;">
                     <div class="pane-header">
                         <h2 class="pane-title">Raqamli Mustaqillik</h2>
-                        <p class="pane-sub">Sizning ma'lumotlaringiz — sizning mutlaq mulkingiz</p>
+                        <p class="pane-sub">Sizning ma'lumotlaringiz — sizning daxlsiz mulkingiz</p>
                     </div>
 
                     <div class="apple-card">
                         <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 18px;">
-                            Samar OS da shaxsiy ma'lumotlar hech qachon sotilmaydi va uchinchi shaxslarga berilmaydi. Istalgan vaqtda barcha ma'lumotlaringizni bitta faylda yuklab olishingiz mumkin.
+                            Samar OS da barcha ma'lumotlaringiz shifrlangan va xususiy holatda saqlanadi. Istalgan vaqtda barcha shaxsiy ma'lumotlaringizni bitta to'liq JSON arxiv fayli sifatida yuklab olishingiz mumkin.
                         </p>
-                        <button class="btn-apple-primary" style="max-width: 260px;" onclick="exportDataVault()">📥 Barcha Ma'lumotlarni Yuklab Olish (JSON)</button>
+                        <button class="btn-apple-primary" style="max-width: 280px;" onclick="exportDataVault()">
+                            <span>📥 Barcha Ma'lumotlarni Yuklab Olish (JSON)</span>
+                        </button>
                     </div>
                 </div>
 
@@ -892,7 +1099,6 @@
     <script>
         let currentAuthMode = 'login';
         let currentUser = null;
-        let currentCaptchaId = null;
         let qrPollInterval = null;
 
         function showToast(elemId, msg, isSuccess = false) {
@@ -903,53 +1109,96 @@
             setTimeout(() => { el.style.display = 'none'; }, 6000);
         }
 
-        async function refreshCaptcha() {
-            try {
-                const res = await fetch('/api/auth/captcha');
-                const data = await res.json();
-                currentCaptchaId = data.captcha_id;
-                document.getElementById('captchaQuestion').innerText = 'Bot Shield: ' + data.question;
-            } catch (_) {}
+        function setButtonLoading(btnId, spinnerId, textId, isLoading, loadingText, defaultText) {
+            const btn = document.getElementById(btnId);
+            const spinner = document.getElementById(spinnerId);
+            const textElem = document.getElementById(textId);
+            if (btn) btn.disabled = isLoading;
+            if (spinner) spinner.style.display = isLoading ? 'inline-block' : 'none';
+            if (textElem) textElem.innerText = isLoading ? loadingText : defaultText;
         }
 
+        // Mode Switcher: strictly 'login' or 'register'
         function switchAuthMode(mode) {
             currentAuthMode = mode;
             document.getElementById('authAlert').style.display = 'none';
-            ['login', 'register', 'qr', 'recovery'].forEach(m => {
-                document.getElementById('tab' + m.charAt(0).toUpperCase() + m.slice(1)).classList.toggle('active', m === mode);
-            });
+            toggleRecoverySheet(false);
 
-            document.getElementById('standardAuthForm').style.display = (mode === 'login' || mode === 'register') ? 'block' : 'none';
-            document.getElementById('qrAuthView').style.display = (mode === 'qr') ? 'block' : 'none';
-            document.getElementById('recoveryAuthView').style.display = (mode === 'recovery') ? 'block' : 'none';
+            document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
+            document.getElementById('tabRegister').classList.toggle('active', mode === 'register');
 
             if (mode === 'register') {
                 document.getElementById('authNameRow').style.display = 'block';
+                document.getElementById('authConfirmPasswordRow').style.display = 'block';
                 document.getElementById('authIdLabel').innerText = 'Yangi Samar ID';
                 document.getElementById('domainSuffix').style.display = 'block';
-                document.getElementById('btnSubmitAuth').innerText = 'Samar ID Yaratish';
-            } else if (mode === 'login') {
+                document.getElementById('forgotPasswordRow').style.display = 'none';
+                document.getElementById('authBtnText').innerText = 'Samar ID Yaratish';
+            } else {
                 document.getElementById('authNameRow').style.display = 'none';
+                document.getElementById('authConfirmPasswordRow').style.display = 'none';
                 document.getElementById('authIdLabel').innerText = 'Samar ID';
                 document.getElementById('domainSuffix').style.display = 'none';
-                document.getElementById('btnSubmitAuth').innerText = 'Tizimga Kirish';
-            } else if (mode === 'qr') {
-                initQRLogin();
+                document.getElementById('forgotPasswordRow').style.display = 'flex';
+                document.getElementById('authBtnText').innerText = 'Tizimga Kirish';
             }
         }
 
-        async function handleStandardAuth(e) {
+        // Recovery Drawer Toggle
+        function toggleRecoverySheet(show = null) {
+            const sheet = document.getElementById('recoverySheet');
+            if (show === null) {
+                const isCurrentlyHidden = sheet.style.display === 'none';
+                sheet.style.display = isCurrentlyHidden ? 'block' : 'none';
+                if (isCurrentlyHidden) {
+                    switchRecoverySubTab('guardian');
+                }
+            } else {
+                sheet.style.display = show ? 'block' : 'none';
+            }
+        }
+
+        function switchRecoverySubTab(tab) {
+            document.getElementById('btnOptGuardian').classList.toggle('active', tab === 'guardian');
+            document.getElementById('btnOptQr').classList.toggle('active', tab === 'qr');
+            document.getElementById('guardianSubView').style.display = (tab === 'guardian') ? 'block' : 'none';
+            document.getElementById('qrSubView').style.display = (tab === 'qr') ? 'block' : 'none';
+
+            if (tab === 'qr') {
+                initQRLogin();
+            } else {
+                if (qrPollInterval) clearInterval(qrPollInterval);
+            }
+        }
+
+        // Handle Login & Register Form Submit
+        async function handleAuthSubmit(e) {
             e.preventDefault();
-            const samarId = document.getElementById('authSamarIdInput').value;
+            const samarId = document.getElementById('authSamarIdInput').value.trim();
             const password = document.getElementById('authPasswordInput').value;
-            const fullName = document.getElementById('authFullNameInput').value;
-            const captchaAns = document.getElementById('captchaAnswerInput').value;
+            const fullName = document.getElementById('authFullNameInput').value.trim();
+
+            if (currentAuthMode === 'register') {
+                const confirmPassword = document.getElementById('authConfirmPasswordInput').value;
+                if (password !== confirmPassword) {
+                    showToast('authAlert', 'Parollar bir-biriga mos kelmadi. Iltimos, tekshirib qayta kiriting!');
+                    return;
+                }
+                if (password.length < 6) {
+                    showToast('authAlert', 'Parol kamida 6 ta belgidan iborat bo\'lishi kerak!');
+                    return;
+                }
+            }
+
+            const defaultBtnText = (currentAuthMode === 'login') ? 'Tizimga Kirish' : 'Samar ID Yaratish';
+            const loadingBtnText = (currentAuthMode === 'login') ? 'Kirilmoqda...' : 'Yaratilmoqda...';
+            setButtonLoading('btnSubmitAuth', 'authBtnSpinner', 'authBtnText', true, loadingBtnText, defaultBtnText);
 
             try {
                 const endpoint = (currentAuthMode === 'login') ? '/api/auth/login' : '/api/auth/register';
                 const body = (currentAuthMode === 'login')
-                    ? { samar_id_or_email: samarId, password, captcha_answer: captchaAns }
-                    : { samar_id: samarId, full_name: fullName, password, captcha_answer: captchaAns };
+                    ? { samar_id_or_email: samarId, password }
+                    : { samar_id: samarId, full_name: fullName, password };
 
                 const res = await fetch(endpoint, {
                     method: 'POST',
@@ -963,44 +1212,43 @@
                 loadDashboard(data.user);
             } catch (err) {
                 showToast('authAlert', err.message);
-                refreshCaptcha();
+            } finally {
+                setButtonLoading('btnSubmitAuth', 'authBtnSpinner', 'authBtnText', false, loadingBtnText, defaultBtnText);
             }
         }
 
-        // QR Login
+        // QR Login Generator & Poller
         async function initQRLogin() {
             if (qrPollInterval) clearInterval(qrPollInterval);
             try {
                 const res = await fetch('/api/auth/qr/generate', { method: 'POST' });
                 const data = await res.json();
                 const box = document.getElementById('qrCanvasBox');
-                // Chiroyli SVG QR Kod ramzi
                 box.innerHTML = `
                     <div style="text-align: center;">
-                        <svg width="150" height="150" viewBox="0 0 100 100">
+                        <svg width="140" height="140" viewBox="0 0 100 100">
                             <rect width="100" height="100" fill="white"/>
-                            <rect x="10" y="10" width="25" height="25" fill="#0a84ff"/>
-                            <rect x="15" y="15" width="15" height="15" fill="white"/>
-                            <rect x="18" y="18" width="9" height="9" fill="#0a84ff"/>
+                            <rect x="8" y="8" width="26" height="26" rx="4" fill="#0a84ff"/>
+                            <rect x="13" y="13" width="16" height="16" rx="2" fill="white"/>
+                            <rect x="16" y="16" width="10" height="10" fill="#0a84ff"/>
                             
-                            <rect x="65" y="10" width="25" height="25" fill="#0a84ff"/>
-                            <rect x="70" y="15" width="15" height="15" fill="white"/>
-                            <rect x="73" y="18" width="9" height="9" fill="#0a84ff"/>
+                            <rect x="66" y="8" width="26" height="26" rx="4" fill="#0a84ff"/>
+                            <rect x="71" y="13" width="16" height="16" rx="2" fill="white"/>
+                            <rect x="74" y="16" width="10" height="10" fill="#0a84ff"/>
                             
-                            <rect x="10" y="65" width="25" height="25" fill="#0a84ff"/>
-                            <rect x="15" y="70" width="15" height="15" fill="white"/>
-                            <rect x="18" y="73" width="9" height="9" fill="#0a84ff"/>
+                            <rect x="8" y="66" width="26" height="26" rx="4" fill="#0a84ff"/>
+                            <rect x="13" y="71" width="16" height="16" rx="2" fill="white"/>
+                            <rect x="16" y="74" width="10" height="10" fill="#0a84ff"/>
                             
-                            <rect x="45" y="45" width="12" height="12" fill="#5e5ce6"/>
-                            <rect x="40" y="15" width="8" height="8" fill="#111"/>
-                            <rect x="70" y="45" width="8" height="8" fill="#111"/>
-                            <rect x="45" y="70" width="8" height="8" fill="#111"/>
+                            <rect x="44" y="44" width="14" height="14" rx="3" fill="#5e5ce6"/>
+                            <rect x="38" y="16" width="8" height="8" fill="#111"/>
+                            <rect x="68" y="44" width="8" height="8" fill="#111"/>
+                            <rect x="44" y="68" width="8" height="8" fill="#111"/>
                         </svg>
-                        <div style="font-size: 10px; color: #666; font-family: monospace; margin-top: 4px;">Kodni telefon bilan skanerlang</div>
+                        <div style="font-size: 10px; color: #777; font-family: monospace; margin-top: 2px;">QR faol</div>
                     </div>
                 `;
 
-                // Status tekshirish
                 qrPollInterval = setInterval(async () => {
                     const sRes = await fetch('/api/auth/qr/status/' + data.qr_token);
                     const sData = await sRes.json();
@@ -1014,9 +1262,14 @@
             } catch (_) {}
         }
 
-        // Guardian Recovery
+        // Guardian Social Recovery
         async function requestGuardianOTP() {
-            const sid = document.getElementById('recTargetSamarId').value;
+            const sid = document.getElementById('recTargetSamarId').value.trim();
+            if (!sid) {
+                showToast('authAlert', 'Iltimos, Samar ID ingizni kiriting!');
+                return;
+            }
+            setButtonLoading('btnRequestOtp', 'otpBtnSpinner', 'otpBtnText', true, 'Yuborilmoqda...', 'Do\'stga So\'rov Yuborish');
             try {
                 const res = await fetch('/api/auth/guardian/request-otp', {
                     method: 'POST',
@@ -1029,12 +1282,19 @@
                 document.getElementById('otpInputArea').style.display = 'block';
             } catch (err) {
                 showToast('authAlert', err.message);
+            } finally {
+                setButtonLoading('btnRequestOtp', 'otpBtnSpinner', 'otpBtnText', false, 'Yuborilmoqda...', 'Do\'stga So\'rov Yuborish');
             }
         }
 
         async function verifyGuardianOTP() {
-            const sid = document.getElementById('recTargetSamarId').value;
-            const otp = document.getElementById('recOtpCode').value;
+            const sid = document.getElementById('recTargetSamarId').value.trim();
+            const otp = document.getElementById('recOtpCode').value.trim();
+            if (!otp) {
+                showToast('authAlert', '6 xonali kodni kiriting!');
+                return;
+            }
+            setButtonLoading('btnVerifyOtp', 'verifyBtnSpinner', 'verifyBtnText', true, 'Tekshirilmoqda...', 'Kodni Tasdiqlash & Kirish');
             try {
                 const res = await fetch('/api/auth/guardian/verify-otp', {
                     method: 'POST',
@@ -1047,10 +1307,12 @@
                 loadDashboard(data.user);
             } catch (err) {
                 showToast('authAlert', err.message);
+            } finally {
+                setButtonLoading('btnVerifyOtp', 'verifyBtnSpinner', 'verifyBtnText', false, 'Tekshirilmoqda...', 'Kodni Tasdiqlash & Kirish');
             }
         }
 
-        // Dashboard Loading
+        // Load Dashboard
         function loadDashboard(user) {
             if (qrPollInterval) clearInterval(qrPollInterval);
             currentUser = user;
@@ -1060,7 +1322,7 @@
             document.getElementById('dashFullName').innerText = user.full_name;
             document.getElementById('dashSamarId').innerText = user.samar_id;
 
-            // Avatar
+            // Avatar Display
             if (user.avatar_path) {
                 document.getElementById('dashAvatarImg').src = user.avatar_path;
                 document.getElementById('dashAvatarImg').style.display = 'block';
@@ -1071,7 +1333,7 @@
                 document.getElementById('dashAvatarImg').style.display = 'none';
             }
 
-            // Freeze Warning
+            // Security Freeze Pill
             const freezePill = document.getElementById('freezeWarningPill');
             if (user.security_freeze_until) {
                 freezePill.style.display = 'inline-block';
@@ -1104,6 +1366,7 @@
             if (pane === 'inbox') loadNotifications();
         }
 
+        // Avatar Upload
         async function handleAvatarUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1124,15 +1387,18 @@
                 document.getElementById('dashAvatarImg').src = data.avatar_url;
                 document.getElementById('dashAvatarImg').style.display = 'block';
                 document.getElementById('dashAvatarFallback').style.display = 'none';
-                showToast('paneAlert', 'Surat saqlandi va PostgreSQL bazasida abadiy saqlanadi!', true);
+                showToast('paneAlert', 'Surat saqlandi va PostgreSQL bazasida daxlsiz saqlanadi!', true);
             } catch (err) {
                 showToast('paneAlert', err.message);
             }
         }
 
+        // Profile Update with Apple Spinning Loader
         async function handleProfileUpdate(e) {
             e.preventDefault();
             const token = localStorage.getItem('samar_token');
+            setButtonLoading('btnSaveProfile', 'saveProfileSpinner', 'saveProfileText', true, 'Saqlanmoqda...', 'O\'zgarishlarni Saqlash');
+
             try {
                 const res = await fetch('/api/auth/profile', {
                     method: 'PUT',
@@ -1147,12 +1413,15 @@
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.detail);
                 loadDashboard(data);
-                showToast('paneAlert', "Shaxsiy ma'lumotlar saqlandi!", true);
+                showToast('paneAlert', "O'zgarishlar muvaffaqiyatli saqlandi!", true);
             } catch (err) {
                 showToast('paneAlert', err.message);
+            } finally {
+                setButtonLoading('btnSaveProfile', 'saveProfileSpinner', 'saveProfileText', false, 'Saqlanmoqda...', 'O\'zgarishlarni Saqlash');
             }
         }
 
+        // Password Change with Animated State
         async function handlePasswordChange(e) {
             e.preventDefault();
             const oldP = document.getElementById('secOldPassword').value;
@@ -1160,11 +1429,13 @@
             const confP = document.getElementById('secConfirmPassword').value;
 
             if (newP !== confP) {
-                showToast('paneAlert', 'Yangi parollar mos kelmadi!');
+                showToast('paneAlert', 'Yangi parollar bir-biriga mos kelmadi!');
                 return;
             }
 
             const token = localStorage.getItem('samar_token');
+            setButtonLoading('btnSavePassword', 'savePasswordSpinner', 'savePasswordText', true, 'Yangilanmoqda...', 'Parolni Yangilash');
+
             try {
                 const res = await fetch('/api/auth/change-password', {
                     method: 'POST',
@@ -1179,12 +1450,17 @@
                 document.getElementById('secConfirmPassword').value = '';
             } catch (err) {
                 showToast('paneAlert', err.message);
+            } finally {
+                setButtonLoading('btnSavePassword', 'savePasswordSpinner', 'savePasswordText', false, 'Yangilanmoqda...', 'Parolni Yangilash');
             }
         }
 
+        // Guardian Save with Animated State
         async function saveGuardianFriend() {
-            const gid = document.getElementById('guardianInput').value;
+            const gid = document.getElementById('guardianInput').value.trim();
             const token = localStorage.getItem('samar_token');
+            setButtonLoading('btnSaveGuardian', 'saveGuardianSpinner', 'saveGuardianText', true, 'Saqlanmoqda...', 'Saqlash');
+
             try {
                 const res = await fetch('/api/auth/guardian/set', {
                     method: 'POST',
@@ -1197,6 +1473,8 @@
                 document.getElementById('currentGuardianBadge').innerText = gid;
             } catch (err) {
                 showToast('paneAlert', err.message);
+            } finally {
+                setButtonLoading('btnSaveGuardian', 'saveGuardianSpinner', 'saveGuardianText', false, 'Saqlanmoqda...', 'Saqlash');
             }
         }
 
@@ -1288,20 +1566,42 @@
             a.click();
         }
 
-        async function logout() {
+        // Apple Smooth "Chiqish" Transition
+        async function handleLogout() {
+            const exitBtn = document.getElementById('btnExitApp');
+            const exitSpinner = document.getElementById('exitSpinner');
+            const exitText = document.getElementById('exitText');
+            const windowEl = document.getElementById('mainWindow');
+
+            exitBtn.disabled = true;
+            exitSpinner.style.display = 'inline-block';
+            exitText.innerText = 'Chiqilmoqda...';
+
             const token = localStorage.getItem('samar_token');
             if (token) {
                 try {
                     await fetch('/api/auth/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } });
                 } catch (_) {}
             }
-            localStorage.removeItem('samar_token');
-            currentUser = null;
-            document.getElementById('authSection').style.display = 'block';
-            document.getElementById('dashboardSection').style.display = 'none';
-            refreshCaptcha();
+
+            // Smooth exit animation
+            windowEl.classList.add('window-fade-out');
+
+            setTimeout(() => {
+                localStorage.removeItem('samar_token');
+                currentUser = null;
+                document.getElementById('dashboardSection').style.display = 'none';
+                document.getElementById('authSection').style.display = 'block';
+
+                exitBtn.disabled = false;
+                exitSpinner.style.display = 'none';
+                exitText.innerText = 'Chiqish';
+
+                windowEl.classList.remove('window-fade-out');
+            }, 300);
         }
 
+        // Initial session check
         async function checkSession() {
             const token = localStorage.getItem('samar_token');
             if (token) {
@@ -1310,12 +1610,13 @@
                     if (res.ok) {
                         const user = await res.json();
                         loadDashboard(user);
+                        return;
                     } else {
                         localStorage.removeItem('samar_token');
                     }
                 } catch (_) {}
             }
-            refreshCaptcha();
+            switchAuthMode('login');
         }
 
         checkSession();

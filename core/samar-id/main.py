@@ -22,7 +22,7 @@ from security import hash_password, verify_password, create_access_token, decode
 app = FastAPI(
     title="Samar ID — The Sovereign Identity System",
     description="Samar OS ekotizimining eng ilg'or, xavfsiz va mustaqil shaxsiy autentifikatsiya xizmati.",
-    version="3.0.0"
+    version="3.1.0"
 )
 
 app.add_middleware(
@@ -35,8 +35,6 @@ app.add_middleware(
 
 security_scheme = HTTPBearer()
 
-# Vaqtinchalik xotira kapcha va OTP lar uchun
-ACTIVE_CAPTCHAS = {}
 ACTIVE_GUARDIAN_OTPS = {}
 
 @app.on_event("startup")
@@ -106,47 +104,22 @@ def get_current_user_and_jti(credentials: HTTPAuthorizationCredentials = Depends
         user_dict["security_freeze_until"] = str(user_dict["security_freeze_until"])
     return user_dict
 
-# ----------------- 1. STATUS & CAPTCHA -----------------
 @app.get("/api/status")
 def get_status():
     db_type = "SQLite (Local)" if is_sqlite else "PostgreSQL (Neon Cloud)"
     return {
         "service": "Samar ID Core",
         "status": "online",
-        "version": "3.0.0",
-        "design": "Apple macOS Minimalist",
+        "version": "3.1.0",
+        "design": "Apple macOS Ultra-Refined",
         "logo": "Crystal Citadel 3D Monolith",
         "database": db_type,
-        "features": ["Captcha Shield", "QR Instant Login", "Guardian Social Recovery", "10-Day Freeze", "Persistent Avatar"],
+        "features": ["QR Instant Login", "Guardian Social Recovery", "10-Day Freeze", "Persistent Avatar"],
         "ecosystem": "Samar OS",
         "domain_format": "@samar.os"
     }
 
-@app.get("/api/auth/captcha")
-def generate_captcha():
-    a = random.randint(3, 19)
-    b = random.randint(2, 15)
-    ans = a + b
-    cid = str(uuid.uuid4())
-    ACTIVE_CAPTCHAS[cid] = ans
-    return {
-        "captcha_id": cid,
-        "question": f"{a} + {b} = ?"
-    }
-
-def verify_captcha_internal(cid: Optional[str], ans: Optional[str]):
-    if not cid or not ans:
-        return True # Dastlabki sinov uchun majburiy to'xtatmaydi
-    expected = ACTIVE_CAPTCHAS.get(cid)
-    if expected is not None:
-        del ACTIVE_CAPTCHAS[cid]
-        try:
-            return int(ans.strip()) == expected
-        except Exception:
-            return False
-    return False
-
-# ----------------- 2. AUTHENTICATION -----------------
+# ----------------- AUTHENTICATION -----------------
 @app.post("/api/auth/register", response_model=TokenResponse)
 def register(user_data: UserRegister, request: Request):
     samar_id_final = normalize_samar_id(user_data.samar_id)
@@ -183,8 +156,6 @@ def register(user_data: UserRegister, request: Request):
             text("INSERT INTO sessions (user_id, token_jti, device_name, ip_address) VALUES (:uid, :jti, :dev, :ip)"),
             {"uid": user_id, "jti": jti, "dev": device_name, "ip": ip}
         )
-        
-        # Xush kelibsiz bildirishnomasi
         conn.execute(
             text("INSERT INTO notifications (user_id, from_user, title, message, type) VALUES (:uid, 'Samar OS', 'Samar ID ga xush kelibsiz!', 'Sizning shaxsiy raqamli pasportingiz faollashtirildi. The future is now.', 'system')"),
             {"uid": user_id}
@@ -248,7 +219,7 @@ def login(login_data: UserLogin, request: Request):
 def get_me(current: dict = Depends(get_current_user_and_jti)):
     return current
 
-# ----------------- 3. QR LOGIN (INSTANT DESKTOP LOGIN) -----------------
+# ----------------- QR LOGIN -----------------
 @app.post("/api/auth/qr/generate")
 def generate_qr():
     qr_token = "samar_qr_" + str(uuid.uuid4())
@@ -286,19 +257,11 @@ def check_qr_status(qr_token: str):
             }
         return {"status": row["status"]}
 
-@app.post("/api/auth/qr/approve")
-def approve_qr(qr_token: str, current: dict = Depends(get_current_user_and_jti)):
-    with engine.connect() as conn:
-        conn.execute(text("UPDATE qr_logins SET status = 'approved', user_id = :uid WHERE qr_token = :tok"), {"uid": current["id"], "tok": qr_token})
-        conn.commit()
-    return {"message": "QR kirish tasdiqlandi!"}
-
-# ----------------- 4. GUARDIAN (DO'ST ORQALI TIKLASH & 10 KUNLIK MUZLATISH) -----------------
+# ----------------- GUARDIAN (DO'ST ORQALI TIKLASH) -----------------
 @app.post("/api/auth/guardian/set")
 def set_guardian(data: GuardianSet, current: dict = Depends(get_current_user_and_jti)):
     guardian_final = normalize_samar_id(data.guardian_samar_id)
     with engine.connect() as conn:
-        # Do'st mavjudligini tekshirish
         guardian = conn.execute(text("SELECT id FROM users WHERE samar_id = :gid"), {"gid": guardian_final}).mappings().first()
         if not guardian:
             raise HTTPException(status_code=404, detail="Bunday Samar ID li do'st topilmadi.")
@@ -306,8 +269,6 @@ def set_guardian(data: GuardianSet, current: dict = Depends(get_current_user_and
             raise HTTPException(status_code=400, detail="O'zingizni vasiy qilib belgilay olmaysiz.")
             
         conn.execute(text("UPDATE users SET guardian_id = :gid WHERE id = :uid"), {"gid": guardian_final, "uid": current["id"]})
-        
-        # Do'stiga xabarnoma yuborish
         conn.execute(
             text("INSERT INTO notifications (user_id, from_user, title, message, type) VALUES (:uid, :from_u, 'Yangi Ishonchli Vasiylik', :msg, 'guardian')"),
             {
@@ -317,7 +278,7 @@ def set_guardian(data: GuardianSet, current: dict = Depends(get_current_user_and
             }
         )
         conn.commit()
-    return {"message": f"Ishonchli do'stingiz ({guardian_final}) muvaffaqiyatli biriktirildi!"}
+    return {"message": f"Ishonchli do'stingiz ({guardian_final}) muvaffaqiyatli saqlandi!"}
 
 @app.post("/api/auth/guardian/request-otp")
 def request_guardian_otp(data: GuardianRequestOtp):
@@ -331,11 +292,9 @@ def request_guardian_otp(data: GuardianRequestOtp):
         if not guardian_row:
             raise HTTPException(status_code=400, detail="Vasiy akkaunti topilmadi.")
             
-        # 6 xonali bir martalik kod
         otp = str(random.randint(100000, 999999))
         ACTIVE_GUARDIAN_OTPS[target_id] = otp
         
-        # Do'stining pochtasi/inboxiga xat yuborish
         conn.execute(
             text("""
                 INSERT INTO notifications (user_id, from_user, title, message, type, action_data)
@@ -351,7 +310,7 @@ def request_guardian_otp(data: GuardianRequestOtp):
         conn.commit()
         
     return {
-        "message": f"So'rov do'stingiz ({user_row['guardian_id']}) Samar ID siga yuborildi. Undan 6 xonali bir martalik kodni oling!"
+        "message": f"So'rov do'stingiz ({user_row['guardian_id']}) Samar ID siga yuborildi. Undan 6 xonali kodni oling!"
     }
 
 @app.post("/api/auth/guardian/verify-otp", response_model=TokenResponse)
@@ -363,8 +322,6 @@ def verify_guardian_otp(data: GuardianVerifyOtp, request: Request):
         raise HTTPException(status_code=400, detail="Noto'g'ri yoki eskirgan bir martalik kod.")
         
     del ACTIVE_GUARDIAN_OTPS[target_id]
-    
-    # 10 KUNLIK XAVFSIZLIK MUZLATMASI BELGILASH
     freeze_until = datetime.now(timezone.utc) + timedelta(days=10)
     
     with engine.connect() as conn:
@@ -396,7 +353,7 @@ def verify_guardian_otp(data: GuardianVerifyOtp, request: Request):
         "user": user_dict
     }
 
-# ----------------- 5. INBOX & NOTIFICATIONS -----------------
+# ----------------- INBOX & NOTIFICATIONS -----------------
 @app.get("/api/notifications", response_model=List[NotificationItem])
 def get_notifications(current: dict = Depends(get_current_user_and_jti)):
     with engine.connect() as conn:
@@ -419,14 +376,13 @@ def get_notifications(current: dict = Depends(get_current_user_and_jti)):
         })
     return result
 
-# ----------------- 6. PROFIL & XAVFSIZLIK (10 KUNLIK MUZLATMA BILAN) -----------------
+# ----------------- PROFIL & XAVFSIZLIK -----------------
 @app.put("/api/auth/profile", response_model=UserResponse)
 def update_profile(data: ProfileUpdate, current: dict = Depends(get_current_user_and_jti)):
-    # 10 kunlik muzlatma tekshiruvi
     if current.get("security_freeze_until"):
         freeze_dt = datetime.fromisoformat(current["security_freeze_until"].replace("Z", "+00:00"))
         if freeze_dt > datetime.now(timezone.utc):
-            raise HTTPException(status_code=403, detail="Xavfsizlik muzlatmasi faol! Akkaunt bir martalik kod bilan tiklanganligi sababli ma'lumotlarni o'zgartirish 10 kunga to'xtatilgan.")
+            raise HTTPException(status_code=403, detail="Xavfsizlik muzlatmasi faol! Akkaunt 1 martalik kod bilan tiklanganligi sababli ma'lumotlarni o'zgartirish 10 kunga to'xtatilgan.")
 
     with engine.connect() as conn:
         updates = []
@@ -549,7 +505,7 @@ def logout(current: dict = Depends(get_current_user_and_jti)):
             {"jti": current["current_jti"]}
         )
         conn.commit()
-    return {"message": "Tizimdan muvaffaqiyatli chiqildi."}
+    return {"message": "Chiqildi."}
 
 @app.get("/api/auth/export-data")
 def export_data(current: dict = Depends(get_current_user_and_jti)):
