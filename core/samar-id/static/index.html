@@ -40,33 +40,34 @@
             color: var(--text-primary);
             min-height: 100vh;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
-            padding: 30px 16px;
+            align-items: center;
+            padding: 20px 16px;
             background-image: 
                 radial-gradient(circle at 50% 0%, rgba(10, 132, 255, 0.14) 0%, transparent 60%),
                 radial-gradient(circle at 100% 100%, rgba(94, 92, 230, 0.09) 0%, transparent 50%),
                 radial-gradient(circle at 0% 100%, rgba(10, 132, 255, 0.06) 0%, transparent 40%);
             background-attachment: fixed;
-            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         /* Apple Window Container */
         .macos-window {
             width: 100%;
-            max-width: 980px;
-            min-height: 620px;
+            max-width: 940px;
+            margin: auto;
             background: var(--bg-window);
             backdrop-filter: blur(50px);
             -webkit-backdrop-filter: blur(50px);
             border: 1px solid var(--border);
             border-radius: var(--radius-window);
-            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.06);
+            box-shadow: 0 30px 90px -15px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.06);
             overflow: hidden;
             display: flex;
             flex-direction: column;
             position: relative;
-            transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .window-fade-out {
@@ -76,8 +77,8 @@
 
         /* Titlebar */
         .titlebar {
-            height: 48px;
-            padding: 0 20px;
+            height: 44px;
+            padding: 0 18px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -88,15 +89,14 @@
 
         .traffic-lights {
             display: flex;
-            gap: 8px;
+            gap: 7px;
         }
 
         .traffic-dot {
-            width: 12px;
-            height: 12px;
+            width: 11px;
+            height: 11px;
             border-radius: 50%;
             display: inline-block;
-            transition: opacity 0.2s;
         }
         .dot-close { background: #ff5f56; }
         .dot-min { background: #ffbd2e; }
@@ -105,20 +105,20 @@
         .titlebar-center {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .titlebar-logo {
-            width: 22px;
-            height: 22px;
-            border-radius: 6px;
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
             object-fit: cover;
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 2px 6px rgba(0,0,0,0.4);
         }
 
         .titlebar-text {
-            font-size: 13px;
+            font-size: 12.5px;
             font-weight: 600;
             color: var(--text-secondary);
             letter-spacing: -0.2px;
@@ -135,8 +135,8 @@
         }
 
         .status-pulse {
-            width: 7px;
-            height: 7px;
+            width: 6px;
+            height: 6px;
             background: var(--status-green);
             border-radius: 50%;
             box-shadow: 0 0 8px var(--status-green);
@@ -150,12 +150,12 @@
 
         /* ----------------- AUTHENTICATION VIEW ----------------- */
         .auth-view {
-            padding: 44px 24px;
-            max-width: 440px;
+            padding: 30px 24px 34px;
+            max-width: 420px;
             margin: auto;
             width: 100%;
             text-align: center;
-            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         @keyframes fadeIn {
@@ -841,14 +841,9 @@
                 </button>
             </form>
 
-            <!-- Recovery & Quick Access Drawer (Parolni unutdingizmi? bosilganda ochiladi) -->
-            <div id="recoverySheet" class="recovery-sheet" style="display: none;">
-                <div class="recovery-header">
-                    <span class="recovery-title">Kirish yoki Hisobni Tiklash</span>
-                    <button type="button" class="btn-link-subtle" onclick="toggleRecoverySheet(false)">Yopish ✕</button>
-                </div>
-
-                <div class="recovery-options-grid">
+            <!-- Recovery View: replaces authForm when "Parolni unutdingizmi?" is clicked -->
+            <div id="recoverySheet" style="display: none; animation: fadeIn 0.25s ease;">
+                <div class="recovery-options-grid" style="margin-bottom: 14px;">
                     <button type="button" class="recovery-opt-btn active" id="btnOptGuardian" onclick="switchRecoverySubTab('guardian')">
                         🛡️ Do'st orqali
                     </button>
@@ -858,20 +853,20 @@
                 </div>
 
                 <!-- Sub-tab 1: Samar Guardian (Do'st orqali tiklash) -->
-                <div id="guardianSubView">
-                    <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px;">
-                        Ishonchli do'stingizga 1 martalik tasdiqlash kodi yuboriladi. U bergan kod orqali parolsiz kirishingiz mumkin.
+                <div id="guardianSubView" style="text-align: left;">
+                    <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">
+                        Ishonchli do'stingizga 1 martalik tasdiqlash kodi yuboriladi. U bergan kod orqali hisobingizga kirishingiz mumkin.
                     </p>
                     <div class="form-row">
                         <label>Sizning Samar ID</label>
                         <input type="text" class="input-apple" id="recTargetSamarId" placeholder="masalan: samar@samar.os">
                     </div>
-                    <button type="button" class="btn-apple-secondary" id="btnRequestOtp" style="margin-bottom: 12px;" onclick="requestGuardianOTP()">
+                    <button type="button" class="btn-apple-primary" id="btnRequestOtp" style="margin-bottom: 8px;" onclick="requestGuardianOTP()">
                         <span id="otpBtnSpinner" class="spinner" style="display: none;"></span>
                         <span id="otpBtnText">Do'stga So'rov Yuborish</span>
                     </button>
 
-                    <div id="otpInputArea" style="display: none; border-top: 1px solid var(--border); padding-top: 14px;">
+                    <div id="otpInputArea" style="display: none; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 10px;">
                         <div class="form-row">
                             <label>Do'stingiz bergan 6 xonali kod</label>
                             <input type="text" class="input-apple" id="recOtpCode" placeholder="Masalan: 489210" maxlength="6" style="text-align: center; font-size: 18px; letter-spacing: 4px;">
@@ -888,17 +883,22 @@
 
                 <!-- Sub-tab 2: QR Kod bilan tezkor kirish -->
                 <div id="qrSubView" style="display: none; text-align: center;">
-                    <div style="background: white; width: 170px; height: 170px; border-radius: 14px; margin: 0 auto 12px; padding: 10px; display: flex; align-items: center; justify-content: center;" id="qrCanvasBox">
+                    <div style="background: white; width: 140px; height: 140px; border-radius: 14px; margin: 0 auto 10px; padding: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(0,0,0,0.4);" id="qrCanvasBox">
                         <div style="font-size: 12px; color: #555;">QR yuklanmoqda...</div>
                     </div>
-                    <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">
+                    <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4; margin-bottom: 10px;">
                         Telefoningizdagi Samar ID ilovasi orqali skanerlang.
                     </p>
-                    <button type="button" class="btn-apple-secondary" onclick="initQRLogin()">
+                    <button type="button" class="btn-apple-secondary" style="max-width: 140px; margin: 0 auto 8px;" onclick="initQRLogin()">
                         <span>↻ Yangilash</span>
                     </button>
                 </div>
 
+                <div style="margin-top: 14px; text-align: center;">
+                    <button type="button" class="btn-link-subtle" onclick="showStandardLogin()">
+                        ← Parol bilan kirishga qaytish
+                    </button>
+                </div>
             </div>
 
         </div>
@@ -1144,17 +1144,25 @@
             }
         }
 
-        // Recovery Drawer Toggle
+        // Recovery View Toggle & Switcher
+        function showStandardLogin() {
+            document.getElementById('authForm').style.display = 'block';
+            document.getElementById('recoverySheet').style.display = 'none';
+            if (qrPollInterval) clearInterval(qrPollInterval);
+        }
+
+        function showRecoverySheet() {
+            document.getElementById('authForm').style.display = 'none';
+            document.getElementById('recoverySheet').style.display = 'block';
+            document.getElementById('authAlert').style.display = 'none';
+            switchRecoverySubTab('guardian');
+        }
+
         function toggleRecoverySheet(show = null) {
-            const sheet = document.getElementById('recoverySheet');
-            if (show === null) {
-                const isCurrentlyHidden = sheet.style.display === 'none';
-                sheet.style.display = isCurrentlyHidden ? 'block' : 'none';
-                if (isCurrentlyHidden) {
-                    switchRecoverySubTab('guardian');
-                }
+            if (show === false) {
+                showStandardLogin();
             } else {
-                sheet.style.display = show ? 'block' : 'none';
+                showRecoverySheet();
             }
         }
 
