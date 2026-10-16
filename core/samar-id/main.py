@@ -1,6 +1,9 @@
 import os
 import base64
-from typing import List
+import random
+import uuid
+from datetime import datetime, timedelta, timezone
+from typing import List, Optional
 from fastapi import FastAPI, HTTPException, Depends, status, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -11,14 +14,15 @@ from sqlalchemy import text
 from database import init_db, engine, is_sqlite
 from schemas import (
     UserRegister, UserLogin, UserResponse, TokenResponse,
-    ProfileUpdate, PasswordChange, SessionItem
+    ProfileUpdate, PasswordChange, SessionItem,
+    GuardianSet, GuardianRequestOtp, GuardianVerifyOtp, NotificationItem
 )
 from security import hash_password, verify_password, create_access_token, decode_access_token
 
 app = FastAPI(
-    title="Samar ID — Universal Identity Provider",
-    description="Samar OS ekotizimining to'liq va mustaqil shaxsiy autentifikatsiya xizmati.",
-    version="2.0.0"
+    title="Samar ID — The Sovereign Identity System",
+    description="Samar OS ekotizimining eng ilg'or, xavfsiz va mustaqil shaxsiy autentifikatsiya xizmati.",
+    version="3.0.0"
 )
 
 app.add_middleware(
@@ -30,6 +34,10 @@ app.add_middleware(
 )
 
 security_scheme = HTTPBearer()
+
+# Vaqtinchalik xotira kapcha va OTP lar uchun
+ACTIVE_CAPTCHAS = {}
+ACTIVE_GUARDIAN_OTPS = {}
 
 @app.on_event("startup")
 def on_startup():
@@ -82,7 +90,7 @@ def get_current_user_and_jti(credentials: HTTPAuthorizationCredentials = Depends
         
         user_row = conn.execute(
             text("""
-                SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, role, two_factor_enabled, created_at
+                SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, created_at
                 FROM users WHERE samar_id = :samar_id
             """),
             {"samar_id": samar_id}
@@ -94,22 +102,51 @@ def get_current_user_and_jti(credentials: HTTPAuthorizationCredentials = Depends
     user_dict = dict(user_row)
     user_dict["current_jti"] = jti
     user_dict["created_at"] = str(user_dict["created_at"])
+    if user_dict.get("security_freeze_until"):
+        user_dict["security_freeze_until"] = str(user_dict["security_freeze_until"])
     return user_dict
 
+# ----------------- 1. STATUS & CAPTCHA -----------------
 @app.get("/api/status")
 def get_status():
     db_type = "SQLite (Local)" if is_sqlite else "PostgreSQL (Neon Cloud)"
     return {
         "service": "Samar ID Core",
         "status": "online",
-        "version": "2.0.0",
-        "theme": "Linear Modern Dark",
+        "version": "3.0.0",
+        "design": "Apple macOS Minimalist",
+        "logo": "Crystal Citadel 3D Monolith",
         "database": db_type,
+        "features": ["Captcha Shield", "QR Instant Login", "Guardian Social Recovery", "10-Day Freeze", "Persistent Avatar"],
         "ecosystem": "Samar OS",
-        "domain_format": "@samar.os",
-        "message": "Samar ID 2.0 to'liq barqaror holatda ishlamoqda."
+        "domain_format": "@samar.os"
     }
 
+@app.get("/api/auth/captcha")
+def generate_captcha():
+    a = random.randint(3, 19)
+    b = random.randint(2, 15)
+    ans = a + b
+    cid = str(uuid.uuid4())
+    ACTIVE_CAPTCHAS[cid] = ans
+    return {
+        "captcha_id": cid,
+        "question": f"{a} + {b} = ?"
+    }
+
+def verify_captcha_internal(cid: Optional[str], ans: Optional[str]):
+    if not cid or not ans:
+        return True # Dastlabki sinov uchun majburiy to'xtatmaydi
+    expected = ACTIVE_CAPTCHAS.get(cid)
+    if expected is not None:
+        del ACTIVE_CAPTCHAS[cid]
+        try:
+            return int(ans.strip()) == expected
+        except Exception:
+            return False
+    return False
+
+# ----------------- 2. AUTHENTICATION -----------------
 @app.post("/api/auth/register", response_model=TokenResponse)
 def register(user_data: UserRegister, request: Request):
     samar_id_final = normalize_samar_id(user_data.samar_id)
@@ -121,7 +158,7 @@ def register(user_data: UserRegister, request: Request):
         ).mappings().first()
         
         if existing:
-            raise HTTPException(status_code=400, detail=f"'{samar_id_final}' identifikatori allaqachon band.")
+            raise HTTPException(status_code=400, detail=f"'{samar_id_final}' identifikatori yoki Email allaqachon band.")
         
         pwd_hash = hash_password(user_data.password)
         
@@ -146,11 +183,17 @@ def register(user_data: UserRegister, request: Request):
             text("INSERT INTO sessions (user_id, token_jti, device_name, ip_address) VALUES (:uid, :jti, :dev, :ip)"),
             {"uid": user_id, "jti": jti, "dev": device_name, "ip": ip}
         )
+        
+        # Xush kelibsiz bildirishnomasi
+        conn.execute(
+            text("INSERT INTO notifications (user_id, from_user, title, message, type) VALUES (:uid, 'Samar OS', 'Samar ID ga xush kelibsiz!', 'Sizning shaxsiy raqamli pasportingiz faollashtirildi. The future is now.', 'system')"),
+            {"uid": user_id}
+        )
         conn.commit()
         
         created_user = conn.execute(
             text("""
-                SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, role, two_factor_enabled, created_at
+                SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, created_at
                 FROM users WHERE id = :uid
             """),
             {"uid": user_id}
@@ -158,6 +201,7 @@ def register(user_data: UserRegister, request: Request):
         
         user_dict = dict(created_user)
         user_dict["created_at"] = str(user_dict["created_at"])
+        user_dict["security_freeze_until"] = str(user_dict["security_freeze_until"]) if user_dict.get("security_freeze_until") else None
         
         return {
             "access_token": token,
@@ -172,7 +216,7 @@ def login(login_data: UserLogin, request: Request):
 
     with engine.connect() as conn:
         user_row = conn.execute(
-            text("SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, role, two_factor_enabled, password_hash, created_at FROM users WHERE samar_id = :target OR email = :raw"),
+            text("SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, password_hash, created_at FROM users WHERE samar_id = :target OR email = :raw"),
             {"target": target_id, "raw": raw_input}
         ).mappings().first()
         
@@ -182,6 +226,7 @@ def login(login_data: UserLogin, request: Request):
         user_dict = dict(user_row)
         del user_dict["password_hash"]
         user_dict["created_at"] = str(user_dict["created_at"])
+        user_dict["security_freeze_until"] = str(user_dict["security_freeze_until"]) if user_dict.get("security_freeze_until") else None
         
         token, jti = create_access_token({"sub": user_dict["samar_id"], "user_id": user_dict["id"]})
         device_name, _ = parse_device_info(request.headers.get("user-agent", ""))
@@ -203,8 +248,186 @@ def login(login_data: UserLogin, request: Request):
 def get_me(current: dict = Depends(get_current_user_and_jti)):
     return current
 
+# ----------------- 3. QR LOGIN (INSTANT DESKTOP LOGIN) -----------------
+@app.post("/api/auth/qr/generate")
+def generate_qr():
+    qr_token = "samar_qr_" + str(uuid.uuid4())
+    with engine.connect() as conn:
+        conn.execute(text("INSERT INTO qr_logins (qr_token, status) VALUES (:tok, 'pending')"), {"tok": qr_token})
+        conn.commit()
+    return {"qr_token": qr_token}
+
+@app.get("/api/auth/qr/status/{qr_token}")
+def check_qr_status(qr_token: str):
+    with engine.connect() as conn:
+        row = conn.execute(text("SELECT status, user_id FROM qr_logins WHERE qr_token = :tok"), {"tok": qr_token}).mappings().first()
+        if not row:
+            raise HTTPException(status_code=404, detail="QR token topilmadi")
+        
+        if row["status"] == "approved" and row["user_id"]:
+            user_row = conn.execute(
+                text("SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, created_at FROM users WHERE id = :uid"),
+                {"uid": row["user_id"]}
+            ).mappings().first()
+            
+            user_dict = dict(user_row)
+            user_dict["created_at"] = str(user_dict["created_at"])
+            user_dict["security_freeze_until"] = str(user_dict["security_freeze_until"]) if user_dict.get("security_freeze_until") else None
+            
+            token, jti = create_access_token({"sub": user_dict["samar_id"], "user_id": user_dict["id"]})
+            conn.execute(text("INSERT INTO sessions (user_id, token_jti, device_name, ip_address) VALUES (:uid, :jti, 'QR Authenticated Device', '127.0.0.1')"), {"uid": user_dict["id"], "jti": jti})
+            conn.commit()
+            
+            return {
+                "status": "approved",
+                "access_token": token,
+                "token_type": "bearer",
+                "user": user_dict
+            }
+        return {"status": row["status"]}
+
+@app.post("/api/auth/qr/approve")
+def approve_qr(qr_token: str, current: dict = Depends(get_current_user_and_jti)):
+    with engine.connect() as conn:
+        conn.execute(text("UPDATE qr_logins SET status = 'approved', user_id = :uid WHERE qr_token = :tok"), {"uid": current["id"], "tok": qr_token})
+        conn.commit()
+    return {"message": "QR kirish tasdiqlandi!"}
+
+# ----------------- 4. GUARDIAN (DO'ST ORQALI TIKLASH & 10 KUNLIK MUZLATISH) -----------------
+@app.post("/api/auth/guardian/set")
+def set_guardian(data: GuardianSet, current: dict = Depends(get_current_user_and_jti)):
+    guardian_final = normalize_samar_id(data.guardian_samar_id)
+    with engine.connect() as conn:
+        # Do'st mavjudligini tekshirish
+        guardian = conn.execute(text("SELECT id FROM users WHERE samar_id = :gid"), {"gid": guardian_final}).mappings().first()
+        if not guardian:
+            raise HTTPException(status_code=404, detail="Bunday Samar ID li do'st topilmadi.")
+        if guardian["id"] == current["id"]:
+            raise HTTPException(status_code=400, detail="O'zingizni vasiy qilib belgilay olmaysiz.")
+            
+        conn.execute(text("UPDATE users SET guardian_id = :gid WHERE id = :uid"), {"gid": guardian_final, "uid": current["id"]})
+        
+        # Do'stiga xabarnoma yuborish
+        conn.execute(
+            text("INSERT INTO notifications (user_id, from_user, title, message, type) VALUES (:uid, :from_u, 'Yangi Ishonchli Vasiylik', :msg, 'guardian')"),
+            {
+                "uid": guardian["id"],
+                "from_u": current["samar_id"],
+                "msg": f"{current['full_name']} sizni o'zining Samar ID himoyachisi (Vasiy) qilib belgiladi."
+            }
+        )
+        conn.commit()
+    return {"message": f"Ishonchli do'stingiz ({guardian_final}) muvaffaqiyatli biriktirildi!"}
+
+@app.post("/api/auth/guardian/request-otp")
+def request_guardian_otp(data: GuardianRequestOtp):
+    target_id = normalize_samar_id(data.samar_id)
+    with engine.connect() as conn:
+        user_row = conn.execute(text("SELECT id, full_name, guardian_id FROM users WHERE samar_id = :sid"), {"sid": target_id}).mappings().first()
+        if not user_row or not user_row["guardian_id"]:
+            raise HTTPException(status_code=400, detail="Ushbu akkauntda ishonchli do'st (Guardian) belgilanmagan.")
+            
+        guardian_row = conn.execute(text("SELECT id FROM users WHERE samar_id = :gid"), {"gid": user_row["guardian_id"]}).mappings().first()
+        if not guardian_row:
+            raise HTTPException(status_code=400, detail="Vasiy akkaunti topilmadi.")
+            
+        # 6 xonali bir martalik kod
+        otp = str(random.randint(100000, 999999))
+        ACTIVE_GUARDIAN_OTPS[target_id] = otp
+        
+        # Do'stining pochtasi/inboxiga xat yuborish
+        conn.execute(
+            text("""
+                INSERT INTO notifications (user_id, from_user, title, message, type, action_data)
+                VALUES (:uid, :from_u, 'PAROL TIKLASH SO''ROVI', :msg, 'emergency', :otp)
+            """),
+            {
+                "uid": guardian_row["id"],
+                "from_u": target_id,
+                "msg": f"Do'stingiz {user_row['full_name']} parolini unutdi. Uning 1 martalik kirish kodi: {otp}. Bu kodni faqat o'ziga ayting!",
+                "otp": otp
+            }
+        )
+        conn.commit()
+        
+    return {
+        "message": f"So'rov do'stingiz ({user_row['guardian_id']}) Samar ID siga yuborildi. Undan 6 xonali bir martalik kodni oling!"
+    }
+
+@app.post("/api/auth/guardian/verify-otp", response_model=TokenResponse)
+def verify_guardian_otp(data: GuardianVerifyOtp, request: Request):
+    target_id = normalize_samar_id(data.samar_id)
+    expected_otp = ACTIVE_GUARDIAN_OTPS.get(target_id)
+    
+    if not expected_otp or expected_otp != data.otp_code.strip():
+        raise HTTPException(status_code=400, detail="Noto'g'ri yoki eskirgan bir martalik kod.")
+        
+    del ACTIVE_GUARDIAN_OTPS[target_id]
+    
+    # 10 KUNLIK XAVFSIZLIK MUZLATMASI BELGILASH
+    freeze_until = datetime.now(timezone.utc) + timedelta(days=10)
+    
+    with engine.connect() as conn:
+        conn.execute(
+            text("UPDATE users SET security_freeze_until = :freeze WHERE samar_id = :sid"),
+            {"freeze": freeze_until, "sid": target_id}
+        )
+        user_row = conn.execute(
+            text("SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, created_at FROM users WHERE samar_id = :sid"),
+            {"sid": target_id}
+        ).mappings().first()
+        
+        user_dict = dict(user_row)
+        user_dict["created_at"] = str(user_dict["created_at"])
+        user_dict["security_freeze_until"] = str(user_dict["security_freeze_until"])
+        
+        token, jti = create_access_token({"sub": user_dict["samar_id"], "user_id": user_dict["id"]})
+        device_name, _ = parse_device_info(request.headers.get("user-agent", ""))
+        
+        conn.execute(
+            text("INSERT INTO sessions (user_id, token_jti, device_name, ip_address) VALUES (:uid, :jti, :dev, '127.0.0.1')"),
+            {"uid": user_dict["id"], "jti": jti, "dev": f"{device_name} (Guardian OTP)"}
+        )
+        conn.commit()
+        
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": user_dict
+    }
+
+# ----------------- 5. INBOX & NOTIFICATIONS -----------------
+@app.get("/api/notifications", response_model=List[NotificationItem])
+def get_notifications(current: dict = Depends(get_current_user_and_jti)):
+    with engine.connect() as conn:
+        rows = conn.execute(
+            text("SELECT id, from_user, title, message, type, is_read, action_data, created_at FROM notifications WHERE user_id = :uid ORDER BY id DESC LIMIT 20"),
+            {"uid": current["id"]}
+        ).mappings().fetchall()
+        
+    result = []
+    for r in rows:
+        result.append({
+            "id": r["id"],
+            "from_user": r["from_user"],
+            "title": r["title"],
+            "message": r["message"],
+            "type": r["type"],
+            "is_read": bool(r["is_read"]),
+            "action_data": r["action_data"] or "",
+            "created_at": str(r["created_at"])[:19]
+        })
+    return result
+
+# ----------------- 6. PROFIL & XAVFSIZLIK (10 KUNLIK MUZLATMA BILAN) -----------------
 @app.put("/api/auth/profile", response_model=UserResponse)
 def update_profile(data: ProfileUpdate, current: dict = Depends(get_current_user_and_jti)):
+    # 10 kunlik muzlatma tekshiruvi
+    if current.get("security_freeze_until"):
+        freeze_dt = datetime.fromisoformat(current["security_freeze_until"].replace("Z", "+00:00"))
+        if freeze_dt > datetime.now(timezone.utc):
+            raise HTTPException(status_code=403, detail="Xavfsizlik muzlatmasi faol! Akkaunt bir martalik kod bilan tiklanganligi sababli ma'lumotlarni o'zgartirish 10 kunga to'xtatilgan.")
+
     with engine.connect() as conn:
         updates = []
         params = {"uid": current["id"]}
@@ -227,7 +450,7 @@ def update_profile(data: ProfileUpdate, current: dict = Depends(get_current_user
             
         updated = conn.execute(
             text("""
-                SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, role, two_factor_enabled, created_at
+                SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, created_at
                 FROM users WHERE id = :uid
             """),
             {"uid": current["id"]}
@@ -235,10 +458,16 @@ def update_profile(data: ProfileUpdate, current: dict = Depends(get_current_user
         
         res_dict = dict(updated)
         res_dict["created_at"] = str(res_dict["created_at"])
+        res_dict["security_freeze_until"] = str(res_dict["security_freeze_until"]) if res_dict.get("security_freeze_until") else None
         return res_dict
 
 @app.post("/api/auth/change-password")
 def change_password(data: PasswordChange, current: dict = Depends(get_current_user_and_jti)):
+    if current.get("security_freeze_until"):
+        freeze_dt = datetime.fromisoformat(current["security_freeze_until"].replace("Z", "+00:00"))
+        if freeze_dt > datetime.now(timezone.utc):
+            raise HTTPException(status_code=403, detail="Xavfsizlik muzlatmasi faol! Parolni o'zgartirish 10 kunga to'xtatilgan.")
+
     with engine.connect() as conn:
         user_row = conn.execute(text("SELECT password_hash FROM users WHERE id = :uid"), {"uid": current["id"]}).mappings().first()
         if not verify_password(data.old_password, user_row["password_hash"]):
@@ -254,7 +483,7 @@ def change_password(data: PasswordChange, current: dict = Depends(get_current_us
             {"uid": current["id"], "curr_jti": current["current_jti"]}
         )
         conn.commit()
-        return {"message": "Parol muvaffaqiyatli yangilandi. Boshqa barcha qurilmalar sessiyasi bekor qilindi."}
+        return {"message": "Parol yangilandi. Boshqa barcha qurilmalar sessiyasi bekor qilindi."}
 
 @app.post("/api/auth/upload-avatar")
 async def upload_avatar(file: UploadFile = File(...), current: dict = Depends(get_current_user_and_jti)):

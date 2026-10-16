@@ -5,7 +5,6 @@ from sqlalchemy.orm import sessionmaker
 # Neon PostgreSQL yoki lokal SQLite
 DATABASE_URL = os.getenv("DATABASE_URL", "")
 
-# SQLAlchemy 2.0 uchun psycopg2 prefiksini to'g'rilash
 if DATABASE_URL.startswith("postgresql://"):
     DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
 elif DATABASE_URL.startswith("postgres://"):
@@ -40,6 +39,8 @@ def init_db():
                 avatar_path TEXT DEFAULT '',
                 pin_code TEXT DEFAULT '',
                 two_factor_enabled BOOLEAN DEFAULT 0,
+                guardian_id TEXT DEFAULT '',              -- Ishonchli do'st
+                security_freeze_until TIMESTAMP,          -- 10 kunlik muzlatish
                 role TEXT DEFAULT 'citizen',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -59,17 +60,30 @@ def init_db():
             );
             """))
             conn.execute(text("""
-            CREATE TABLE IF NOT EXISTS ecosystem_apps (
+            CREATE TABLE IF NOT EXISTS qr_logins (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                client_id TEXT UNIQUE NOT NULL,
-                client_name TEXT NOT NULL,
-                client_secret TEXT NOT NULL,
-                redirect_uri TEXT NOT NULL,
-                app_icon TEXT,
+                qr_token TEXT UNIQUE NOT NULL,
+                status TEXT DEFAULT 'pending',          -- pending, approved, expired
+                user_id INTEGER,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
             """))
+            conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS notifications (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                from_user TEXT DEFAULT 'Samar Security',
+                title TEXT NOT NULL,
+                message TEXT NOT NULL,
+                type TEXT DEFAULT 'info',
+                is_read BOOLEAN DEFAULT 0,
+                action_data TEXT DEFAULT '',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+            );
+            """))
         else:
+            # PostgreSQL (Neon Cloud)
             conn.execute(text("""
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
@@ -83,12 +97,18 @@ def init_db():
                 avatar_path TEXT DEFAULT '',
                 pin_code VARCHAR(10) DEFAULT '',
                 two_factor_enabled BOOLEAN DEFAULT FALSE,
+                guardian_id VARCHAR(100) DEFAULT '',
+                security_freeze_until TIMESTAMP,
                 role VARCHAR(50) DEFAULT 'citizen',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 is_active BOOLEAN DEFAULT TRUE
             );
             """))
+            # Agar ustunlar avvalgi bazada yo'q bo'lsa qo'shish
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS guardian_id VARCHAR(100) DEFAULT '';"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS security_freeze_until TIMESTAMP;"))
+            
             conn.execute(text("""
             CREATE TABLE IF NOT EXISTS sessions (
                 id SERIAL PRIMARY KEY,
@@ -101,13 +121,24 @@ def init_db():
             );
             """))
             conn.execute(text("""
-            CREATE TABLE IF NOT EXISTS ecosystem_apps (
+            CREATE TABLE IF NOT EXISTS qr_logins (
                 id SERIAL PRIMARY KEY,
-                client_id VARCHAR(100) UNIQUE NOT NULL,
-                client_name VARCHAR(150) NOT NULL,
-                client_secret TEXT NOT NULL,
-                redirect_uri TEXT NOT NULL,
-                app_icon TEXT,
+                qr_token VARCHAR(100) UNIQUE NOT NULL,
+                status VARCHAR(20) DEFAULT 'pending',
+                user_id INTEGER REFERENCES users (id) ON DELETE CASCADE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            """))
+            conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS notifications (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+                from_user VARCHAR(100) DEFAULT 'Samar Security',
+                title VARCHAR(200) NOT NULL,
+                message TEXT NOT NULL,
+                type VARCHAR(50) DEFAULT 'info',
+                is_read BOOLEAN DEFAULT FALSE,
+                action_data TEXT DEFAULT '',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
             """))
