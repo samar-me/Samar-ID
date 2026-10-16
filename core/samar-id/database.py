@@ -5,9 +5,11 @@ from sqlalchemy.orm import sessionmaker
 # Neon PostgreSQL yoki lokal SQLite
 DATABASE_URL = os.getenv("DATABASE_URL", "")
 
-# Neon postgres:// bergan taqdirda SQLAlchemy postgresql:// talab qiladi
-if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+# SQLAlchemy 2.0 uchun psycopg2 prefiksini to'g'rilash
+if DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
+elif DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
 
 if not DATABASE_URL:
     DB_PATH = os.path.join(os.path.dirname(__file__), "samar_id.db")
@@ -24,7 +26,6 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def init_db():
     with engine.connect() as conn:
-        # Users jadvali
         if is_sqlite:
             conn.execute(text("""
             CREATE TABLE IF NOT EXISTS users (
@@ -69,7 +70,6 @@ def init_db():
             );
             """))
         else:
-            # PostgreSQL (Neon Cloud)
             conn.execute(text("""
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
