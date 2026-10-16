@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samar ID — Yagona Raqamli Ekotizim Kaliti</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #070a12;
+            --surface: #0f172a;
+            --surface-card: #141e33;
+            --border: #1e293b;
+            --primary: #38bdf8;
+            --primary-glow: rgba(56, 189, 248, 0.25);
+            --accent: #818cf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #34d399;
+            --danger: #f87171;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 24px 16px;
+        }
+
+        .glow-sphere {
+            position: fixed;
+            width: 550px;
+            height: 550px;
+            background: radial-gradient(circle, var(--primary-glow) 0%, rgba(0,0,0,0) 70%);
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 540px;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(24px);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 36px 32px;
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6), 0 0 50px rgba(56, 189, 248, 0.08);
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .logo-badge {
+            width: 58px;
+            height: 58px;
+            background: linear-gradient(135deg, #0284c7, #6366f1);
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 26px;
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+            margin-bottom: 12px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #090e1a;
+            padding: 4px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            margin-bottom: 22px;
+            gap: 4px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 8px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--surface-card);
+            color: var(--text-main);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper input, .input-wrapper textarea {
+            width: 100%;
+            padding: 12px 14px;
+            background: #090e1a;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-wrapper textarea {
+            min-height: 70px;
+            resize: vertical;
+        }
+
+        .input-wrapper input:focus, .input-wrapper textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+        }
+
+        .input-suffix {
+            position: absolute;
+            right: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--primary);
+            pointer-events: none;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #0284c7, #4f46e5);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 10px 20px -5px rgba(2, 132, 199, 0.4);
+            transition: opacity 0.2s;
+        }
+
+        .btn-primary:hover { opacity: 0.95; }
+
+        .btn-secondary {
+            padding: 9px 14px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: var(--text-main);
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover { background: #334155; }
+
+        .alert {
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .alert.error {
+            background: rgba(248, 113, 113, 0.12);
+            color: var(--danger);
+            border: 1px solid rgba(248, 113, 113, 0.25);
+            display: block;
+        }
+
+        .alert.success {
+            background: rgba(52, 211, 153, 0.12);
+            color: var(--success);
+            border: 1px solid rgba(52, 211, 153, 0.25);
+            display: block;
+        }
+
+        /* Identity Badge Card */
+        .id-pass-card {
+            background: linear-gradient(145deg, #131b2e, #0a0f1d);
+            border: 1px solid #27354f;
+            border-radius: 22px;
+            padding: 24px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .id-pass-card::after {
+            content: "SAMAR CITIZEN";
+            position: absolute;
+            bottom: 12px;
+            right: 18px;
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            color: rgba(255,255,255,0.15);
+            letter-spacing: 2px;
+        }
+
+        .avatar-wrap {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 14px;
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+        }
+
+        .avatar-fallback {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0284c7, #818cf8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .avatar-upload-btn {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            background: var(--surface);
+            border: 1px solid var(--primary);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .id-handle {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary);
+            font-size: 14px;
+            background: rgba(56, 189, 248, 0.12);
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            margin-top: 6px;
+        }
+
+        /* Device Session List */
+        .session-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #090e1a;
+            border: 1px solid var(--border);
+            padding: 12px 14px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        .session-info h4 {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .session-info p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .status-badge {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+        .status-badge.current { background: rgba(52, 211, 153, 0.2); color: var(--success); }
+
+        .footer-tag {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 11px;
+            color: #475569;
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glow-sphere"></div>
+
+    <div class="container">
+        
+        <!-- ================= AUTH QISMI ================= -->
+        <div id="authSection">
+            <div class="header">
+                <div class="logo-badge">S</div>
+                <h1>Samar ID</h1>
+                <p>Yagona, mustaqil va shaxsiy raqamli kalitingiz</p>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn active" id="tabLogin" onclick="switchAuthTab('login')">Kirish</button>
+                <button class="tab-btn" id="tabRegister" onclick="switchAuthTab('register')">Ro'yxatdan o'tish</button>
+            </div>
+
+            <div id="authAlert" class="alert"></div>
+
+            <form id="authForm" onsubmit="handleAuthSubmit(event)">
+                <div class="input-group" id="fullNameGroup" style="display: none;">
+                    <label>To'liq Ism</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="fullNameInput" placeholder="Masalan: Samar Rahbar">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label id="samarIdLabel">Samar ID</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="samarIdInput" placeholder="masalan: shoxrux" required>
+                        <span class="input-suffix" id="suffixHint">@samar.os</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Parol</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="passwordInput" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" id="authSubmitBtn">Ekotizimga Kirish</button>
+            </form>
+        </div>
+
+        <!-- ================= PROFIL & DASHBOARD QISMI ================= -->
+        <div id="dashboardSection" style="display: none;">
+            <div class="header" style="margin-bottom: 16px;">
+                <h1 id="dashGreeting">Xush kelibsiz!</h1>
+                <p>Samar OS Ekotizim Boshqaruvi</p>
+            </div>
+
+            <!-- Dashboard Ichki Tablari -->
+            <div class="tabs">
+                <button class="tab-btn active" id="tabDashPass" onclick="switchDashTab('pass')">ID Pass</button>
+                <button class="tab-btn" id="tabDashProfile" onclick="switchDashTab('profile')">Profil</button>
+                <button class="tab-btn" id="tabDashSecurity" onclick="switchDashTab('security')">Qurilmalar</button>
+                <button class="tab-btn" id="tabDashData" onclick="switchDashTab('data')">Ma'lumot</button>
+            </div>
+
+            <div id="dashAlert" class="alert"></div>
+
+            <!-- 1. TAB: ID PASS CARD -->
+            <div id="viewPass">
+                <div class="id-pass-card" style="text-align: center;">
+                    <div class="avatar-wrap">
+                        <img id="passAvatarImg" class="avatar-img" src="" style="display: none;">
+                        <div id="passAvatarFallback" class="avatar-fallback">S</div>
+                        <label class="avatar-upload-btn" title="Rasmni o'zgartirish">
+                            📷
+                            <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="handleAvatarUpload(event)">
+                        </label>
+                    </div>
+
+                    <h2 id="passFullName" style="font-size: 19px; font-weight: 700;">Samar Foydalanuvchi</h2>
+                    <div class="id-handle" id="passSamarId">user@samar.os</div>
+                    <div id="passSpecialty" style="font-size: 12px; color: var(--accent); margin-top: 6px; font-weight: 600;">Ekotizim Me'mori</div>
+                    <p id="passBio" style="font-size: 12px; color: var(--text-muted); margin-top: 10px; font-style: italic;">"Shaxsiy raqamli erkinlik poydevori."</p>
+                    
+                    <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-around; font-size: 11px;">
+                        <div>Roli: <b id="passRole" style="color: var(--primary);">Citizen</b></div>
+                        <div>Xavfsizlik: <b style="color: var(--success);">Shifrlangan</b></div>
+                    </div>
+                </div>
+
+                <button class="btn-primary" style="background: #1e293b; box-shadow: none;" onclick="logout()">Ekotizimdan Chiqish</button>
+            </div>
+
+            <!-- 2. TAB: PROFILNI TAHRIRLASH -->
+            <div id="viewProfile" style="display: none;">
+                <form onsubmit="handleProfileUpdate(event)">
+                    <div class="input-group">
+                        <label>To'liq Ism</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="editFullName">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Kasb / Mutaxassislik</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="editSpecialty" placeholder="Masalan: Tizimli Dasturchi, Me'mor">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Telefon Raqam</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="editPhone" placeholder="+998 90 123 45 67">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Bio (Shaxsiy Maqsad / Qayd)</label>
+                        <div class="input-wrapper">
+                            <textarea id="editBio" placeholder="O'zingiz haqingizda qisqacha..."></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary">Profilni Saqlash</button>
+                </form>
+            </div>
+
+            <!-- 3. TAB: XAVFSIZLIK VA QURILMALAR -->
+            <div id="viewSecurity" style="display: none;">
+                <div style="margin-bottom: 20px;">
+                    <h3 style="font-size: 14px; margin-bottom: 10px; color: var(--primary);">Faol Qurilmalar (Sessions)</h3>
+                    <div id="sessionsList">Yuklanmoqda...</div>
+                </div>
+
+                <div style="border-top: 1px solid var(--border); padding-top: 18px;">
+                    <h3 style="font-size: 14px; margin-bottom: 12px; color: var(--danger);">Parolni Yangilash</h3>
+                    <form onsubmit="handlePasswordChange(event)">
+                        <div class="input-group">
+                            <label>Hozirgi Parol</label>
+                            <div class="input-wrapper">
+                                <input type="password" id="oldPasswordInput" required>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label>Yangi Parol</label>
+                            <div class="input-wrapper">
+                                <input type="password" id="newPasswordInput" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-secondary" style="width: 100%; border-color: var(--danger); color: var(--danger);">Yangi Parolni Saqlash</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 4. TAB: MA'LUMOTLAR VA EKSPORT -->
+            <div id="viewData" style="display: none;">
+                <div style="background: #090e1a; border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 18px;">
+                    <h3 style="font-size: 14px; color: var(--primary); margin-bottom: 6px;">Raqamli Mustaqillik (Data Sovereignty)</h3>
+                    <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+                        Samar OS'da sizning ma'lumotlaringiz hech qachon begonalarga sotilmaydi va doim o'zingizning mulkingiz hisoblanadi. Istalgan vaqtda barcha ma'lumotlaringizni to'liq eksport qilib olishingiz mumkin.
+                    </p>
+                </div>
+                <button class="btn-primary" onclick="exportUserData()">📥 Barcha Ma'lumotlarimni Yuklab Olish (JSON)</button>
+            </div>
+
+        </div>
+
+        <div class="footer-tag">
+            SAMAR OS • SOVEREIGN TECH 2026
+        </div>
+    </div>
+
+    <script>
+        let currentAuthTab = 'login';
+        let currentUser = null;
+
+        function showMsg(boxId, msg, isSuccess=false) {
+            const b = document.getElementById(boxId);
+            b.className = 'alert ' + (isSuccess ? 'success' : 'error');
+            b.innerText = msg;
+            b.style.display = 'block';
+        }
+
+        function switchAuthTab(tab) {
+            currentAuthTab = tab;
+            document.getElementById('authAlert').style.display = 'none';
+            if (tab === 'login') {
+                document.getElementById('tabLogin').classList.add('active');
+                document.getElementById('tabRegister').classList.remove('active');
+                document.getElementById('fullNameGroup').style.display = 'none';
+                document.getElementById('samarIdLabel').innerText = 'Samar ID yoki Email';
+                document.getElementById('suffixHint').style.display = 'none';
+                document.getElementById('authSubmitBtn').innerText = 'Ekotizimga Kirish';
+            } else {
+                document.getElementById('tabRegister').classList.add('active');
+                document.getElementById('tabLogin').classList.remove('active');
+                document.getElementById('fullNameGroup').style.display = 'block';
+                document.getElementById('samarIdLabel').innerText = 'Yangi Samar ID';
+                document.getElementById('suffixHint').style.display = 'block';
+                document.getElementById('authSubmitBtn').innerText = 'Samar ID Yaratish';
+            }
+        }
+
+        function switchDashTab(tab) {
+            ['pass', 'profile', 'security', 'data'].forEach(t => {
+                document.getElementById('tabDash' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
+                document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1)).style.display = (t === tab ? 'block' : 'none');
+            });
+            document.getElementById('dashAlert').style.display = 'none';
+            if (tab === 'security') loadSessions();
+        }
+
+        async function handleAuthSubmit(e) {
+            e.preventDefault();
+            const samarId = document.getElementById('samarIdInput').value;
+            const password = document.getElementById('passwordInput').value;
+            const fullName = document.getElementById('fullNameInput').value;
+
+            try {
+                const endpoint = currentAuthTab === 'login' ? '/api/auth/login' : '/api/auth/register';
+                const body = currentAuthTab === 'login' 
+                    ? { samar_id_or_email: samarId, password }
+                    : { samar_id: samarId, full_name: fullName, password };
+
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Xatolik yuz berdi');
+
+                localStorage.setItem('samar_token', data.access_token);
+                loadDashboard(data.user);
+            } catch (err) {
+                showMsg('authAlert', err.message);
+            }
+        }
+
+        function loadDashboard(user) {
+            currentUser = user;
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'block';
+
+            document.getElementById('dashGreeting').innerText = user.full_name;
+            document.getElementById('passFullName').innerText = user.full_name;
+            document.getElementById('passSamarId').innerText = user.samar_id;
+            document.getElementById('passSpecialty').innerText = user.specialty || 'Ekotizim Foydalanuvchisi';
+            document.getElementById('passBio').innerText = user.bio ? `"${user.bio}"` : '"Samar OS toza va erkin raqamli makon."';
+            document.getElementById('passRole').innerText = user.role.toUpperCase();
+
+            // Avatar
+            if (user.avatar_path) {
+                document.getElementById('passAvatarImg').src = user.avatar_path;
+                document.getElementById('passAvatarImg').style.display = 'block';
+                document.getElementById('passAvatarFallback').style.display = 'none';
+            } else {
+                document.getElementById('passAvatarFallback').innerText = user.full_name.charAt(0).toUpperCase();
+                document.getElementById('passAvatarFallback').style.display = 'flex';
+                document.getElementById('passAvatarImg').style.display = 'none';
+            }
+
+            // Edit Inputs
+            document.getElementById('editFullName').value = user.full_name || '';
+            document.getElementById('editSpecialty').value = user.specialty || '';
+            document.getElementById('editPhone').value = user.phone || '';
+            document.getElementById('editBio').value = user.bio || '';
+        }
+
+        async function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const token = localStorage.getItem('samar_token');
+                const res = await fetch('/api/auth/upload-avatar', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token },
+                    body: formData
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail);
+
+                document.getElementById('passAvatarImg').src = data.avatar_url;
+                document.getElementById('passAvatarImg').style.display = 'block';
+                document.getElementById('passAvatarFallback').style.display = 'none';
+                showMsg('dashAlert', 'Avatar muvaffaqiyatli yangilandi!', true);
+            } catch (err) {
+                showMsg('dashAlert', err.message);
+            }
+        }
+
+        async function handleProfileUpdate(e) {
+            e.preventDefault();
+            const token = localStorage.getItem('samar_token');
+            try {
+                const res = await fetch('/api/auth/profile', {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token 
+                    },
+                    body: JSON.stringify({
+                        full_name: document.getElementById('editFullName').value,
+                        specialty: document.getElementById('editSpecialty').value,
+                        phone: document.getElementById('editPhone').value,
+                        bio: document.getElementById('editBio').value
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail);
+                loadDashboard(data);
+                showMsg('dashAlert', "Profil muvaffaqiyatli saqlandi!", true);
+                switchDashTab('pass');
+            } catch (err) {
+                showMsg('dashAlert', err.message);
+            }
+        }
+
+        async function loadSessions() {
+            const token = localStorage.getItem('samar_token');
+            const container = document.getElementById('sessionsList');
+            try {
+                const res = await fetch('/api/auth/sessions', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const list = await res.json();
+                container.innerHTML = list.map(s => `
+                    <div class="session-item">
+                        <div class="session-info">
+                            <h4>${s.device_name} ${s.is_current ? '<span class="status-badge current">Hozirgi</span>' : ''}</h4>
+                            <p>IP: ${s.ip_address || '127.0.0.1'} • Faollik: ${s.last_active}</p>
+                        </div>
+                        ${!s.is_current ? `<button class="btn-secondary" onclick="revokeSession(${s.id})">Bekor qilish</button>` : ''}
+                    </div>
+                `).join('');
+            } catch (_) {
+                container.innerText = "Sessiyalarni yuklab bo'lmadi.";
+            }
+        }
+
+        async function revokeSession(id) {
+            const token = localStorage.getItem('samar_token');
+            await fetch('/api/auth/sessions/' + id, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            loadSessions();
+        }
+
+        async function handlePasswordChange(e) {
+            e.preventDefault();
+            const token = localStorage.getItem('samar_token');
+            try {
+                const res = await fetch('/api/auth/change-password', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token 
+                    },
+                    body: JSON.stringify({
+                        old_password: document.getElementById('oldPasswordInput').value,
+                        new_password: document.getElementById('newPasswordInput').value
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail);
+                showMsg('dashAlert', data.message, true);
+                document.getElementById('oldPasswordInput').value = '';
+                document.getElementById('newPasswordInput').value = '';
+            } catch (err) {
+                showMsg('dashAlert', err.message);
+            }
+        }
+
+        async function exportUserData() {
+            const token = localStorage.getItem('samar_token');
+            try {
+                const res = await fetch('/api/auth/export-data', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `samar_id_export_${currentUser.samar_id}.json`;
+                a.click();
+            } catch (err) {
+                alert("Eksport qilishda xatolik yuz berdi");
+            }
+        }
+
+        async function logout() {
+            const token = localStorage.getItem('samar_token');
+            if (token) {
+                try {
+                    await fetch('/api/auth/logout', {
+                        method: 'POST',
+                        headers: { 'Authorization': 'Bearer ' + token }
+                    });
+                } catch (_) {}
+            }
+            localStorage.removeItem('samar_token');
+            currentUser = null;
+            document.getElementById('authSection').style.display = 'block';
+            document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('passwordInput').value = '';
+        }
+
+        // Sessiya tekshiruvi
+        async function checkCurrentSession() {
+            const token = localStorage.getItem('samar_token');
+            if (token) {
+                try {
+                    const res = await fetch('/api/auth/me', {
+                        headers: { 'Authorization': 'Bearer ' + token }
+                    });
+                    if (res.ok) {
+                        const user = await res.json();
+                        loadDashboard(user);
+                    } else {
+                        localStorage.removeItem('samar_token');
+                    }
+                } catch (_) {}
+            }
+        }
+
+        checkCurrentSession();
+    </script>
+</body>
+</html>

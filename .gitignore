@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.DS_Store
+Thumbs.db
+core/samar-id/__pycache__/
+core/samar-id/samar_id.db
+core/samar-id/uploads/avatars/*
+!core/samar-id/uploads/avatars/.gitkeep
