@@ -3,21 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Samar ID — Yagona Raqamli Ekotizim Kaliti</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Samar ID — Yagona Ekotizim Kaliti</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #070a12;
-            --surface: #0f172a;
-            --surface-card: #141e33;
-            --border: #1e293b;
+            --bg: #060911;
+            --surface: #0c1222;
+            --surface-elevated: #111a30;
+            --surface-card: #15223e;
+            --border: #1e2d4d;
+            --border-highlight: #2f4577;
             --primary: #38bdf8;
             --primary-glow: rgba(56, 189, 248, 0.25);
             --accent: #818cf8;
             --text-main: #f8fafc;
-            --text-muted: #94a3b8;
+            --text-muted: #8e9db7;
+            --text-dim: #5c6b84;
             --success: #34d399;
             --danger: #f87171;
+            --radius-lg: 24px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
         }
 
         * {
@@ -25,6 +31,7 @@
             margin: 0;
             padding: 0;
             font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
@@ -34,228 +41,248 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            padding: 24px 16px;
+            padding: 32px 16px;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.12) 0%, transparent 60%),
+                radial-gradient(circle at 80% 90%, rgba(129, 140, 248, 0.08) 0%, transparent 50%);
+            background-attachment: fixed;
         }
 
-        .glow-sphere {
-            position: fixed;
-            width: 550px;
-            height: 550px;
-            background: radial-gradient(circle, var(--primary-glow) 0%, rgba(0,0,0,0) 70%);
-            top: 10%;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .container {
+        .app-window {
             width: 100%;
-            max-width: 540px;
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(24px);
+            max-width: 580px;
+            background: rgba(12, 18, 34, 0.85);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
             border: 1px solid var(--border);
-            border-radius: 28px;
+            border-radius: var(--radius-lg);
             padding: 36px 32px;
-            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6), 0 0 50px rgba(56, 189, 248, 0.08);
+            box-shadow: 0 35px 70px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.03);
             position: relative;
-            z-index: 1;
             transition: all 0.3s ease;
         }
 
-        .header {
+        /* Top Brand Header */
+        .brand-header {
             text-align: center;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
         }
 
-        .logo-badge {
-            width: 58px;
-            height: 58px;
-            background: linear-gradient(135deg, #0284c7, #6366f1);
-            border-radius: 18px;
+        .brand-logo {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #0284c7, #4f46e5);
+            border-radius: 16px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 26px;
-            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
-            margin-bottom: 12px;
-        }
-
-        .header h1 {
             font-size: 24px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
+            box-shadow: 0 10px 25px -4px rgba(2, 132, 199, 0.45);
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .header p {
+        .brand-header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.4px;
+        }
+
+        .brand-header p {
             color: var(--text-muted);
             font-size: 13px;
             margin-top: 4px;
         }
 
-        .tabs {
+        /* Navigation Bar (macOS Segmented Control) */
+        .nav-bar {
             display: flex;
-            background: #090e1a;
-            padding: 4px;
-            border-radius: 14px;
+            background: rgba(6, 10, 18, 0.7);
+            padding: 5px;
+            border-radius: 16px;
             border: 1px solid var(--border);
-            margin-bottom: 22px;
+            margin-bottom: 24px;
             gap: 4px;
+            overflow-x: auto;
         }
 
-        .tab-btn {
+        .nav-btn {
             flex: 1;
-            padding: 10px 8px;
+            padding: 9px 12px;
             border: none;
             background: transparent;
             color: var(--text-muted);
-            font-size: 13px;
+            font-size: 12.5px;
             font-weight: 600;
-            border-radius: 10px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            text-align: center;
         }
 
-        .tab-btn.active {
+        .nav-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .nav-btn.active {
             background: var(--surface-card);
             color: var(--text-main);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(56, 189, 248, 0.2);
         }
 
-        .input-group {
-            margin-bottom: 16px;
+        /* Alert notifications */
+        .toast-alert {
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            margin-bottom: 18px;
+            display: none;
+            font-weight: 500;
+            animation: fadeIn 0.2s ease;
         }
 
-        .input-group label {
+        .toast-alert.error {
+            background: rgba(248, 113, 113, 0.12);
+            color: var(--danger);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            display: block;
+        }
+
+        .toast-alert.success {
+            background: rgba(52, 211, 153, 0.12);
+            color: var(--success);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            display: block;
+        }
+
+        /* Form Fields */
+        .form-field {
+            margin-bottom: 18px;
+        }
+
+        .form-field label {
             display: block;
             font-size: 11px;
             font-weight: 600;
             color: var(--text-muted);
             margin-bottom: 6px;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.6px;
             text-transform: uppercase;
         }
 
-        .input-wrapper {
+        .input-box {
             position: relative;
             display: flex;
             align-items: center;
         }
 
-        .input-wrapper input, .input-wrapper textarea {
+        .input-box input, .input-box textarea {
             width: 100%;
             padding: 12px 14px;
-            background: #090e1a;
+            background: rgba(6, 10, 18, 0.6);
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: var(--radius-sm);
             color: var(--text-main);
             font-size: 14px;
             outline: none;
-            transition: border-color 0.2s;
+            transition: all 0.2s;
         }
 
-        .input-wrapper textarea {
-            min-height: 70px;
+        .input-box textarea {
+            min-height: 80px;
             resize: vertical;
+            line-height: 1.5;
         }
 
-        .input-wrapper input:focus, .input-wrapper textarea:focus {
+        .input-box input:focus, .input-box textarea:focus {
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+            background: rgba(6, 10, 18, 0.9);
         }
 
-        .input-suffix {
+        .input-domain {
             position: absolute;
-            right: 12px;
+            right: 14px;
             font-family: 'JetBrains Mono', monospace;
             font-size: 12px;
             color: var(--primary);
             pointer-events: none;
-            font-weight: 500;
+            font-weight: 600;
         }
 
-        .btn-primary {
+        /* Buttons */
+        .btn-action {
             width: 100%;
             padding: 13px;
             background: linear-gradient(135deg, #0284c7, #4f46e5);
             border: none;
-            border-radius: 12px;
+            border-radius: var(--radius-sm);
             color: white;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            box-shadow: 0 10px 20px -5px rgba(2, 132, 199, 0.4);
-            transition: opacity 0.2s;
-        }
-
-        .btn-primary:hover { opacity: 0.95; }
-
-        .btn-secondary {
-            padding: 9px 14px;
-            background: #1e293b;
-            border: 1px solid #334155;
-            color: var(--text-main);
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
+            box-shadow: 0 8px 20px -4px rgba(2, 132, 199, 0.4);
             transition: all 0.2s;
         }
 
-        .btn-secondary:hover { background: #334155; }
-
-        .alert {
-            padding: 10px 14px;
-            border-radius: 10px;
-            font-size: 12px;
-            margin-bottom: 16px;
-            display: none;
+        .btn-action:hover {
+            opacity: 0.94;
+            transform: translateY(-1px);
         }
 
-        .alert.error {
-            background: rgba(248, 113, 113, 0.12);
-            color: var(--danger);
-            border: 1px solid rgba(248, 113, 113, 0.25);
-            display: block;
+        .btn-action:active {
+            transform: translateY(0);
         }
 
-        .alert.success {
-            background: rgba(52, 211, 153, 0.12);
-            color: var(--success);
-            border: 1px solid rgba(52, 211, 153, 0.25);
-            display: block;
+        .btn-ghost {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 12px;
         }
 
-        /* Identity Badge Card */
+        .btn-ghost:hover {
+            border-color: var(--border-highlight);
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* ID Pass Holographic Card */
         .id-pass-card {
-            background: linear-gradient(145deg, #131b2e, #0a0f1d);
-            border: 1px solid #27354f;
-            border-radius: 22px;
-            padding: 24px;
-            margin-bottom: 20px;
+            background: linear-gradient(145deg, #121c32, #0a0f1d);
+            border: 1px solid var(--border-highlight);
+            border-radius: 20px;
+            padding: 28px 24px;
+            margin-bottom: 22px;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+            text-align: center;
         }
 
-        .id-pass-card::after {
-            content: "SAMAR CITIZEN";
+        .id-pass-card::before {
+            content: "";
             position: absolute;
-            bottom: 12px;
-            right: 18px;
-            font-size: 10px;
-            font-family: 'JetBrains Mono', monospace;
-            color: rgba(255,255,255,0.15);
-            letter-spacing: 2px;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, #38bdf8, #818cf8, #34d399);
         }
 
-        .avatar-wrap {
+        .avatar-container {
             position: relative;
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 14px;
+            width: 88px;
+            height: 88px;
+            margin: 0 auto 16px;
         }
 
         .avatar-img {
@@ -264,251 +291,386 @@
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid var(--primary);
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+            box-shadow: 0 0 24px rgba(56, 189, 248, 0.35);
         }
 
-        .avatar-fallback {
+        .avatar-placeholder {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            background: linear-gradient(135deg, #0284c7, #818cf8);
+            background: linear-gradient(135deg, #0284c7, #6366f1);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
-            font-weight: 700;
+            font-size: 34px;
+            font-weight: 800;
+            color: white;
+            border: 2px solid var(--primary);
         }
 
-        .avatar-upload-btn {
+        .avatar-edit-badge {
             position: absolute;
-            bottom: -2px;
-            right: -2px;
-            background: var(--surface);
+            bottom: 0;
+            right: 0;
+            background: var(--surface-card);
             border: 1px solid var(--primary);
             border-radius: 50%;
-            width: 28px;
-            height: 28px;
+            width: 30px;
+            height: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 14px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            transition: transform 0.2s;
         }
 
-        .id-handle {
+        .avatar-edit-badge:hover {
+            transform: scale(1.1);
+        }
+
+        .user-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .user-handle {
             font-family: 'JetBrains Mono', monospace;
             color: var(--primary);
-            font-size: 14px;
-            background: rgba(56, 189, 248, 0.12);
+            font-size: 13.5px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.2);
             display: inline-block;
             padding: 4px 14px;
             border-radius: 20px;
-            margin-top: 6px;
+            margin-top: 8px;
+            font-weight: 500;
         }
 
-        /* Device Session List */
-        .session-item {
+        .user-specialty {
+            font-size: 12.5px;
+            color: var(--accent);
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .user-quote {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 12px;
+            font-style: italic;
+            max-width: 85%;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.5;
+        }
+
+        .pass-meta {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            justify-content: space-around;
+            font-size: 11.5px;
+        }
+
+        .pass-meta-item span {
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        /* Device Session Cards */
+        .devices-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .device-card {
+            background: rgba(6, 10, 18, 0.5);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: #090e1a;
-            border: 1px solid var(--border);
-            padding: 12px 14px;
+            transition: border-color 0.2s;
+        }
+
+        .device-card:hover {
+            border-color: var(--border-highlight);
+        }
+
+        .device-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .device-icon-box {
+            width: 42px;
+            height: 42px;
             border-radius: 12px;
-            margin-bottom: 10px;
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
         }
 
-        .session-info h4 {
-            font-size: 13px;
+        .device-info h4 {
+            font-size: 13.5px;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .session-info p {
-            font-size: 11px;
+        .active-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+            display: inline-block;
+        }
+
+        .device-info p {
+            font-size: 11.5px;
             color: var(--text-muted);
-            margin-top: 2px;
+            margin-top: 3px;
+            font-family: 'JetBrains Mono', monospace;
         }
 
-        .status-badge {
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-weight: 700;
+        .btn-revoke {
+            padding: 6px 12px;
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.25);
+            color: var(--danger);
+            border-radius: 8px;
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
         }
-        .status-badge.current { background: rgba(52, 211, 153, 0.2); color: var(--success); }
 
-        .footer-tag {
+        .btn-revoke:hover {
+            background: rgba(248, 113, 113, 0.2);
+        }
+
+        /* Footer */
+        .footer-credit {
             text-align: center;
             margin-top: 24px;
             font-size: 11px;
-            color: #475569;
+            color: var(--text-dim);
             font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
 
-    <div class="glow-sphere"></div>
-
-    <div class="container">
+    <div class="app-window">
         
-        <!-- ================= AUTH QISMI ================= -->
+        <!-- ================= KIRISH / RO'YXATDAN O'TISH ================= -->
         <div id="authSection">
-            <div class="header">
-                <div class="logo-badge">S</div>
+            <div class="brand-header">
+                <div class="brand-logo">S</div>
                 <h1>Samar ID</h1>
-                <p>Yagona, mustaqil va shaxsiy raqamli kalitingiz</p>
+                <p>Mustaqil va xavfsiz shaxsiy raqamli kalitingiz</p>
             </div>
 
-            <div class="tabs">
-                <button class="tab-btn active" id="tabLogin" onclick="switchAuthTab('login')">Kirish</button>
-                <button class="tab-btn" id="tabRegister" onclick="switchAuthTab('register')">Ro'yxatdan o'tish</button>
+            <div class="nav-bar">
+                <button class="nav-btn active" id="tabLogin" onclick="switchAuthTab('login')">Kirish</button>
+                <button class="nav-btn" id="tabRegister" onclick="switchAuthTab('register')">Yangi Samar ID</button>
             </div>
 
-            <div id="authAlert" class="alert"></div>
+            <div id="authAlert" class="toast-alert"></div>
 
             <form id="authForm" onsubmit="handleAuthSubmit(event)">
-                <div class="input-group" id="fullNameGroup" style="display: none;">
-                    <label>To'liq Ism</label>
-                    <div class="input-wrapper">
+                <div class="form-field" id="fullNameField" style="display: none;">
+                    <label>To'liq Ismingiz</label>
+                    <div class="input-box">
                         <input type="text" id="fullNameInput" placeholder="Masalan: Samar Rahbar">
                     </div>
                 </div>
 
-                <div class="input-group">
+                <div class="form-field">
                     <label id="samarIdLabel">Samar ID</label>
-                    <div class="input-wrapper">
+                    <div class="input-box">
                         <input type="text" id="samarIdInput" placeholder="masalan: shoxrux" required>
-                        <span class="input-suffix" id="suffixHint">@samar.os</span>
+                        <span class="input-domain" id="domainSuffix">@samar.os</span>
                     </div>
                 </div>
 
-                <div class="input-group">
-                    <label>Parol</label>
-                    <div class="input-wrapper">
+                <div class="form-field">
+                    <label>Maxfiy Parol</label>
+                    <div class="input-box">
                         <input type="password" id="passwordInput" placeholder="••••••••" required>
                     </div>
                 </div>
 
-                <button type="submit" class="btn-primary" id="authSubmitBtn">Ekotizimga Kirish</button>
+                <button type="submit" class="btn-action" id="authSubmitBtn">Ekotizimga Kirish</button>
             </form>
         </div>
 
-        <!-- ================= PROFIL & DASHBOARD QISMI ================= -->
+        <!-- ================= ASOSIY BOSHQARUV PANEL (DASHBOARD) ================= -->
         <div id="dashboardSection" style="display: none;">
-            <div class="header" style="margin-bottom: 16px;">
+            
+            <div class="brand-header" style="margin-bottom: 20px;">
                 <h1 id="dashGreeting">Xush kelibsiz!</h1>
                 <p>Samar OS Ekotizim Boshqaruvi</p>
             </div>
 
-            <!-- Dashboard Ichki Tablari -->
-            <div class="tabs">
-                <button class="tab-btn active" id="tabDashPass" onclick="switchDashTab('pass')">ID Pass</button>
-                <button class="tab-btn" id="tabDashProfile" onclick="switchDashTab('profile')">Profil</button>
-                <button class="tab-btn" id="tabDashSecurity" onclick="switchDashTab('security')">Qurilmalar</button>
-                <button class="tab-btn" id="tabDashData" onclick="switchDashTab('data')">Ma'lumot</button>
+            <!-- Segmented Control Tabs -->
+            <div class="nav-bar">
+                <button class="nav-btn active" id="tabPass" onclick="switchDashTab('pass')">ID Pass</button>
+                <button class="nav-btn" id="tabProfile" onclick="switchDashTab('profile')">Profil</button>
+                <button class="nav-btn" id="tabDevices" onclick="switchDashTab('devices')">Qurilmalar</button>
+                <button class="nav-btn" id="tabSecurity" onclick="switchDashTab('security')">Xavfsizlik</button>
+                <button class="nav-btn" id="tabData" onclick="switchDashTab('data')">Ma'lumot</button>
             </div>
 
-            <div id="dashAlert" class="alert"></div>
+            <div id="dashAlert" class="toast-alert"></div>
 
-            <!-- 1. TAB: ID PASS CARD -->
+            <!-- 1. ID PASS KARTASI -->
             <div id="viewPass">
-                <div class="id-pass-card" style="text-align: center;">
-                    <div class="avatar-wrap">
+                <div class="id-pass-card">
+                    <div class="avatar-container">
                         <img id="passAvatarImg" class="avatar-img" src="" style="display: none;">
-                        <div id="passAvatarFallback" class="avatar-fallback">S</div>
-                        <label class="avatar-upload-btn" title="Rasmni o'zgartirish">
+                        <div id="passAvatarFallback" class="avatar-placeholder">S</div>
+                        <label class="avatar-edit-badge" title="Rasmni yangilash">
                             📷
                             <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="handleAvatarUpload(event)">
                         </label>
                     </div>
 
-                    <h2 id="passFullName" style="font-size: 19px; font-weight: 700;">Samar Foydalanuvchi</h2>
-                    <div class="id-handle" id="passSamarId">user@samar.os</div>
-                    <div id="passSpecialty" style="font-size: 12px; color: var(--accent); margin-top: 6px; font-weight: 600;">Ekotizim Me'mori</div>
-                    <p id="passBio" style="font-size: 12px; color: var(--text-muted); margin-top: 10px; font-style: italic;">"Shaxsiy raqamli erkinlik poydevori."</p>
-                    
-                    <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-around; font-size: 11px;">
-                        <div>Roli: <b id="passRole" style="color: var(--primary);">Citizen</b></div>
-                        <div>Xavfsizlik: <b style="color: var(--success);">Shifrlangan</b></div>
+                    <h2 class="user-title" id="passFullName">Samar Rahbar</h2>
+                    <div class="user-handle" id="passSamarId">samar@samar.os</div>
+                    <div class="user-specialty" id="passSpecialty">Ekotizim Me'mori</div>
+                    <p class="user-quote" id="passBio">"Samar OS toza va erkin raqamli makon."</p>
+
+                    <div class="pass-meta">
+                        <div class="pass-meta-item">
+                            <span>Status</span>
+                            <b id="passRole" style="color: var(--primary);">CITIZEN</b>
+                        </div>
+                        <div class="pass-meta-item">
+                            <span>Himoya</span>
+                            <b style="color: var(--success);">Shifrlangan</b>
+                        </div>
+                        <div class="pass-meta-item">
+                            <span>Baza</span>
+                            <b style="color: var(--accent);">PostgreSQL</b>
+                        </div>
                     </div>
                 </div>
 
-                <button class="btn-primary" style="background: #1e293b; box-shadow: none;" onclick="logout()">Ekotizimdan Chiqish</button>
+                <button class="btn-ghost" onclick="logout()">Ekotizimdan Chiqish</button>
             </div>
 
-            <!-- 2. TAB: PROFILNI TAHRIRLASH -->
+            <!-- 2. PROFILNI TAHRIRLASH -->
             <div id="viewProfile" style="display: none;">
                 <form onsubmit="handleProfileUpdate(event)">
-                    <div class="input-group">
+                    <div class="form-field">
                         <label>To'liq Ism</label>
-                        <div class="input-wrapper">
-                            <input type="text" id="editFullName">
+                        <div class="input-box">
+                            <input type="text" id="editFullName" required>
                         </div>
                     </div>
-                    <div class="input-group">
+                    <div class="form-field">
                         <label>Kasb / Mutaxassislik</label>
-                        <div class="input-wrapper">
+                        <div class="input-box">
                             <input type="text" id="editSpecialty" placeholder="Masalan: Tizimli Dasturchi, Me'mor">
                         </div>
                     </div>
-                    <div class="input-group">
+                    <div class="form-field">
                         <label>Telefon Raqam</label>
-                        <div class="input-wrapper">
+                        <div class="input-box">
                             <input type="text" id="editPhone" placeholder="+998 90 123 45 67">
                         </div>
                     </div>
-                    <div class="input-group">
-                        <label>Bio (Shaxsiy Maqsad / Qayd)</label>
-                        <div class="input-wrapper">
-                            <textarea id="editBio" placeholder="O'zingiz haqingizda qisqacha..."></textarea>
+                    <div class="form-field">
+                        <label>Bio (Shaxsiy Qayd)</label>
+                        <div class="input-box">
+                            <textarea id="editBio" placeholder="O'zingiz haqingizda..."></textarea>
                         </div>
                     </div>
-                    <button type="submit" class="btn-primary">Profilni Saqlash</button>
+                    <button type="submit" class="btn-action">Profilni Yangilash</button>
                 </form>
             </div>
 
-            <!-- 3. TAB: XAVFSIZLIK VA QURILMALAR -->
-            <div id="viewSecurity" style="display: none;">
-                <div style="margin-bottom: 20px;">
-                    <h3 style="font-size: 14px; margin-bottom: 10px; color: var(--primary);">Faol Qurilmalar (Sessions)</h3>
-                    <div id="sessionsList">Yuklanmoqda...</div>
+            <!-- 3. QURILMALAR (SESSIONS) -->
+            <div id="viewDevices" style="display: none;">
+                <div style="margin-bottom: 16px;">
+                    <h3 style="font-size: 14px; font-weight: 700; color: var(--text-main);">Faol Qurilmalaringiz</h3>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+                        Ushbu Samar ID ga ulangan barcha kompyuter va smartfonlar ro'yxati.
+                    </p>
                 </div>
 
-                <div style="border-top: 1px solid var(--border); padding-top: 18px;">
-                    <h3 style="font-size: 14px; margin-bottom: 12px; color: var(--danger);">Parolni Yangilash</h3>
-                    <form onsubmit="handlePasswordChange(event)">
-                        <div class="input-group">
-                            <label>Hozirgi Parol</label>
-                            <div class="input-wrapper">
-                                <input type="password" id="oldPasswordInput" required>
-                            </div>
-                        </div>
-                        <div class="input-group">
-                            <label>Yangi Parol</label>
-                            <div class="input-wrapper">
-                                <input type="password" id="newPasswordInput" required>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn-secondary" style="width: 100%; border-color: var(--danger); color: var(--danger);">Yangi Parolni Saqlash</button>
-                    </form>
+                <div class="devices-wrapper" id="devicesList">
+                    <!-- Dinamik ravishda yuklanadi -->
+                    <div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 13px;">Qurilmalar yuklanmoqda...</div>
                 </div>
             </div>
 
-            <!-- 4. TAB: MA'LUMOTLAR VA EKSPORT -->
-            <div id="viewData" style="display: none;">
-                <div style="background: #090e1a; border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 18px;">
-                    <h3 style="font-size: 14px; color: var(--primary); margin-bottom: 6px;">Raqamli Mustaqillik (Data Sovereignty)</h3>
-                    <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-                        Samar OS'da sizning ma'lumotlaringiz hech qachon begonalarga sotilmaydi va doim o'zingizning mulkingiz hisoblanadi. Istalgan vaqtda barcha ma'lumotlaringizni to'liq eksport qilib olishingiz mumkin.
+            <!-- 4. XAVFSIZLIK (PAROLNI YANGILASH - ALOHIDA BO'LIM) -->
+            <div id="viewSecurity" style="display: none;">
+                <div style="margin-bottom: 18px;">
+                    <h3 style="font-size: 14px; font-weight: 700; color: var(--text-main);">Parolni Yangilash</h3>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+                        Parol o'zgarganda xavfsizlik uchun boshqa barcha qurilmalar avtomatik chiqarib yuboriladi.
                     </p>
                 </div>
-                <button class="btn-primary" onclick="exportUserData()">📥 Barcha Ma'lumotlarimni Yuklab Olish (JSON)</button>
+
+                <form onsubmit="handlePasswordChange(event)">
+                    <div class="form-field">
+                        <label>Hozirgi Parol</label>
+                        <div class="input-box">
+                            <input type="password" id="oldPasswordInput" placeholder="Eski parolingiz" required>
+                        </div>
+                    </div>
+                    <div class="form-field">
+                        <label>Yangi Parol</label>
+                        <div class="input-box">
+                            <input type="password" id="newPasswordInput" placeholder="Kamida 6 ta belgi" required>
+                        </div>
+                    </div>
+                    <div class="form-field">
+                        <label>Yangi Parolni Tasdiqlang</label>
+                        <div class="input-box">
+                            <input type="password" id="confirmPasswordInput" placeholder="Yangi parolni qaytadan kiriting" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-action" style="background: linear-gradient(135deg, #e11d48, #4f46e5);">Yangi Parolni Saqlash</button>
+                </form>
+            </div>
+
+            <!-- 5. DATA SOVEREIGNTY (MA'LUMOTLARNI YUKLASH) -->
+            <div id="viewData" style="display: none;">
+                <div style="background: rgba(6, 10, 18, 0.6); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 20px; margin-bottom: 20px;">
+                    <h3 style="font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 6px;">Raqamli Mustaqillik Kafolati</h3>
+                    <p style="font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+                        Samar OS ekotizimida siz hech qachon mahsulot emassiz. Barcha shaxsiy yozuvlar, sessiyalar va profilingiz to'liq sizning mulkingizdir.
+                    </p>
+                </div>
+                <button class="btn-action" onclick="exportUserData()">📥 Barcha Ma'lumotlarimni Yuklab Olish (JSON)</button>
             </div>
 
         </div>
 
-        <div class="footer-tag">
+        <div class="footer-credit">
             SAMAR OS • SOVEREIGN TECH 2026
         </div>
     </div>
@@ -517,11 +679,12 @@
         let currentAuthTab = 'login';
         let currentUser = null;
 
-        function showMsg(boxId, msg, isSuccess=false) {
+        function showToast(boxId, msg, isSuccess = false) {
             const b = document.getElementById(boxId);
-            b.className = 'alert ' + (isSuccess ? 'success' : 'error');
+            b.className = 'toast-alert ' + (isSuccess ? 'success' : 'error');
             b.innerText = msg;
             b.style.display = 'block';
+            setTimeout(() => { b.style.display = 'none'; }, 6000);
         }
 
         function switchAuthTab(tab) {
@@ -530,27 +693,30 @@
             if (tab === 'login') {
                 document.getElementById('tabLogin').classList.add('active');
                 document.getElementById('tabRegister').classList.remove('active');
-                document.getElementById('fullNameGroup').style.display = 'none';
-                document.getElementById('samarIdLabel').innerText = 'Samar ID yoki Email';
-                document.getElementById('suffixHint').style.display = 'none';
+                document.getElementById('fullNameField').style.display = 'none';
+                document.getElementById('samarIdLabel').innerText = 'Samar ID';
+                document.getElementById('domainSuffix').style.display = 'none';
                 document.getElementById('authSubmitBtn').innerText = 'Ekotizimga Kirish';
             } else {
                 document.getElementById('tabRegister').classList.add('active');
                 document.getElementById('tabLogin').classList.remove('active');
-                document.getElementById('fullNameGroup').style.display = 'block';
+                document.getElementById('fullNameField').style.display = 'block';
                 document.getElementById('samarIdLabel').innerText = 'Yangi Samar ID';
-                document.getElementById('suffixHint').style.display = 'block';
+                document.getElementById('domainSuffix').style.display = 'block';
                 document.getElementById('authSubmitBtn').innerText = 'Samar ID Yaratish';
             }
         }
 
         function switchDashTab(tab) {
-            ['pass', 'profile', 'security', 'data'].forEach(t => {
-                document.getElementById('tabDash' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
-                document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1)).style.display = (t === tab ? 'block' : 'none');
+            const tabs = ['pass', 'profile', 'devices', 'security', 'data'];
+            tabs.forEach(t => {
+                const btn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+                const view = document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1));
+                if (btn) btn.classList.toggle('active', t === tab);
+                if (view) view.style.display = (t === tab ? 'block' : 'none');
             });
             document.getElementById('dashAlert').style.display = 'none';
-            if (tab === 'security') loadSessions();
+            if (tab === 'devices') loadDevices();
         }
 
         async function handleAuthSubmit(e) {
@@ -576,7 +742,7 @@
                 localStorage.setItem('samar_token', data.access_token);
                 loadDashboard(data.user);
             } catch (err) {
-                showMsg('authAlert', err.message);
+                showToast('authAlert', err.message);
             }
         }
 
@@ -588,7 +754,7 @@
             document.getElementById('dashGreeting').innerText = user.full_name;
             document.getElementById('passFullName').innerText = user.full_name;
             document.getElementById('passSamarId').innerText = user.samar_id;
-            document.getElementById('passSpecialty').innerText = user.specialty || 'Ekotizim Foydalanuvchisi';
+            document.getElementById('passSpecialty').innerText = user.specialty || 'Ekotizim Me\'mori';
             document.getElementById('passBio').innerText = user.bio ? `"${user.bio}"` : '"Samar OS toza va erkin raqamli makon."';
             document.getElementById('passRole').innerText = user.role.toUpperCase();
 
@@ -630,9 +796,9 @@
                 document.getElementById('passAvatarImg').src = data.avatar_url;
                 document.getElementById('passAvatarImg').style.display = 'block';
                 document.getElementById('passAvatarFallback').style.display = 'none';
-                showMsg('dashAlert', 'Avatar muvaffaqiyatli yangilandi!', true);
+                showToast('dashAlert', 'Avatar muvaffaqiyatli yangilandi!', true);
             } catch (err) {
-                showMsg('dashAlert', err.message);
+                showToast('dashAlert', err.message);
             }
         }
 
@@ -656,46 +822,82 @@
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.detail);
                 loadDashboard(data);
-                showMsg('dashAlert', "Profil muvaffaqiyatli saqlandi!", true);
+                showToast('dashAlert', "Profil ma'lumotlari saqlandi!", true);
                 switchDashTab('pass');
             } catch (err) {
-                showMsg('dashAlert', err.message);
+                showToast('dashAlert', err.message);
             }
         }
 
-        async function loadSessions() {
+        function getDeviceIcon(name) {
+            const n = name.toLowerCase();
+            if (n.includes('windows')) return '💻';
+            if (n.includes('mac') || n.includes('apple')) return '🍎';
+            if (n.includes('android')) return '📱';
+            if (n.includes('linux')) return '🐧';
+            return '🌐';
+        }
+
+        async function loadDevices() {
             const token = localStorage.getItem('samar_token');
-            const container = document.getElementById('sessionsList');
+            const container = document.getElementById('devicesList');
             try {
                 const res = await fetch('/api/auth/sessions', {
                     headers: { 'Authorization': 'Bearer ' + token }
                 });
+                if (!res.ok) throw new Error();
                 const list = await res.json();
-                container.innerHTML = list.map(s => `
-                    <div class="session-item">
-                        <div class="session-info">
-                            <h4>${s.device_name} ${s.is_current ? '<span class="status-badge current">Hozirgi</span>' : ''}</h4>
-                            <p>IP: ${s.ip_address || '127.0.0.1'} • Faollik: ${s.last_active}</p>
+
+                if (!list || list.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 13px;">Faol qurilmalar topilmadi.</div>';
+                    return;
+                }
+
+                container.innerHTML = list.map(d => `
+                    <div class="device-card">
+                        <div class="device-left">
+                            <div class="device-icon-box">${getDeviceIcon(d.device_name)}</div>
+                            <div class="device-info">
+                                <h4>
+                                    ${d.device_name} 
+                                    ${d.is_current ? '<span class="active-dot" title="Hozirgi qurilma"></span> <span style="font-size: 11px; color: var(--success); font-weight: 600;">(Bu qurilma)</span>' : ''}
+                                </h4>
+                                <p>IP: ${d.ip_address || '127.0.0.1'} • ${d.last_active}</p>
+                            </div>
                         </div>
-                        ${!s.is_current ? `<button class="btn-secondary" onclick="revokeSession(${s.id})">Bekor qilish</button>` : ''}
+                        ${!d.is_current ? `<button class="btn-revoke" onclick="revokeDevice(${d.id})">Tizimdan chiqarish</button>` : ''}
                     </div>
                 `).join('');
-            } catch (_) {
-                container.innerText = "Sessiyalarni yuklab bo'lmadi.";
+            } catch (err) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--danger); font-size: 13px;">Qurilmalarni yuklab bo\'lmadi. Qaytadan urinib ko\'ring.</div>';
             }
         }
 
-        async function revokeSession(id) {
+        async function revokeDevice(id) {
             const token = localStorage.getItem('samar_token');
-            await fetch('/api/auth/sessions/' + id, {
-                method: 'DELETE',
-                headers: { 'Authorization': 'Bearer ' + token }
-            });
-            loadSessions();
+            try {
+                await fetch('/api/auth/sessions/' + id, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                showToast('dashAlert', 'Qurilma muvaffaqiyatli chiqarildi.', true);
+                loadDevices();
+            } catch (_) {
+                showToast('dashAlert', 'Xatolik yuz berdi.');
+            }
         }
 
         async function handlePasswordChange(e) {
             e.preventDefault();
+            const oldP = document.getElementById('oldPasswordInput').value;
+            const newP = document.getElementById('newPasswordInput').value;
+            const confirmP = document.getElementById('confirmPasswordInput').value;
+
+            if (newP !== confirmP) {
+                showToast('dashAlert', 'Yangi parollar bir-biriga mos kelmadi!');
+                return;
+            }
+
             const token = localStorage.getItem('samar_token');
             try {
                 const res = await fetch('/api/auth/change-password', {
@@ -704,18 +906,16 @@
                         'Content-Type': 'application/json',
                         'Authorization': 'Bearer ' + token 
                     },
-                    body: JSON.stringify({
-                        old_password: document.getElementById('oldPasswordInput').value,
-                        new_password: document.getElementById('newPasswordInput').value
-                    })
+                    body: JSON.stringify({ old_password: oldP, new_password: newP })
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.detail);
-                showMsg('dashAlert', data.message, true);
+                showToast('dashAlert', data.message, true);
                 document.getElementById('oldPasswordInput').value = '';
                 document.getElementById('newPasswordInput').value = '';
+                document.getElementById('confirmPasswordInput').value = '';
             } catch (err) {
-                showMsg('dashAlert', err.message);
+                showToast('dashAlert', err.message);
             }
         }
 
@@ -730,7 +930,7 @@
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `samar_id_export_${currentUser.samar_id}.json`;
+                a.download = `samar_id_${currentUser.samar_id}.json`;
                 a.click();
             } catch (err) {
                 alert("Eksport qilishda xatolik yuz berdi");
@@ -754,8 +954,8 @@
             document.getElementById('passwordInput').value = '';
         }
 
-        // Sessiya tekshiruvi
-        async function checkCurrentSession() {
+        // Sessiya tekshirish
+        async function checkSession() {
             const token = localStorage.getItem('samar_token');
             if (token) {
                 try {
@@ -772,7 +972,7 @@
             }
         }
 
-        checkCurrentSession();
+        checkSession();
     </script>
 </body>
 </html>

@@ -18,7 +18,7 @@ from security import hash_password, verify_password, create_access_token, decode
 app = FastAPI(
     title="Samar ID — Universal Identity Provider",
     description="Samar OS ekotizimining to'liq va mustaqil shaxsiy autentifikatsiya xizmati.",
-    version="1.2.0"
+    version="1.3.0"
 )
 
 app.add_middleware(
@@ -45,21 +45,21 @@ def normalize_samar_id(raw_input: str) -> str:
     name_part = cleaned.replace("@", "").split(".")[0]
     return f"{name_part}@samar.os"
 
-def parse_device_name(user_agent: str) -> str:
+def parse_device_info(user_agent: str):
     if not user_agent:
-        return "Noma'lum Qurilma"
+        return "Noma'lum Qurilma", "device"
     ua = user_agent.lower()
     if "windows" in ua:
-        return "Windows Kompyuter"
+        return "Windows Kompyuter", "windows"
     elif "android" in ua:
-        return "Android Smartfon"
+        return "Android Smartfon", "android"
     elif "iphone" in ua or "ios" in ua:
-        return "Apple iPhone"
+        return "Apple iPhone", "apple"
     elif "macintosh" in ua or "mac os" in ua:
-        return "Apple Mac"
+        return "Apple Mac", "apple"
     elif "linux" in ua:
-        return "Linux Qurilma"
-    return "Veb Qurilma"
+        return "Linux Tizimi", "linux"
+    return "Veb Brauzer", "browser"
 
 def get_current_user_and_jti(credentials: HTTPAuthorizationCredentials = Depends(security_scheme)):
     token = credentials.credentials
@@ -67,7 +67,7 @@ def get_current_user_and_jti(credentials: HTTPAuthorizationCredentials = Depends
     if not payload or "sub" not in payload or "jti" not in payload:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Noto'g'ri yoki muddati o'tgan Samar ID tokeni",
+            detail="Muddati o'tgan yoki noto'g'ri sessiya",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
@@ -81,7 +81,7 @@ def get_current_user_and_jti(credentials: HTTPAuthorizationCredentials = Depends
         ).mappings().first()
         
         if sess and sess["is_revoked"]:
-            raise HTTPException(status_code=401, detail="Ushbu sessiya bekor qilingan. Qaytadan kiring.")
+            raise HTTPException(status_code=401, detail="Ushbu sessiya bekor qilingan.")
         
         user_row = conn.execute(
             text("""
@@ -105,11 +105,11 @@ def get_status():
     return {
         "service": "Samar ID",
         "status": "online",
-        "version": "1.2.0",
+        "version": "1.3.0",
         "database": db_type,
         "ecosystem": "Samar OS",
         "domain_format": "@samar.os",
-        "message": "Samar ID xizmati to'liq quvvat bilan ishlamoqda. The future is now."
+        "message": "Samar ID to'liq barqaror holatda ishlamoqda."
     }
 
 @app.post("/api/auth/register", response_model=TokenResponse)
@@ -123,7 +123,7 @@ def register(user_data: UserRegister, request: Request):
         ).mappings().first()
         
         if existing:
-            raise HTTPException(status_code=400, detail=f"'{samar_id_final}' identifikatori yoki Email allaqachon band.")
+            raise HTTPException(status_code=400, detail=f"'{samar_id_final}' identifikatori allaqachon band.")
         
         pwd_hash = hash_password(user_data.password)
         
@@ -141,12 +141,12 @@ def register(user_data: UserRegister, request: Request):
             user_id = res.scalar()
             
         token, jti = create_access_token({"sub": samar_id_final, "user_id": user_id})
-        device = parse_device_name(request.headers.get("user-agent", ""))
+        device_name, _ = parse_device_info(request.headers.get("user-agent", ""))
         ip = request.client.host if request.client else "127.0.0.1"
         
         conn.execute(
             text("INSERT INTO sessions (user_id, token_jti, device_name, ip_address) VALUES (:uid, :jti, :dev, :ip)"),
-            {"uid": user_id, "jti": jti, "dev": device, "ip": ip}
+            {"uid": user_id, "jti": jti, "dev": device_name, "ip": ip}
         )
         conn.commit()
         
@@ -186,12 +186,12 @@ def login(login_data: UserLogin, request: Request):
         user_dict["created_at"] = str(user_dict["created_at"])
         
         token, jti = create_access_token({"sub": user_dict["samar_id"], "user_id": user_dict["id"]})
-        device = parse_device_name(request.headers.get("user-agent", ""))
+        device_name, _ = parse_device_info(request.headers.get("user-agent", ""))
         ip = request.client.host if request.client else "127.0.0.1"
         
         conn.execute(
             text("INSERT INTO sessions (user_id, token_jti, device_name, ip_address) VALUES (:uid, :jti, :dev, :ip)"),
-            {"uid": user_dict["id"], "jti": jti, "dev": device, "ip": ip}
+            {"uid": user_dict["id"], "jti": jti, "dev": device_name, "ip": ip}
         )
         conn.commit()
         
@@ -252,7 +252,7 @@ def change_password(data: PasswordChange, current: dict = Depends(get_current_us
             {"new_hash": new_hash, "uid": current["id"]}
         )
         conn.execute(
-            text("UPDATE sessions SET is_revoked = 1 WHERE user_id = :uid AND token_jti != :curr_jti"),
+            text("UPDATE sessions SET is_revoked = TRUE WHERE user_id = :uid AND token_jti != :curr_jti"),
             {"uid": current["id"], "curr_jti": current["current_jti"]}
         )
         conn.commit()
@@ -282,28 +282,32 @@ async def upload_avatar(file: UploadFile = File(...), current: dict = Depends(ge
 
 @app.get("/api/auth/sessions", response_model=List[SessionItem])
 def get_sessions(current: dict = Depends(get_current_user_and_jti)):
-    with engine.connect() as conn:
-        rows = conn.execute(
-            text("SELECT id, token_jti, device_name, ip_address, last_active, is_revoked FROM sessions WHERE user_id = :uid AND is_revoked = 0 ORDER BY id DESC"),
-            {"uid": current["id"]}
-        ).mappings().fetchall()
-        
-    result = []
-    for r in rows:
-        result.append({
-            "id": r["id"],
-            "device_name": r["device_name"],
-            "ip_address": r["ip_address"],
-            "last_active": str(r["last_active"]),
-            "is_current": (r["token_jti"] == current["current_jti"])
-        })
-    return result
+    try:
+        with engine.connect() as conn:
+            # PostgreSQL da boolean taqqoslash
+            query = "SELECT id, token_jti, device_name, ip_address, last_active, is_revoked FROM sessions WHERE user_id = :uid AND (is_revoked IS FALSE OR is_revoked = 0) ORDER BY id DESC"
+            rows = conn.execute(text(query), {"uid": current["id"]}).mappings().fetchall()
+            
+        result = []
+        for r in rows:
+            result.append({
+                "id": r["id"],
+                "device_name": r["device_name"],
+                "ip_address": r["ip_address"],
+                "last_active": str(r["last_active"])[:19] if r["last_active"] else "Hozir",
+                "is_current": (r["token_jti"] == current["current_jti"])
+            })
+        return result
+    except Exception as e:
+        print("SESSIONS_FETCH_ERROR:", e)
+        return []
 
 @app.delete("/api/auth/sessions/{session_id}")
 def revoke_session(session_id: int, current: dict = Depends(get_current_user_and_jti)):
     with engine.connect() as conn:
+        rev_val = True if not is_sqlite else 1
         conn.execute(
-            text("UPDATE sessions SET is_revoked = 1 WHERE id = :sid AND user_id = :uid"),
+            text(f"UPDATE sessions SET is_revoked = {rev_val} WHERE id = :sid AND user_id = :uid"),
             {"sid": session_id, "uid": current["id"]}
         )
         conn.commit()
@@ -312,8 +316,9 @@ def revoke_session(session_id: int, current: dict = Depends(get_current_user_and
 @app.post("/api/auth/logout")
 def logout(current: dict = Depends(get_current_user_and_jti)):
     with engine.connect() as conn:
+        rev_val = True if not is_sqlite else 1
         conn.execute(
-            text("UPDATE sessions SET is_revoked = 1 WHERE token_jti = :jti"),
+            text(f"UPDATE sessions SET is_revoked = {rev_val} WHERE token_jti = :jti"),
             {"jti": current["current_jti"]}
         )
         conn.commit()
@@ -334,11 +339,17 @@ def export_data(current: dict = Depends(get_current_user_and_jti)):
     user_data = dict(user_row)
     user_data["created_at"] = str(user_data["created_at"])
     
+    clean_sessions = []
+    for s in sessions:
+        sd = dict(s)
+        sd["last_active"] = str(sd["last_active"])
+        clean_sessions.append(sd)
+    
     return {
         "ecosystem": "Samar OS",
         "export_date": "2026-10-16",
         "user_profile": user_data,
-        "device_history": [dict(s) for s in sessions],
+        "device_history": clean_sessions,
         "sovereign_guarantee": "Ushbu ma'lumotlar faqat sizning shaxsiy mulkingiz hisoblanadi."
     }
 
