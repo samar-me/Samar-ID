@@ -1,14 +1,14 @@
 import os
 import shutil
-import sqlite3
 from typing import List
 from fastapi import FastAPI, HTTPException, Depends, status, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlalchemy import text
 
-from database import init_db, get_db
+from database import init_db, engine, is_sqlite
 from schemas import (
     UserRegister, UserLogin, UserResponse, TokenResponse,
     ProfileUpdate, PasswordChange, SessionItem
@@ -18,7 +18,7 @@ from security import hash_password, verify_password, create_access_token, decode
 app = FastAPI(
     title="Samar ID — Universal Identity Provider",
     description="Samar OS ekotizimining to'liq va mustaqil shaxsiy autentifikatsiya xizmati.",
-    version="1.1.0"
+    version="1.2.0"
 )
 
 app.add_middleware(
@@ -42,7 +42,6 @@ def normalize_samar_id(raw_input: str) -> str:
     cleaned = raw_input.strip().lower()
     if cleaned.endswith("@samar.os"):
         return cleaned
-    # Agar faqat nom yozilgan bo'lsa (masalan: shoxrux)
     name_part = cleaned.replace("@", "").split(".")[0]
     return f"{name_part}@samar.os"
 
@@ -75,34 +74,39 @@ def get_current_user_and_jti(credentials: HTTPAuthorizationCredentials = Depends
     samar_id = payload["sub"]
     jti = payload["jti"]
     
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT is_revoked FROM sessions WHERE token_jti = ?", (jti,))
-    sess = cursor.fetchone()
-    if sess and sess["is_revoked"]:
-        conn.close()
-        raise HTTPException(status_code=401, detail="Ushbu sessiya bekor qilingan. Qaytadan kiring.")
+    with engine.connect() as conn:
+        sess = conn.execute(
+            text("SELECT is_revoked FROM sessions WHERE token_jti = :jti"),
+            {"jti": jti}
+        ).mappings().first()
+        
+        if sess and sess["is_revoked"]:
+            raise HTTPException(status_code=401, detail="Ushbu sessiya bekor qilingan. Qaytadan kiring.")
+        
+        user_row = conn.execute(
+            text("""
+                SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, role, two_factor_enabled, created_at
+                FROM users WHERE samar_id = :samar_id
+            """),
+            {"samar_id": samar_id}
+        ).mappings().first()
     
-    cursor.execute("""
-        SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, role, two_factor_enabled, created_at
-        FROM users WHERE samar_id = ?
-    """, (samar_id,))
-    row = cursor.fetchone()
-    conn.close()
-    
-    if not row:
+    if not user_row:
         raise HTTPException(status_code=404, detail="Foydalanuvchi topilmadi")
     
-    user_dict = dict(row)
+    user_dict = dict(user_row)
     user_dict["current_jti"] = jti
+    user_dict["created_at"] = str(user_dict["created_at"])
     return user_dict
 
 @app.get("/api/status")
 def get_status():
+    db_type = "SQLite (Local)" if is_sqlite else "PostgreSQL (Neon Cloud)"
     return {
         "service": "Samar ID",
         "status": "online",
-        "version": "1.1.0",
+        "version": "1.2.0",
+        "database": db_type,
         "ecosystem": "Samar OS",
         "domain_format": "@samar.os",
         "message": "Samar ID xizmati to'liq quvvat bilan ishlamoqda. The future is now."
@@ -110,83 +114,92 @@ def get_status():
 
 @app.post("/api/auth/register", response_model=TokenResponse)
 def register(user_data: UserRegister, request: Request):
-    conn = get_db()
-    cursor = conn.cursor()
-    
     samar_id_final = normalize_samar_id(user_data.samar_id)
     
-    cursor.execute("SELECT id FROM users WHERE samar_id = ? OR (email IS NOT NULL AND email = ?)", (samar_id_final, user_data.email))
-    if cursor.fetchone():
-        conn.close()
-        raise HTTPException(status_code=400, detail=f"'{samar_id_final}' identifikatori allaqachon band. Boshqa nom tanlang.")
-    
-    pwd_hash = hash_password(user_data.password)
-    
-    cursor.execute(
-        "INSERT INTO users (samar_id, full_name, email, password_hash) VALUES (?, ?, ?, ?)",
-        (samar_id_final, user_data.full_name, user_data.email, pwd_hash)
-    )
-    user_id = cursor.lastrowid
-    
-    token, jti = create_access_token({"sub": samar_id_final, "user_id": user_id})
-    device = parse_device_name(request.headers.get("user-agent", ""))
-    ip = request.client.host if request.client else "127.0.0.1"
-    
-    cursor.execute(
-        "INSERT INTO sessions (user_id, token_jti, device_name, ip_address) VALUES (?, ?, ?, ?)",
-        (user_id, jti, device, ip)
-    )
-    conn.commit()
-    
-    cursor.execute("""
-        SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, role, two_factor_enabled, created_at
-        FROM users WHERE id = ?
-    """, (user_id,))
-    created_user = dict(cursor.fetchone())
-    conn.close()
-    
-    return {
-        "access_token": token,
-        "token_type": "bearer",
-        "user": created_user
-    }
+    with engine.connect() as conn:
+        existing = conn.execute(
+            text("SELECT id FROM users WHERE samar_id = :samar_id OR (email IS NOT NULL AND email = :email)"),
+            {"samar_id": samar_id_final, "email": user_data.email}
+        ).mappings().first()
+        
+        if existing:
+            raise HTTPException(status_code=400, detail=f"'{samar_id_final}' identifikatori yoki Email allaqachon band.")
+        
+        pwd_hash = hash_password(user_data.password)
+        
+        if is_sqlite:
+            res = conn.execute(
+                text("INSERT INTO users (samar_id, full_name, email, password_hash) VALUES (:samar_id, :full_name, :email, :pwd_hash)"),
+                {"samar_id": samar_id_final, "full_name": user_data.full_name, "email": user_data.email, "pwd_hash": pwd_hash}
+            )
+            user_id = res.lastrowid
+        else:
+            res = conn.execute(
+                text("INSERT INTO users (samar_id, full_name, email, password_hash) VALUES (:samar_id, :full_name, :email, :pwd_hash) RETURNING id"),
+                {"samar_id": samar_id_final, "full_name": user_data.full_name, "email": user_data.email, "pwd_hash": pwd_hash}
+            )
+            user_id = res.scalar()
+            
+        token, jti = create_access_token({"sub": samar_id_final, "user_id": user_id})
+        device = parse_device_name(request.headers.get("user-agent", ""))
+        ip = request.client.host if request.client else "127.0.0.1"
+        
+        conn.execute(
+            text("INSERT INTO sessions (user_id, token_jti, device_name, ip_address) VALUES (:uid, :jti, :dev, :ip)"),
+            {"uid": user_id, "jti": jti, "dev": device, "ip": ip}
+        )
+        conn.commit()
+        
+        created_user = conn.execute(
+            text("""
+                SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, role, two_factor_enabled, created_at
+                FROM users WHERE id = :uid
+            """),
+            {"uid": user_id}
+        ).mappings().first()
+        
+        user_dict = dict(created_user)
+        user_dict["created_at"] = str(user_dict["created_at"])
+        
+        return {
+            "access_token": token,
+            "token_type": "bearer",
+            "user": user_dict
+        }
 
 @app.post("/api/auth/login", response_model=TokenResponse)
 def login(login_data: UserLogin, request: Request):
     target_id = normalize_samar_id(login_data.samar_id_or_email)
     raw_input = login_data.samar_id_or_email.strip()
 
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, role, two_factor_enabled, password_hash, created_at FROM users WHERE samar_id = ? OR email = ?",
-        (target_id, raw_input)
-    )
-    row = cursor.fetchone()
-    
-    if not row or not verify_password(login_data.password, row["password_hash"]):
-        conn.close()
-        raise HTTPException(status_code=401, detail="Samar ID yoki parol noto'g'ri kiritildi.")
-    
-    user_dict = dict(row)
-    del user_dict["password_hash"]
-    
-    token, jti = create_access_token({"sub": user_dict["samar_id"], "user_id": user_dict["id"]})
-    device = parse_device_name(request.headers.get("user-agent", ""))
-    ip = request.client.host if request.client else "127.0.0.1"
-    
-    cursor.execute(
-        "INSERT INTO sessions (user_id, token_jti, device_name, ip_address) VALUES (?, ?, ?, ?)",
-        (user_dict["id"], jti, device, ip)
-    )
-    conn.commit()
-    conn.close()
-    
-    return {
-        "access_token": token,
-        "token_type": "bearer",
-        "user": user_dict
-    }
+    with engine.connect() as conn:
+        user_row = conn.execute(
+            text("SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, role, two_factor_enabled, password_hash, created_at FROM users WHERE samar_id = :target OR email = :raw"),
+            {"target": target_id, "raw": raw_input}
+        ).mappings().first()
+        
+        if not user_row or not verify_password(login_data.password, user_row["password_hash"]):
+            raise HTTPException(status_code=401, detail="Samar ID yoki parol noto'g'ri kiritildi.")
+        
+        user_dict = dict(user_row)
+        del user_dict["password_hash"]
+        user_dict["created_at"] = str(user_dict["created_at"])
+        
+        token, jti = create_access_token({"sub": user_dict["samar_id"], "user_id": user_dict["id"]})
+        device = parse_device_name(request.headers.get("user-agent", ""))
+        ip = request.client.host if request.client else "127.0.0.1"
+        
+        conn.execute(
+            text("INSERT INTO sessions (user_id, token_jti, device_name, ip_address) VALUES (:uid, :jti, :dev, :ip)"),
+            {"uid": user_dict["id"], "jti": jti, "dev": device, "ip": ip}
+        )
+        conn.commit()
+        
+        return {
+            "access_token": token,
+            "token_type": "bearer",
+            "user": user_dict
+        }
 
 @app.get("/api/auth/me", response_model=UserResponse)
 def get_me(current: dict = Depends(get_current_user_and_jti)):
@@ -194,54 +207,56 @@ def get_me(current: dict = Depends(get_current_user_and_jti)):
 
 @app.put("/api/auth/profile", response_model=UserResponse)
 def update_profile(data: ProfileUpdate, current: dict = Depends(get_current_user_and_jti)):
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    updates = []
-    params = []
-    if data.full_name is not None:
-        updates.append("full_name = ?")
-        params.append(data.full_name)
-    if data.phone is not None:
-        updates.append("phone = ?")
-        params.append(data.phone)
-    if data.bio is not None:
-        updates.append("bio = ?")
-        params.append(data.bio)
-    if data.specialty is not None:
-        updates.append("specialty = ?")
-        params.append(data.specialty)
+    with engine.connect() as conn:
+        updates = []
+        params = {"uid": current["id"]}
+        if data.full_name is not None:
+            updates.append("full_name = :full_name")
+            params["full_name"] = data.full_name
+        if data.phone is not None:
+            updates.append("phone = :phone")
+            params["phone"] = data.phone
+        if data.bio is not None:
+            updates.append("bio = :bio")
+            params["bio"] = data.bio
+        if data.specialty is not None:
+            updates.append("specialty = :specialty")
+            params["specialty"] = data.specialty
+            
+        if updates:
+            conn.execute(text(f"UPDATE users SET {', '.join(updates)}, updated_at = CURRENT_TIMESTAMP WHERE id = :uid"), params)
+            conn.commit()
+            
+        updated = conn.execute(
+            text("""
+                SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, role, two_factor_enabled, created_at
+                FROM users WHERE id = :uid
+            """),
+            {"uid": current["id"]}
+        ).mappings().first()
         
-    if updates:
-        params.append(current["id"])
-        cursor.execute(f"UPDATE users SET {', '.join(updates)}, updated_at = CURRENT_TIMESTAMP WHERE id = ?", params)
-        conn.commit()
-        
-    cursor.execute("""
-        SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, role, two_factor_enabled, created_at
-        FROM users WHERE id = ?
-    """, (current["id"],))
-    updated_user = dict(cursor.fetchone())
-    conn.close()
-    return updated_user
+        res_dict = dict(updated)
+        res_dict["created_at"] = str(res_dict["created_at"])
+        return res_dict
 
 @app.post("/api/auth/change-password")
 def change_password(data: PasswordChange, current: dict = Depends(get_current_user_and_jti)):
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT password_hash FROM users WHERE id = ?", (current["id"],))
-    user = cursor.fetchone()
-    
-    if not verify_password(data.old_password, user["password_hash"]):
-        conn.close()
-        raise HTTPException(status_code=400, detail="Eski parol noto'g'ri kiritildi.")
-        
-    new_hash = hash_password(data.new_password)
-    cursor.execute("UPDATE users SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", (new_hash, current["id"]))
-    cursor.execute("UPDATE sessions SET is_revoked = 1 WHERE user_id = ? AND token_jti != ?", (current["id"], current["current_jti"]))
-    conn.commit()
-    conn.close()
-    return {"message": "Parol muvaffaqiyatli yangilandi. Boshqa barcha qurilmalar sessiyasi bekor qilindi."}
+    with engine.connect() as conn:
+        user_row = conn.execute(text("SELECT password_hash FROM users WHERE id = :uid"), {"uid": current["id"]}).mappings().first()
+        if not verify_password(data.old_password, user_row["password_hash"]):
+            raise HTTPException(status_code=400, detail="Eski parol noto'g'ri kiritildi.")
+            
+        new_hash = hash_password(data.new_password)
+        conn.execute(
+            text("UPDATE users SET password_hash = :new_hash, updated_at = CURRENT_TIMESTAMP WHERE id = :uid"),
+            {"new_hash": new_hash, "uid": current["id"]}
+        )
+        conn.execute(
+            text("UPDATE sessions SET is_revoked = 1 WHERE user_id = :uid AND token_jti != :curr_jti"),
+            {"uid": current["id"], "curr_jti": current["current_jti"]}
+        )
+        conn.commit()
+        return {"message": "Parol muvaffaqiyatli yangilandi. Boshqa barcha qurilmalar sessiyasi bekor qilindi."}
 
 @app.post("/api/auth/upload-avatar")
 async def upload_avatar(file: UploadFile = File(...), current: dict = Depends(get_current_user_and_jti)):
@@ -256,69 +271,74 @@ async def upload_avatar(file: UploadFile = File(...), current: dict = Depends(ge
         shutil.copyfileobj(file.file, buffer)
         
     avatar_url = f"/uploads/avatars/{avatar_filename}"
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("UPDATE users SET avatar_path = ? WHERE id = ?", (avatar_url, current["id"]))
-    conn.commit()
-    conn.close()
+    with engine.connect() as conn:
+        conn.execute(
+            text("UPDATE users SET avatar_path = :path WHERE id = :uid"),
+            {"path": avatar_url, "uid": current["id"]}
+        )
+        conn.commit()
     
     return {"avatar_url": avatar_url, "message": "Profil rasmi yangilandi."}
 
 @app.get("/api/auth/sessions", response_model=List[SessionItem])
 def get_sessions(current: dict = Depends(get_current_user_and_jti)):
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT id, token_jti, device_name, ip_address, last_active, is_revoked
-        FROM sessions WHERE user_id = ? AND is_revoked = 0 ORDER BY id DESC
-    """, (current["id"],))
-    rows = cursor.fetchall()
-    conn.close()
-    
+    with engine.connect() as conn:
+        rows = conn.execute(
+            text("SELECT id, token_jti, device_name, ip_address, last_active, is_revoked FROM sessions WHERE user_id = :uid AND is_revoked = 0 ORDER BY id DESC"),
+            {"uid": current["id"]}
+        ).mappings().fetchall()
+        
     result = []
     for r in rows:
         result.append({
             "id": r["id"],
             "device_name": r["device_name"],
             "ip_address": r["ip_address"],
-            "last_active": r["last_active"],
+            "last_active": str(r["last_active"]),
             "is_current": (r["token_jti"] == current["current_jti"])
         })
     return result
 
 @app.delete("/api/auth/sessions/{session_id}")
 def revoke_session(session_id: int, current: dict = Depends(get_current_user_and_jti)):
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("UPDATE sessions SET is_revoked = 1 WHERE id = ? AND user_id = ?", (session_id, current["id"]))
-    conn.commit()
-    conn.close()
+    with engine.connect() as conn:
+        conn.execute(
+            text("UPDATE sessions SET is_revoked = 1 WHERE id = :sid AND user_id = :uid"),
+            {"sid": session_id, "uid": current["id"]}
+        )
+        conn.commit()
     return {"message": "Qurilma sessiyasi bekor qilindi."}
 
 @app.post("/api/auth/logout")
 def logout(current: dict = Depends(get_current_user_and_jti)):
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("UPDATE sessions SET is_revoked = 1 WHERE token_jti = ?", (current["current_jti"],))
-    conn.commit()
-    conn.close()
+    with engine.connect() as conn:
+        conn.execute(
+            text("UPDATE sessions SET is_revoked = 1 WHERE token_jti = :jti"),
+            {"jti": current["current_jti"]}
+        )
+        conn.commit()
     return {"message": "Tizimdan muvaffaqiyatli chiqildi."}
 
 @app.get("/api/auth/export-data")
 def export_data(current: dict = Depends(get_current_user_and_jti)):
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, samar_id, full_name, email, phone, bio, specialty, role, created_at FROM users WHERE id = ?", (current["id"],))
-    user_data = dict(cursor.fetchone())
-    cursor.execute("SELECT device_name, ip_address, last_active FROM sessions WHERE user_id = ?", (current["id"],))
-    sessions = [dict(s) for s in cursor.fetchall()]
-    conn.close()
+    with engine.connect() as conn:
+        user_row = conn.execute(
+            text("SELECT id, samar_id, full_name, email, phone, bio, specialty, role, created_at FROM users WHERE id = :uid"),
+            {"uid": current["id"]}
+        ).mappings().first()
+        sessions = conn.execute(
+            text("SELECT device_name, ip_address, last_active FROM sessions WHERE user_id = :uid"),
+            {"uid": current["id"]}
+        ).mappings().fetchall()
+    
+    user_data = dict(user_row)
+    user_data["created_at"] = str(user_data["created_at"])
     
     return {
         "ecosystem": "Samar OS",
         "export_date": "2026-10-16",
         "user_profile": user_data,
-        "device_history": sessions,
+        "device_history": [dict(s) for s in sessions],
         "sovereign_guarantee": "Ushbu ma'lumotlar faqat sizning shaxsiy mulkingiz hisoblanadi."
     }
 
