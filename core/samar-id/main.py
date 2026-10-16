@@ -1,5 +1,5 @@
 import os
-import shutil
+import base64
 from typing import List
 from fastapi import FastAPI, HTTPException, Depends, status, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,7 +18,7 @@ from security import hash_password, verify_password, create_access_token, decode
 app = FastAPI(
     title="Samar ID — Universal Identity Provider",
     description="Samar OS ekotizimining to'liq va mustaqil shaxsiy autentifikatsiya xizmati.",
-    version="1.3.0"
+    version="2.0.0"
 )
 
 app.add_middleware(
@@ -30,9 +30,6 @@ app.add_middleware(
 )
 
 security_scheme = HTTPBearer()
-
-UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads", "avatars")
-os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @app.on_event("startup")
 def on_startup():
@@ -50,16 +47,16 @@ def parse_device_info(user_agent: str):
         return "Noma'lum Qurilma", "device"
     ua = user_agent.lower()
     if "windows" in ua:
-        return "Windows Kompyuter", "windows"
+        return "Windows 11 / PC", "windows"
     elif "android" in ua:
         return "Android Smartfon", "android"
     elif "iphone" in ua or "ios" in ua:
         return "Apple iPhone", "apple"
     elif "macintosh" in ua or "mac os" in ua:
-        return "Apple Mac", "apple"
+        return "macOS Workstation", "apple"
     elif "linux" in ua:
-        return "Linux Tizimi", "linux"
-    return "Veb Brauzer", "browser"
+        return "Samar Linux OS", "linux"
+    return "Web Terminal", "browser"
 
 def get_current_user_and_jti(credentials: HTTPAuthorizationCredentials = Depends(security_scheme)):
     token = credentials.credentials
@@ -103,13 +100,14 @@ def get_current_user_and_jti(credentials: HTTPAuthorizationCredentials = Depends
 def get_status():
     db_type = "SQLite (Local)" if is_sqlite else "PostgreSQL (Neon Cloud)"
     return {
-        "service": "Samar ID",
+        "service": "Samar ID Core",
         "status": "online",
-        "version": "1.3.0",
+        "version": "2.0.0",
+        "theme": "Linear Modern Dark",
         "database": db_type,
         "ecosystem": "Samar OS",
         "domain_format": "@samar.os",
-        "message": "Samar ID to'liq barqaror holatda ishlamoqda."
+        "message": "Samar ID 2.0 to'liq barqaror holatda ishlamoqda."
     }
 
 @app.post("/api/auth/register", response_model=TokenResponse)
@@ -263,28 +261,28 @@ async def upload_avatar(file: UploadFile = File(...), current: dict = Depends(ge
     extension = os.path.splitext(file.filename)[1].lower()
     if extension not in [".jpg", ".jpeg", ".png", ".webp"]:
         raise HTTPException(status_code=400, detail="Faqat JPG, PNG yoki WEBP rasmlar qabul qilinadi.")
-        
-    avatar_filename = f"avatar_{current['id']}{extension}"
-    file_path = os.path.join(UPLOAD_DIR, avatar_filename)
     
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    contents = await file.read()
+    if len(contents) > 4 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Rasm hajmi 4MB dan oshmasligi kerak.")
         
-    avatar_url = f"/uploads/avatars/{avatar_filename}"
+    mime_type = "image/jpeg" if extension in [".jpg", ".jpeg"] else ("image/png" if extension == ".png" else "image/webp")
+    base64_data = base64.b64encode(contents).decode("utf-8")
+    avatar_data_url = f"data:{mime_type};base64,{base64_data}"
+    
     with engine.connect() as conn:
         conn.execute(
             text("UPDATE users SET avatar_path = :path WHERE id = :uid"),
-            {"path": avatar_url, "uid": current["id"]}
+            {"path": avatar_data_url, "uid": current["id"]}
         )
         conn.commit()
     
-    return {"avatar_url": avatar_url, "message": "Profil rasmi yangilandi."}
+    return {"avatar_url": avatar_data_url, "message": "Avatar doimiy bazada saqlandi!"}
 
 @app.get("/api/auth/sessions", response_model=List[SessionItem])
 def get_sessions(current: dict = Depends(get_current_user_and_jti)):
     try:
         with engine.connect() as conn:
-            # PostgreSQL da boolean taqqoslash
             query = "SELECT id, token_jti, device_name, ip_address, last_active, is_revoked FROM sessions WHERE user_id = :uid AND (is_revoked IS FALSE OR is_revoked = 0) ORDER BY id DESC"
             rows = conn.execute(text(query), {"uid": current["id"]}).mappings().fetchall()
             
@@ -354,11 +352,8 @@ def export_data(current: dict = Depends(get_current_user_and_jti)):
     }
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
-UPLOADS_ROOT = os.path.join(os.path.dirname(__file__), "uploads")
 if os.path.exists(STATIC_DIR):
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
-if os.path.exists(UPLOADS_ROOT):
-    app.mount("/uploads", StaticFiles(directory=UPLOADS_ROOT), name="uploads")
 
 @app.get("/")
 def serve_home():
