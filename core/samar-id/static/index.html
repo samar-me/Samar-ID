@@ -4,8 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Samar ID — The Sovereign Identity</title>
+    <script>
+        if (localStorage.getItem('samar_token')) {
+            document.documentElement.classList.add('has-token');
+        }
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        /* Flash-of-auth prevention */
+        .has-token #authSection {
+            display: none !important;
+        }
+        .has-token #splashLoader {
+            display: flex !important;
+        }
+        #splashLoader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 99999999;
+            background: #060709;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+        }
+
         :root {
             --bg-window: rgba(20, 22, 28, 0.88);
             --bg-sidebar: rgba(15, 17, 22, 0.94);
@@ -1094,6 +1121,137 @@
             background: rgba(255, 69, 58, 0.22);
         }
 
+        /* Apple ID Hero Profile Section (iOS HIG Standard) */
+        .apple-id-hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 18px 0 16px 0;
+            margin-bottom: 6px;
+        }
+
+        .apple-id-avatar-box {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            position: relative;
+            margin: 0 auto 12px auto;
+            background: linear-gradient(135deg, rgba(10, 132, 255, 0.5), rgba(94, 92, 230, 0.5));
+            padding: 3px;
+            box-shadow: 0 8px 30px -4px rgba(10, 132, 255, 0.4);
+        }
+
+        .apple-id-avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+            border: 2px solid #060709;
+        }
+
+        .apple-id-avatar-fallback {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #151822;
+            color: #ffffff;
+            font-size: 32px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #060709;
+        }
+
+        .apple-id-avatar-badge {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            border: 2.5px solid #060709;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            transition: transform 0.15s;
+        }
+        .apple-id-avatar-badge:active {
+            transform: scale(0.9);
+        }
+
+        .apple-id-hero-name {
+            font-size: 21px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.4px;
+            margin-bottom: 6px;
+        }
+
+        .apple-id-tag-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .apple-id-domain-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent);
+            background: rgba(10, 132, 255, 0.12);
+            border: 1px solid rgba(10, 132, 255, 0.3);
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .apple-id-status-pill {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--status-green);
+            background: rgba(48, 209, 88, 0.12);
+            border: 1px solid rgba(48, 209, 88, 0.3);
+            padding: 3px 9px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .apple-section-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(235, 235, 245, 0.45);
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            margin: 22px 8px 8px 8px;
+        }
+
+        .input-apple-row {
+            background: transparent !important;
+            border: none !important;
+            color: #ffffff !important;
+            font-size: 14.5px !important;
+            font-weight: 500 !important;
+            outline: none !important;
+            padding: 0 !important;
+            width: 100% !important;
+            box-shadow: none !important;
+        }
+        .input-apple-row::placeholder {
+            color: rgba(235, 235, 245, 0.35);
+        }
+
         /* ================= MOBILE RESPONSIVE SYSTEM (APPLE iOS HIG QUALITY) ================= */
         @media (max-width: 768px) {
             html, body {
@@ -1182,7 +1340,7 @@
 
             /* Content container with padding for sticky bottom navigation */
             .main-content-pane {
-                padding: 16px 16px calc(88px + env(safe-area-inset-bottom)) 16px !important;
+                padding: 16px 16px calc(92px + env(safe-area-inset-bottom)) 16px !important;
                 overflow: visible !important;
                 height: auto !important;
                 max-width: 100% !important;
@@ -1251,15 +1409,7 @@
 
             /* Mobile Profile Hero */
             .mobile-profile-hero {
-                display: flex !important;
-                align-items: center;
-                gap: 14px;
-                padding: 14px 16px;
-                background: rgba(26, 28, 36, 0.75);
-                backdrop-filter: blur(20px);
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                border-radius: 16px;
-                margin-bottom: 16px;
+                display: none !important;
             }
 
             /* Mobile Bottom Logout Card */
@@ -1292,20 +1442,23 @@
 
             /* Authentic Apple iOS Bottom Navigation Bar */
             .mobile-bottom-nav {
+                display: none !important;
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                height: calc(62px + env(safe-area-inset-bottom)) !important;
+                padding-bottom: env(safe-area-inset-bottom) !important;
+                background: rgba(14, 16, 22, 0.94) !important;
+                backdrop-filter: blur(35px) !important;
+                -webkit-backdrop-filter: blur(35px) !important;
+                border-top: 0.5px solid rgba(255, 255, 255, 0.12) !important;
+                align-items: center !important;
+                justify-content: space-around !important;
+                z-index: 9999999 !important;
+            }
+            body.is-logged-in .mobile-bottom-nav {
                 display: flex !important;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                height: calc(58px + env(safe-area-inset-bottom));
-                padding-bottom: env(safe-area-inset-bottom);
-                background: rgba(16, 18, 25, 0.92);
-                backdrop-filter: blur(35px);
-                -webkit-backdrop-filter: blur(35px);
-                border-top: 0.5px solid rgba(255, 255, 255, 0.1);
-                align-items: center;
-                justify-content: space-around;
-                z-index: 1000;
             }
 
             .bottom-nav-item {
@@ -1411,6 +1564,14 @@
     </style>
 </head>
 <body>
+
+    <!-- Splash Screen during initial token validation (Prevents Login Screen Flash on Refresh) -->
+    <div id="splashLoader">
+        <div style="width: 68px; height: 68px; border-radius: 18px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 50px rgba(10, 132, 255, 0.25);">
+            <img src="/static/assets/logo_citadel.jpg" style="width: 50px; height: 50px; border-radius: 12px;" alt="Samar ID">
+        </div>
+        <div class="spinner" style="width: 20px; height: 20px; border-width: 2px;"></div>
+    </div>
 
     <div class="macos-window" id="mainWindow">
         
@@ -1607,57 +1768,116 @@
             <div class="main-content-pane">
                 <div id="paneAlert" class="toast-msg"></div>
 
-                <!-- PANE 1: SHAXSIY PROFIL -->
+                <!-- PANE 1: SHAXSIY PROFIL (APPLE ID iOS HIG STANDARD) -->
                 <div id="paneProfile">
-                    <!-- Mobil Profil Vizitkasi (Faqat Profil sahifasida ko'rinadi) -->
-                    <div class="mobile-profile-hero">
-                        <div class="hero-avatar-wrap" style="width: 44px; height: 44px; margin: 0;">
-                            <img id="mDashAvatarImg" class="hero-avatar-img" src="" style="display: none;" alt="User Avatar">
-                            <div id="mDashAvatarFallback" class="hero-avatar-fallback" style="font-size: 17px;">S</div>
+                    
+                    <!-- Apple ID Grand Hero Profile Header -->
+                    <div class="apple-id-hero">
+                        <div class="apple-id-avatar-box">
+                            <img id="mDashAvatarImg" class="apple-id-avatar-img" src="" style="display: none;" alt="User Avatar">
+                            <div id="mDashAvatarFallback" class="apple-id-avatar-fallback">S</div>
+                            <label class="apple-id-avatar-badge" title="Suratni yangilash">
+                                📷
+                                <input type="file" id="mAvatarFileInput" accept="image/*" style="display: none;" onchange="handleAvatarUpload(event)">
+                            </label>
                         </div>
-                        <div style="min-width: 0; flex: 1;">
-                            <div style="font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="mDashFullName">Samar Rahbar</div>
-                            <div style="font-size: 12px; color: var(--accent); font-family: 'JetBrains Mono', monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="mDashSamarId">samar@samar.os</div>
+                        <h1 class="apple-id-hero-name" id="mDashFullName">Samar Rahbar</h1>
+                        <div class="apple-id-tag-row">
+                            <span class="apple-id-domain-pill" id="mDashSamarId">samar@samar.os</span>
+                            <span class="apple-id-status-pill"><span class="status-pulse"></span> Daxlsiz ID</span>
                         </div>
-                    </div>
-
-                    <div class="pane-header">
-                        <h2 class="pane-title">Shaxsiy Profil</h2>
                     </div>
 
                     <form onsubmit="handleProfileUpdate(event)">
-                        <div class="apple-card">
-                            <div class="form-row">
-                                <label>To'liq Ism</label>
-                                <input type="text" class="input-apple" id="editFullName" required>
+                        <!-- Section: Shaxsiy Ma'lumotlar -->
+                        <div class="apple-section-label">SHAXSIY MA'LUMOTLAR</div>
+                        <div class="apple-settings-card">
+                            <div class="setting-row">
+                                <div class="setting-left">
+                                    <div class="setting-icon-box" style="background: rgba(10, 132, 255, 0.15); color: var(--accent);">👤</div>
+                                    <div class="setting-info" style="display: flex; flex-direction: column; width: 100%;">
+                                        <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 2px;">To'liq Ism</div>
+                                        <input type="text" class="input-apple-row" id="editFullName" required placeholder="Ism va Familiyangiz">
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-row">
-                                <label>Kasb / Ixtisoslik</label>
-                                <input type="text" class="input-apple" id="editSpecialty" placeholder="Masalan: Tizimli Dasturchi">
+                            <div class="setting-row">
+                                <div class="setting-left">
+                                    <div class="setting-icon-box" style="background: rgba(94, 92, 230, 0.15); color: #5e5ce6;">💼</div>
+                                    <div class="setting-info" style="display: flex; flex-direction: column; width: 100%;">
+                                        <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 2px;">Kasb / Ixtisoslik</div>
+                                        <input type="text" class="input-apple-row" id="editSpecialty" placeholder="Masalan: Tizimli Muhandis">
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-row">
-                                <label>Bog'lanish Uchun Telefon</label>
-                                <input type="text" class="input-apple" id="editPhone" placeholder="+998 90 123 45 67">
+                            <div class="setting-row">
+                                <div class="setting-left">
+                                    <div class="setting-icon-box" style="background: rgba(48, 209, 88, 0.15); color: var(--status-green);">📞</div>
+                                    <div class="setting-info" style="display: flex; flex-direction: column; width: 100%;">
+                                        <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 2px;">Bog'lanish Telefoni</div>
+                                        <input type="text" class="input-apple-row" id="editPhone" placeholder="+998 90 123 45 67">
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-row" style="margin-bottom: 0;">
-                                <label>Shaxsiy Qayd (Bio)</label>
-                                <textarea class="input-apple" id="editBio" placeholder="O'zingiz haqingizda..." style="min-height: 70px; resize: vertical;"></textarea>
+                            <div class="setting-row" style="border-bottom: none; align-items: flex-start;">
+                                <div class="setting-left" style="align-items: flex-start;">
+                                    <div class="setting-icon-box" style="background: rgba(255, 159, 10, 0.15); color: var(--status-orange); margin-top: 4px;">📝</div>
+                                    <div class="setting-info" style="display: flex; flex-direction: column; width: 100%;">
+                                        <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 2px;">Shaxsiy Qayd (Bio)</div>
+                                        <textarea class="input-apple-row" id="editBio" placeholder="O'zingiz haqingizda qisqacha..." style="min-height: 48px; resize: none;"></textarea>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <button type="submit" class="btn-apple-primary" style="max-width: 200px;" id="btnSaveProfile">
-                            <span id="saveProfileSpinner" class="spinner" style="display: none;"></span>
-                            <span id="saveProfileText">O'zgarishlarni Saqlash</span>
-                        </button>
+                        <div style="margin-top: 12px; margin-bottom: 20px;">
+                            <button type="submit" class="btn-apple-primary" id="btnSaveProfile">
+                                <span id="saveProfileSpinner" class="spinner" style="display: none;"></span>
+                                <span id="saveProfileText">O'zgarishlarni Saqlash</span>
+                            </button>
+                        </div>
                     </form>
 
-                    <!-- Apple Inset Group: Mobile Logout Button (Hidden on Desktop) -->
-                    <div class="apple-logout-container">
-                        <button type="button" class="btn-apple-logout" id="btnMobileProfileExit" onclick="handleLogout()">
-                            <span id="exitSpinnerMobile" class="spinner" style="display: none; border-top-color: var(--status-red); width: 14px; height: 14px;"></span>
-                            <span id="exitTextMobile">Tizimdan Chiqish</span>
-                        </button>
+                    <!-- Section: Tezkor Sozlamalar -->
+                    <div class="apple-section-label">TEZKOR SOZLAMALAR</div>
+                    <div class="apple-settings-card">
+                        <div class="setting-row" onclick="switchPane('security')" style="cursor: pointer;">
+                            <div class="setting-left">
+                                <div class="setting-icon-box" style="background: rgba(10, 132, 255, 0.15); color: var(--accent);">🛡️</div>
+                                <div class="setting-info">
+                                    <div class="setting-title">Xavfsizlik va Parol</div>
+                                    <div class="setting-desc">SMS, Ishonchli do'st va 2FA himoyasi</div>
+                                </div>
+                            </div>
+                            <div class="setting-right">
+                                <span style="color: var(--text-tertiary); font-size: 15px;">›</span>
+                            </div>
+                        </div>
+                        <div class="setting-row" onclick="switchPane('devices')" style="cursor: pointer; border-bottom: none;">
+                            <div class="setting-left">
+                                <div class="setting-icon-box" style="background: rgba(48, 209, 88, 0.15); color: var(--status-green);">💻</div>
+                                <div class="setting-info">
+                                    <div class="setting-title">Ulangan Qurilmalar</div>
+                                    <div class="setting-desc">Faol sessiyalarni nazorat qilish</div>
+                                </div>
+                            </div>
+                            <div class="setting-right">
+                                <span style="color: var(--text-tertiary); font-size: 15px;">›</span>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Section: Chiqish (Authentic Apple Red Row) -->
+                    <div class="apple-section-label">SEANS</div>
+                    <div class="apple-settings-card" style="margin-bottom: 28px;">
+                        <div class="setting-row" onclick="handleLogout()" style="cursor: pointer; justify-content: center; text-align: center; border-bottom: none;">
+                            <button type="button" id="btnMobileProfileExit" style="background: none; border: none; color: var(--status-red); font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; width: 100%;">
+                                <span id="exitSpinnerMobile" class="spinner" style="display: none; border-top-color: var(--status-red); width: 14px; height: 14px;"></span>
+                                <span id="exitTextMobile">Tizimdan Chiqish</span>
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- PANE 2: KIRISH VA XAVFSIZLIK (APPLE STYLE GROUPED SETTINGS) -->
@@ -1784,31 +2004,6 @@
                 </div>
 
             </div>
-
-            <!-- iOS-style Mobile Bottom Navigation Bar -->
-            <nav class="mobile-bottom-nav">
-                <button type="button" class="bottom-nav-item active" id="mTabNavProfile" onclick="switchPane('profile')">
-                    <span class="bottom-nav-icon">👤</span>
-                    <span class="bottom-nav-label">Profil</span>
-                </button>
-                <button type="button" class="bottom-nav-item" id="mTabNavSecurity" onclick="switchPane('security')">
-                    <span class="bottom-nav-icon">🛡️</span>
-                    <span class="bottom-nav-label">Xavfsizlik</span>
-                </button>
-                <button type="button" class="bottom-nav-item" id="mTabNavDevices" onclick="switchPane('devices')">
-                    <span class="bottom-nav-icon">💻</span>
-                    <span class="bottom-nav-label">Qurilmalar</span>
-                </button>
-                <button type="button" class="bottom-nav-item" id="mTabNavInbox" onclick="switchPane('inbox')">
-                    <span class="bottom-nav-icon">📬</span>
-                    <span class="bottom-nav-label">Xabarlar</span>
-                    <span class="bottom-nav-badge" id="mNotifBadge" style="display: none;">0</span>
-                </button>
-                <button type="button" class="bottom-nav-item" id="mTabNavVault" onclick="switchPane('vault')">
-                    <span class="bottom-nav-icon">📦</span>
-                    <span class="bottom-nav-label">Arxiv</span>
-                </button>
-            </nav>
         </div>
 
     </div>
@@ -2187,8 +2382,16 @@
         function loadDashboard(user) {
             if (qrPollInterval) clearInterval(qrPollInterval);
             currentUser = user;
+            document.documentElement.classList.remove('has-token');
+            const splash = document.getElementById('splashLoader');
+            if (splash) splash.style.display = 'none';
+            document.body.classList.add('is-logged-in');
+
             document.getElementById('authSection').style.display = 'none';
             document.getElementById('dashboardSection').style.display = 'flex';
+
+            const mNav = document.getElementById('mobileBottomNav');
+            if (mNav) mNav.style.display = 'flex';
 
             document.getElementById('dashFullName').innerText = user.full_name;
             document.getElementById('dashSamarId').innerText = user.samar_id;
@@ -2764,6 +2967,10 @@
             setTimeout(() => {
                 localStorage.removeItem('samar_token');
                 currentUser = null;
+                document.body.classList.remove('is-logged-in');
+                const mNav = document.getElementById('mobileBottomNav');
+                if (mNav) mNav.style.display = 'none';
+
                 document.getElementById('dashboardSection').style.display = 'none';
                 document.getElementById('authSection').style.display = 'block';
 
@@ -2782,22 +2989,55 @@
         // Initial session check
         async function checkSession() {
             const token = localStorage.getItem('samar_token');
+            const splash = document.getElementById('splashLoader');
             if (token) {
                 try {
                     const res = await fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + token } });
                     if (res.ok) {
                         const user = await res.json();
                         loadDashboard(user);
+                        document.documentElement.classList.remove('has-token');
+                        if (splash) splash.style.display = 'none';
                         return;
                     } else {
                         localStorage.removeItem('samar_token');
                     }
                 } catch (_) {}
             }
+            document.documentElement.classList.remove('has-token');
+            if (splash) splash.style.display = 'none';
+            document.body.classList.remove('is-logged-in');
+            const mNav = document.getElementById('mobileBottomNav');
+            if (mNav) mNav.style.display = 'none';
             switchAuthMode('login');
         }
 
         checkSession();
     </script>
+
+    <!-- Permanent Fixed Apple iOS Tab Bar -->
+    <nav class="mobile-bottom-nav" id="mobileBottomNav" style="display: none;">
+        <button type="button" class="bottom-nav-item active" id="mTabNavProfile" onclick="switchPane('profile')">
+            <span class="bottom-nav-icon">👤</span>
+            <span class="bottom-nav-label">Profil</span>
+        </button>
+        <button type="button" class="bottom-nav-item" id="mTabNavSecurity" onclick="switchPane('security')">
+            <span class="bottom-nav-icon">🛡️</span>
+            <span class="bottom-nav-label">Xavfsizlik</span>
+        </button>
+        <button type="button" class="bottom-nav-item" id="mTabNavDevices" onclick="switchPane('devices')">
+            <span class="bottom-nav-icon">💻</span>
+            <span class="bottom-nav-label">Qurilmalar</span>
+        </button>
+        <button type="button" class="bottom-nav-item" id="mTabNavInbox" onclick="switchPane('inbox')">
+            <span class="bottom-nav-icon">📬</span>
+            <span class="bottom-nav-label">Xabarlar</span>
+            <span class="bottom-nav-badge" id="mNotifBadge" style="display: none;">0</span>
+        </button>
+        <button type="button" class="bottom-nav-item" id="mTabNavVault" onclick="switchPane('vault')">
+            <span class="bottom-nav-icon">📦</span>
+            <span class="bottom-nav-label">Arxiv</span>
+        </button>
+    </nav>
 </body>
 </html>
