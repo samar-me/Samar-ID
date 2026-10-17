@@ -808,8 +808,7 @@
                 display: none !important;
             }
             .mobile-tab-bar {
-                display: flex !important;
-            }
+                /* display is controlled exclusively by JavaScript — do NOT set display here */
             .dash-content {
                 padding: 16px 16px calc(76px + var(--safe-bottom)) 16px;
             }
@@ -1531,7 +1530,7 @@
         // State
         let currentUser = null;
         let authMode = 'login';
-        let currentLang = localStorage.getItem('samar_lang') || 'uz';
+        let currentLang = 'uz'; // always start Uzbek; language resets on each load
         let qrPollInterval = null;
         let smsTimerInterval = null;
         let recoveryCodesCache = [];
@@ -2407,11 +2406,16 @@
                     }
                 } catch (_) {}
             }
+            // Not authenticated — force Uzbek language and hide tab bar
             document.documentElement.classList.remove('has-token');
             if (splash) splash.style.display = 'none';
             document.body.classList.remove('is-logged-in');
             document.getElementById('mobileBottomNav').style.display = 'none';
             document.getElementById('authSection').style.display = 'flex';
+            // Reset language to Uzbek (don't keep stale ru/en from old session)
+            currentLang = 'uz';
+            localStorage.setItem('samar_lang', 'uz');
+            setLanguage('uz');
             switchAuthMode('login');
         }
 
