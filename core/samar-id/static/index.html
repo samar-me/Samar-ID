@@ -1010,7 +1010,9 @@
 
         /* Default Desktop: Mobile Navigation Elements are Hidden */
         .mobile-top-header { display: none; }
+        .mobile-profile-hero { display: none; }
         .mobile-bottom-nav { display: none; }
+        .btn-top-exit { display: none; }
 
         /* ================= MOBILE RESPONSIVE SYSTEM (iOS / ANDROID ADAPTATION) ================= */
         @media (max-width: 768px) {
@@ -1041,7 +1043,7 @@
             /* Titlebar becomes sleek mobile app bar */
             .titlebar {
                 height: 48px;
-                padding: 0 16px;
+                padding: 0 14px;
                 background: rgba(14, 16, 22, 0.95);
                 backdrop-filter: blur(25px);
                 -webkit-backdrop-filter: blur(25px);
@@ -1066,6 +1068,28 @@
                 color: #ffffff;
             }
 
+            .titlebar-status {
+                display: none !important;
+            }
+
+            /* Sleek exit button in mobile titlebar */
+            .btn-top-exit {
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+                padding: 5px 12px;
+                background: rgba(255, 69, 58, 0.12);
+                border: 1px solid rgba(255, 69, 58, 0.3);
+                color: var(--status-red);
+                border-radius: 8px;
+                font-size: 11.5px;
+                font-weight: 600;
+                cursor: pointer;
+            }
+            .btn-top-exit:active {
+                transform: scale(0.96);
+            }
+
             /* HIDE Bulky Desktop Sidebar on Mobile */
             .sidebar {
                 display: none !important;
@@ -1078,43 +1102,16 @@
                 overflow: hidden !important;
             }
 
-            /* Mobile User Top Bar */
-            .mobile-top-header {
+            /* Mobile User Profile Card inside paneProfile */
+            .mobile-profile-hero {
                 display: flex !important;
                 align-items: center;
-                justify-content: space-between;
-                padding: 10px 14px;
-                background: rgba(26, 29, 39, 0.8);
+                gap: 12px;
+                padding: 12px 14px;
+                background: rgba(26, 29, 39, 0.7);
                 border: 1px solid var(--border);
                 border-radius: 14px;
                 margin-bottom: 14px;
-                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-            }
-
-            .mobile-top-user {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                min-width: 0;
-            }
-
-            .btn-mobile-exit {
-                padding: 6px 12px;
-                background: rgba(255, 69, 58, 0.12);
-                border: 1px solid rgba(255, 69, 58, 0.3);
-                color: var(--status-red);
-                border-radius: 8px;
-                font-size: 12px;
-                font-weight: 600;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                gap: 5px;
-                flex-shrink: 0;
-            }
-
-            .btn-mobile-exit:active {
-                transform: scale(0.96);
             }
 
             /* Scrollable Content Container */
@@ -1195,34 +1192,40 @@
             }
 
             .btn-apple-primary, .btn-apple-secondary {
-                min-height: 46px !important;
+                min-height: 44px !important;
                 font-size: 14px !important;
                 border-radius: 12px !important;
             }
 
-            /* Mobile Setting Row */
+            /* Mobile Setting Row - Clean 1-Line Apple iOS Rows */
             .setting-row {
                 padding: 12px 14px !important;
-                flex-direction: column !important;
-                align-items: flex-start !important;
-                gap: 12px !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 10px !important;
             }
 
             .setting-left {
-                width: 100% !important;
+                width: auto !important;
+                flex: 1 !important;
+                min-width: 0 !important;
+            }
+
+            .setting-desc {
+                display: none !important; /* Declutter: remove long text under rows */
             }
 
             .setting-right {
-                width: 100% !important;
+                width: auto !important;
+                flex-shrink: 0 !important;
             }
 
             .btn-setting-action {
-                width: 100% !important;
-                text-align: center;
-                min-height: 40px !important;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+                width: auto !important;
+                padding: 6px 12px !important;
+                font-size: 12px !important;
+                min-height: 32px !important;
             }
 
             /* Auth Screen on Mobile */
@@ -1289,6 +1292,9 @@
                 <span class="status-pulse"></span>
                 <span>SECURE</span>
             </div>
+            <button type="button" class="btn-top-exit" id="btnMobileTopExit" onclick="handleLogout()" title="Chiqish">
+                Chiqish
+            </button>
         </div>
 
         <!-- ================= 1. AUTHENTICATION SECTION ================= -->
@@ -1465,30 +1471,24 @@
 
             <!-- Right Content Panes -->
             <div class="main-content-pane">
-                <!-- Mobile User Top Bar (Faqat mobil ekranda ko'rinadi) -->
-                <div class="mobile-top-header">
-                    <div class="mobile-top-user">
-                        <div class="hero-avatar-wrap" style="width: 38px; height: 38px; margin: 0;">
-                            <img id="mDashAvatarImg" class="hero-avatar-img" src="" style="display: none;" alt="User Avatar">
-                            <div id="mDashAvatarFallback" class="hero-avatar-fallback" style="font-size: 15px;">S</div>
-                        </div>
-                        <div style="min-width: 0;">
-                            <div style="font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="mDashFullName">Samar Rahbar</div>
-                            <div style="font-size: 11px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="mDashSamarId">samar@samar.os</div>
-                        </div>
-                    </div>
-                    <button type="button" class="btn-mobile-exit" onclick="handleLogout()" title="Chiqish">
-                        <span>Chiqish</span>
-                    </button>
-                </div>
-
                 <div id="paneAlert" class="toast-msg"></div>
 
-                <!-- PANE 1: SHAXSIY MA'LUMOTLAR -->
+                <!-- PANE 1: SHAXSIY PROFIL -->
                 <div id="paneProfile">
+                    <!-- Mobil Profil Vizitkasi (Faqat Profil sahifasida ko'rinadi) -->
+                    <div class="mobile-profile-hero">
+                        <div class="hero-avatar-wrap" style="width: 44px; height: 44px; margin: 0;">
+                            <img id="mDashAvatarImg" class="hero-avatar-img" src="" style="display: none;" alt="User Avatar">
+                            <div id="mDashAvatarFallback" class="hero-avatar-fallback" style="font-size: 17px;">S</div>
+                        </div>
+                        <div style="min-width: 0; flex: 1;">
+                            <div style="font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="mDashFullName">Samar Rahbar</div>
+                            <div style="font-size: 12px; color: var(--accent); font-family: 'JetBrains Mono', monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="mDashSamarId">samar@samar.os</div>
+                        </div>
+                    </div>
+
                     <div class="pane-header">
-                        <h2 class="pane-title">Shaxsiy Ma'lumotlar</h2>
-                        <p class="pane-sub">Samar OS ekotizimida ko'rinadigan shaxsiy profilingiz</p>
+                        <h2 class="pane-title">Shaxsiy Profil</h2>
                     </div>
 
                     <form onsubmit="handleProfileUpdate(event)">
@@ -1498,8 +1498,8 @@
                                 <input type="text" class="input-apple" id="editFullName" required>
                             </div>
                             <div class="form-row">
-                                <label>Kasb yoki Ixtisoslik</label>
-                                <input type="text" class="input-apple" id="editSpecialty" placeholder="Masalan: Tizimli Dasturchi, Me'mor">
+                                <label>Kasb / Ixtisoslik</label>
+                                <input type="text" class="input-apple" id="editSpecialty" placeholder="Masalan: Tizimli Dasturchi">
                             </div>
                             <div class="form-row">
                                 <label>Bog'lanish Uchun Telefon</label>
@@ -1507,13 +1507,13 @@
                             </div>
                             <div class="form-row" style="margin-bottom: 0;">
                                 <label>Shaxsiy Qayd (Bio)</label>
-                                <textarea class="input-apple" id="editBio" placeholder="O'zingiz haqingizda qisqacha..." style="min-height: 80px; resize: vertical;"></textarea>
+                                <textarea class="input-apple" id="editBio" placeholder="O'zingiz haqingizda..." style="min-height: 70px; resize: vertical;"></textarea>
                             </div>
                         </div>
 
-                        <button type="submit" class="btn-apple-primary" style="max-width: 240px;" id="btnSaveProfile">
+                        <button type="submit" class="btn-apple-primary" style="max-width: 200px;" id="btnSaveProfile">
                             <span id="saveProfileSpinner" class="spinner" style="display: none;"></span>
-                            <span id="saveProfileText">O'zgarishlarni Saqlash</span>
+                            <span id="saveProfileText">Saqlash</span>
                         </button>
                     </form>
                 </div>
@@ -1521,8 +1521,7 @@
                 <!-- PANE 2: KIRISH VA XAVFSIZLIK (APPLE STYLE GROUPED SETTINGS) -->
                 <div id="paneSecurity" style="display: none;">
                     <div class="pane-header">
-                        <h2 class="pane-title">Kirish va Xavfsizlik</h2>
-                        <p class="pane-sub">Samar ID hisobining xavfsizlik protokollari va tasdiqlash vositalari</p>
+                        <h2 class="pane-title">Xavfsizlik</h2>
                     </div>
 
                     <!-- Apple-style Grouped Settings List -->
@@ -1534,11 +1533,10 @@
                                 <div class="setting-icon-box" style="background: rgba(10, 132, 255, 0.15); color: var(--accent);">🔑</div>
                                 <div class="setting-info">
                                     <div class="setting-title">Hisob Paroli</div>
-                                    <div class="setting-desc">Kuchli shifrlangan maxfiy kalit bilan himoyalangan</div>
                                 </div>
                             </div>
                             <div class="setting-right">
-                                <button type="button" class="btn-setting-action" onclick="openPasswordModal()">Parolni Yangilash...</button>
+                                <button type="button" class="btn-setting-action" onclick="openPasswordModal()">Yangilash</button>
                             </div>
                         </div>
 
@@ -1548,14 +1546,13 @@
                                 <div class="setting-icon-box" style="background: rgba(48, 209, 88, 0.15); color: var(--status-green);">📱</div>
                                 <div class="setting-info">
                                     <div class="setting-title">
-                                        Telefon Raqam (SMS 2FA)
+                                        Telefon (SMS)
                                         <span id="secPhoneBadge" class="badge-unverified">Ulanmagan</span>
                                     </div>
-                                    <div class="setting-desc" id="secPhoneDesc">SMS tasdiqlash kodi orqali hisobni himoyalash</div>
                                 </div>
                             </div>
                             <div class="setting-right">
-                                <button type="button" class="btn-setting-action" id="btnPhoneAction" onclick="openPhoneModal()">Raqamni Ulash...</button>
+                                <button type="button" class="btn-setting-action" id="btnPhoneAction" onclick="openPhoneModal()">Ulash</button>
                             </div>
                         </div>
 
@@ -1565,14 +1562,13 @@
                                 <div class="setting-icon-box" style="background: rgba(255, 159, 10, 0.15); color: var(--status-orange);">🛡️</div>
                                 <div class="setting-info">
                                     <div class="setting-title">
-                                        Ishonchli Do'st (Guardian)
+                                        Ishonchli Do'st
                                         <span id="secGuardianBadge" class="badge-unverified" style="display: none;">Tayinlanmagan</span>
                                     </div>
-                                    <div class="setting-desc" id="secGuardianDesc">Parolni unutganda tiklash uchun mas'ul Samar ID</div>
                                 </div>
                             </div>
                             <div class="setting-right">
-                                <button type="button" class="btn-setting-action" onclick="openGuardianModal()">Sozlash...</button>
+                                <button type="button" class="btn-setting-action" onclick="openGuardianModal()">Sozlash</button>
                             </div>
                         </div>
 
@@ -1581,12 +1577,11 @@
                             <div class="setting-left">
                                 <div class="setting-icon-box" style="background: rgba(191, 90, 242, 0.15); color: #bf5af2;">🔒</div>
                                 <div class="setting-info">
-                                    <div class="setting-title">Ko'p Bosqichli Himoya (2FA)</div>
-                                    <div class="setting-desc">SMS va Ishonchli Do'st protokollari bilan faol</div>
+                                    <div class="setting-title">2FA Himoyasi</div>
                                 </div>
                             </div>
                             <div class="setting-right">
-                                <span class="badge-verified">● Faollashtirilgan</span>
+                                <span class="badge-verified">● Faol</span>
                             </div>
                         </div>
 
@@ -1597,7 +1592,6 @@
                 <div id="paneDevices" style="display: none;">
                     <div class="pane-header">
                         <h2 class="pane-title">Ulangan Qurilmalar</h2>
-                        <p class="pane-sub">Samar ID ga ulangan faol qurilmalar tarmog'i</p>
                     </div>
 
                     <div class="apple-card">
@@ -1610,8 +1604,7 @@
                 <!-- PANE 4: INBOX & BILDIRISHNOMALAR -->
                 <div id="paneInbox" style="display: none;">
                     <div class="pane-header">
-                        <h2 class="pane-title">Xabarnomalar va So'rovlar</h2>
-                        <p class="pane-sub">Tizim xabarlari va do'stlaringizdan kelgan xavfsizlik so'rovlari</p>
+                        <h2 class="pane-title">Xabarlar</h2>
                     </div>
 
                     <div id="inboxContainer">
@@ -1622,16 +1615,17 @@
                 <!-- PANE 5: MAXFIYLIK VA EKSPORT -->
                 <div id="paneVault" style="display: none;">
                     <div class="pane-header">
-                        <h2 class="pane-title">Raqamli Mustaqillik</h2>
-                        <p class="pane-sub">Sizning ma'lumotlaringiz — sizning daxlsiz mulkingiz</p>
+                        <h2 class="pane-title">Ma'lumotlar Arxivi</h2>
                     </div>
 
-                    <div class="apple-card">
-                        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 18px;">
-                            Samar OS da barcha ma'lumotlaringiz shifrlangan va xususiy holatda saqlanadi. Istalgan vaqtda barcha shaxsiy ma'lumotlaringizni bitta to'liq JSON arxiv fayli sifatida yuklab olishingiz mumkin.
-                        </p>
-                        <button class="btn-apple-primary" style="max-width: 280px;" onclick="exportDataVault()">
-                            <span>📥 Barcha Ma'lumotlarni Yuklab Olish (JSON)</span>
+                    <div class="apple-card" style="text-align: center; padding: 24px 16px;">
+                        <div style="font-size: 36px; margin-bottom: 10px;">📦</div>
+                        <div style="font-size: 14px; font-weight: 600; margin-bottom: 6px;">Shaxsiy Arxiv Nusxasi</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); max-width: 320px; margin: 0 auto 18px; line-height: 1.4;">
+                            Barcha profilingiz va xavfsizlik sozlamalaringiz shifrlangan JSON fayl ko'rinishida.
+                        </div>
+                        <button class="btn-apple-primary" style="max-width: 240px; margin: 0 auto;" onclick="exportDataVault()">
+                            <span>📥 Yuklab Olish (JSON)</span>
                         </button>
                     </div>
                 </div>
