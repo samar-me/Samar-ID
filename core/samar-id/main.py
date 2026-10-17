@@ -678,7 +678,8 @@ async def upload_avatar(file: UploadFile = File(...), current: dict = Depends(ge
 def get_sessions(current: dict = Depends(get_current_user_and_jti)):
     try:
         with engine.connect() as conn:
-            query = "SELECT id, token_jti, device_name, ip_address, last_active, is_revoked FROM sessions WHERE user_id = :uid AND (is_revoked IS FALSE OR is_revoked = 0) ORDER BY id DESC"
+            rev_filter = "is_revoked = 0" if is_sqlite else "is_revoked IS FALSE"
+            query = f"SELECT id, token_jti, device_name, ip_address, last_active, is_revoked FROM sessions WHERE user_id = :uid AND {rev_filter} ORDER BY id DESC"
             rows = conn.execute(text(query), {"uid": current["id"]}).mappings().fetchall()
             
         result = []
@@ -698,7 +699,7 @@ def get_sessions(current: dict = Depends(get_current_user_and_jti)):
 @app.delete("/api/auth/sessions/{session_id}")
 def revoke_session(session_id: int, current: dict = Depends(get_current_user_and_jti)):
     with engine.connect() as conn:
-        rev_val = True if not is_sqlite else 1
+        rev_val = "1" if is_sqlite else "TRUE"
         conn.execute(
             text(f"UPDATE sessions SET is_revoked = {rev_val} WHERE id = :sid AND user_id = :uid"),
             {"sid": session_id, "uid": current["id"]}
@@ -709,7 +710,7 @@ def revoke_session(session_id: int, current: dict = Depends(get_current_user_and
 @app.post("/api/auth/logout")
 def logout(current: dict = Depends(get_current_user_and_jti)):
     with engine.connect() as conn:
-        rev_val = True if not is_sqlite else 1
+        rev_val = "1" if is_sqlite else "TRUE"
         conn.execute(
             text(f"UPDATE sessions SET is_revoked = {rev_val} WHERE token_jti = :jti"),
             {"jti": current["current_jti"]}

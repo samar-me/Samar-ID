@@ -1013,58 +1013,152 @@
         .mobile-profile-hero { display: none; }
         .mobile-bottom-nav { display: none; }
         .btn-top-exit { display: none; }
+        .apple-logout-container { display: none; }
 
-        /* ================= MOBILE RESPONSIVE SYSTEM (iOS / ANDROID ADAPTATION) ================= */
+        /* Devices List Apple Styling */
+        .apple-device-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.07);
+            transition: background 0.15s ease;
+            gap: 12px;
+        }
+        .apple-device-item:last-child {
+            border-bottom: none;
+        }
+        .apple-device-meta-wrap {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+            flex: 1;
+        }
+        .apple-device-icon-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 11px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .apple-device-info {
+            min-width: 0;
+            flex: 1;
+        }
+        .apple-device-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .badge-current-device {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 2px 7px;
+            background: rgba(48, 209, 88, 0.15);
+            border: 1px solid rgba(48, 209, 88, 0.35);
+            border-radius: 6px;
+            color: var(--status-green);
+            font-size: 10px;
+            font-weight: 700;
+        }
+        .apple-device-sub {
+            font-size: 11.5px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        .btn-device-revoke {
+            padding: 6px 12px;
+            background: rgba(255, 69, 58, 0.12);
+            border: 1px solid rgba(255, 69, 58, 0.3);
+            color: var(--status-red);
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .btn-device-revoke:active {
+            transform: scale(0.95);
+            background: rgba(255, 69, 58, 0.22);
+        }
+
+        /* ================= MOBILE RESPONSIVE SYSTEM (APPLE iOS HIG QUALITY) ================= */
         @media (max-width: 768px) {
             html, body {
                 width: 100%;
-                height: 100%;
-                overflow: hidden;
+                min-height: 100%;
+                height: auto;
+                overflow-x: hidden;
+                overflow-y: auto;
+                overscroll-behavior-y: auto;
+                -webkit-overflow-scrolling: touch;
             }
 
             body {
                 padding: 0 !important;
                 align-items: stretch !important;
-                justify-content: stretch !important;
-                background: #000000 !important;
+                justify-content: flex-start !important;
+                background: #060709 !important;
             }
 
             .macos-window {
                 width: 100% !important;
                 max-width: 100% !important;
-                height: 100vh !important;
-                height: 100dvh !important;
+                min-height: 100dvh !important;
+                height: auto !important;
                 max-height: none !important;
                 border: none !important;
                 border-radius: 0 !important;
                 box-shadow: none !important;
+                background: #060709 !important;
+                display: flex !important;
+                flex-direction: column !important;
             }
 
-            /* Titlebar becomes sleek mobile app bar */
+            /* Titlebar becomes sleek iOS navigation bar */
             .titlebar {
-                height: 48px;
-                padding: 0 14px;
-                background: rgba(14, 16, 22, 0.95);
+                height: 52px;
+                padding: 0 16px;
+                background: rgba(14, 16, 22, 0.96);
                 backdrop-filter: blur(25px);
                 -webkit-backdrop-filter: blur(25px);
+                border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+                position: sticky;
+                top: 0;
+                z-index: 50;
             }
 
             .traffic-lights {
-                display: none !important; /* Hide desktop dots on smartphone */
+                display: none !important;
             }
 
             .titlebar-center {
                 gap: 10px;
+                margin: 0 auto;
             }
 
             .titlebar-logo {
-                width: 24px;
-                height: 24px;
+                width: 26px;
+                height: 26px;
+                border-radius: 6px;
             }
 
             .titlebar-text {
-                font-size: 14.5px;
+                font-size: 15px;
                 font-weight: 700;
+                letter-spacing: -0.3px;
                 color: #ffffff;
             }
 
@@ -1072,68 +1166,143 @@
                 display: none !important;
             }
 
-            /* Sleek exit button in mobile titlebar */
-            .btn-top-exit {
-                display: inline-flex !important;
-                align-items: center;
-                justify-content: center;
-                padding: 5px 12px;
-                background: rgba(255, 69, 58, 0.12);
-                border: 1px solid rgba(255, 69, 58, 0.3);
-                color: var(--status-red);
-                border-radius: 8px;
-                font-size: 11.5px;
-                font-weight: 600;
-                cursor: pointer;
-            }
-            .btn-top-exit:active {
-                transform: scale(0.96);
-            }
-
-            /* HIDE Bulky Desktop Sidebar on Mobile */
+            /* Hide Desktop Sidebar on Mobile */
             .sidebar {
                 display: none !important;
             }
 
+            /* Main Dashboard Body scrolls naturally with the document */
             .dashboard-body {
                 flex-direction: column !important;
-                height: calc(100dvh - 48px) !important;
-                min-height: 0 !important;
-                overflow: hidden !important;
+                height: auto !important;
+                min-height: calc(100dvh - 52px) !important;
+                overflow: visible !important;
+                flex: 1 !important;
             }
 
-            /* Mobile User Profile Card inside paneProfile */
+            /* Content container with padding for sticky bottom navigation */
+            .main-content-pane {
+                padding: 16px 16px calc(88px + env(safe-area-inset-bottom)) 16px !important;
+                overflow: visible !important;
+                height: auto !important;
+                max-width: 100% !important;
+            }
+
+            /* Mobile Inset Grouped Settings Cards (Apple Standard) */
+            .apple-card, .apple-settings-card {
+                background: rgba(26, 28, 36, 0.75) !important;
+                backdrop-filter: blur(20px) !important;
+                -webkit-backdrop-filter: blur(20px) !important;
+                border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                border-radius: 16px !important;
+                overflow: hidden !important;
+                margin-bottom: 18px !important;
+            }
+
+            .pane-title {
+                font-size: 22px !important;
+                font-weight: 700 !important;
+                letter-spacing: -0.5px !important;
+                margin-bottom: 14px !important;
+            }
+
+            /* Mobile Setting Row */
+            .setting-row {
+                padding: 13px 16px !important;
+                min-height: 54px !important;
+                border-bottom: 0.5px solid rgba(255, 255, 255, 0.06) !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 12px !important;
+            }
+
+            .setting-icon-box {
+                width: 34px !important;
+                height: 34px !important;
+                border-radius: 9px !important;
+                font-size: 17px !important;
+            }
+
+            .setting-title {
+                font-size: 14px !important;
+                font-weight: 600 !important;
+            }
+
+            .setting-desc {
+                display: block !important;
+                font-size: 11px !important;
+                color: rgba(235, 235, 245, 0.55) !important;
+                margin-top: 2px !important;
+            }
+
+            .btn-setting-action {
+                padding: 6px 13px !important;
+                font-size: 12px !important;
+                font-weight: 600 !important;
+                border-radius: 8px !important;
+                background: rgba(10, 132, 255, 0.14) !important;
+                border: 1px solid rgba(10, 132, 255, 0.3) !important;
+                color: var(--accent) !important;
+            }
+            .btn-setting-action:active {
+                transform: scale(0.96) !important;
+            }
+
+            /* Mobile Profile Hero */
             .mobile-profile-hero {
                 display: flex !important;
                 align-items: center;
-                gap: 12px;
-                padding: 12px 14px;
-                background: rgba(26, 29, 39, 0.7);
-                border: 1px solid var(--border);
+                gap: 14px;
+                padding: 14px 16px;
+                background: rgba(26, 28, 36, 0.75);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 16px;
+                margin-bottom: 16px;
+            }
+
+            /* Mobile Bottom Logout Card */
+            .apple-logout-container {
+                display: block !important;
+                margin-top: 24px;
+                margin-bottom: 12px;
+            }
+            .btn-apple-logout {
+                width: 100%;
+                padding: 14px 16px;
+                background: rgba(255, 69, 58, 0.1);
+                border: 1px solid rgba(255, 69, 58, 0.25);
                 border-radius: 14px;
-                margin-bottom: 14px;
+                color: var(--status-red);
+                font-size: 15px;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                cursor: pointer;
+                transition: all 0.15s;
+                -webkit-tap-highlight-color: transparent;
+            }
+            .btn-apple-logout:active {
+                background: rgba(255, 69, 58, 0.2);
+                transform: scale(0.98);
             }
 
-            /* Scrollable Content Container */
-            .main-content-pane {
-                padding: 12px 14px calc(76px + env(safe-area-inset-bottom)) 14px !important;
-                overflow-y: auto !important;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            /* iOS-style Bottom Navigation Bar */
+            /* Authentic Apple iOS Bottom Navigation Bar */
             .mobile-bottom-nav {
                 display: flex !important;
                 position: fixed;
                 bottom: 0;
                 left: 0;
                 right: 0;
-                height: calc(56px + env(safe-area-inset-bottom));
+                height: calc(58px + env(safe-area-inset-bottom));
                 padding-bottom: env(safe-area-inset-bottom);
-                background: rgba(14, 16, 22, 0.94);
-                backdrop-filter: blur(30px);
-                -webkit-backdrop-filter: blur(30px);
-                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                background: rgba(16, 18, 25, 0.92);
+                backdrop-filter: blur(35px);
+                -webkit-backdrop-filter: blur(35px);
+                border-top: 0.5px solid rgba(255, 255, 255, 0.1);
                 align-items: center;
                 justify-content: space-around;
                 z-index: 1000;
@@ -1148,13 +1317,17 @@
                 height: 100%;
                 background: transparent;
                 border: none;
-                color: var(--text-secondary);
+                color: rgba(235, 235, 245, 0.55);
                 font-size: 10px;
                 font-weight: 500;
                 cursor: pointer;
                 position: relative;
-                transition: color 0.15s;
+                transition: color 0.15s, transform 0.1s;
                 -webkit-tap-highlight-color: transparent;
+            }
+
+            .bottom-nav-item:active {
+                transform: scale(0.92);
             }
 
             .bottom-nav-item.active {
@@ -1163,12 +1336,12 @@
             }
 
             .bottom-nav-icon {
-                font-size: 19px;
+                font-size: 20px;
                 margin-bottom: 2px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                height: 22px;
+                height: 24px;
             }
 
             .bottom-nav-badge {
@@ -1186,58 +1359,22 @@
 
             /* Touch Optimized Form Elements */
             .input-apple {
-                font-size: 16px !important; /* Prevents auto-zoom on iPhone */
-                padding: 11px 14px !important;
-                min-height: 44px;
-            }
-
-            .btn-apple-primary, .btn-apple-secondary {
-                min-height: 44px !important;
-                font-size: 14px !important;
+                font-size: 16px !important; /* Strictly prevents auto-zoom on iPhone */
+                padding: 12px 14px !important;
+                min-height: 46px;
                 border-radius: 12px !important;
             }
 
-            /* Mobile Setting Row - Clean 1-Line Apple iOS Rows */
-            .setting-row {
-                padding: 12px 14px !important;
-                flex-direction: row !important;
-                align-items: center !important;
-                justify-content: space-between !important;
-                gap: 10px !important;
-            }
-
-            .setting-left {
-                width: auto !important;
-                flex: 1 !important;
-                min-width: 0 !important;
-            }
-
-            .setting-desc {
-                display: none !important; /* Declutter: remove long text under rows */
-            }
-
-            .setting-right {
-                width: auto !important;
-                flex-shrink: 0 !important;
-            }
-
-            .btn-setting-action {
-                width: auto !important;
-                padding: 6px 12px !important;
-                font-size: 12px !important;
-                min-height: 32px !important;
+            .btn-apple-primary, .btn-apple-secondary {
+                min-height: 46px !important;
+                font-size: 14.5px !important;
+                border-radius: 12px !important;
             }
 
             /* Auth Screen on Mobile */
-            .auth-container {
-                padding: 16px 14px 40px 14px !important;
-                overflow-y: auto !important;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            .auth-card {
-                max-width: 100% !important;
-                padding: 20px 16px !important;
+            .auth-view {
+                padding: 24px 18px 48px 18px !important;
+                overflow: visible !important;
             }
 
             /* iOS Bottom Sheet Modals */
@@ -1263,7 +1400,7 @@
                 height: 4.5px;
                 background: rgba(255, 255, 255, 0.25);
                 border-radius: 3px;
-                margin: 10px auto 4px auto;
+                margin: 10px auto 6px auto;
             }
 
             @keyframes mobileSheetSlideUp {
@@ -1292,9 +1429,6 @@
                 <span class="status-pulse"></span>
                 <span>SECURE</span>
             </div>
-            <button type="button" class="btn-top-exit" id="btnMobileTopExit" onclick="handleLogout()" title="Chiqish">
-                Chiqish
-            </button>
         </div>
 
         <!-- ================= 1. AUTHENTICATION SECTION ================= -->
@@ -1513,9 +1647,17 @@
 
                         <button type="submit" class="btn-apple-primary" style="max-width: 200px;" id="btnSaveProfile">
                             <span id="saveProfileSpinner" class="spinner" style="display: none;"></span>
-                            <span id="saveProfileText">Saqlash</span>
+                            <span id="saveProfileText">O'zgarishlarni Saqlash</span>
                         </button>
                     </form>
+
+                    <!-- Apple Inset Group: Mobile Logout Button (Hidden on Desktop) -->
+                    <div class="apple-logout-container">
+                        <button type="button" class="btn-apple-logout" id="btnMobileProfileExit" onclick="handleLogout()">
+                            <span id="exitSpinnerMobile" class="spinner" style="display: none; border-top-color: var(--status-red); width: 14px; height: 14px;"></span>
+                            <span id="exitTextMobile">Tizimdan Chiqish</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- PANE 2: KIRISH VA XAVFSIZLIK (APPLE STYLE GROUPED SETTINGS) -->
@@ -1533,6 +1675,7 @@
                                 <div class="setting-icon-box" style="background: rgba(10, 132, 255, 0.15); color: var(--accent);">🔑</div>
                                 <div class="setting-info">
                                     <div class="setting-title">Hisob Paroli</div>
+                                    <div class="setting-desc">Tizimga kirish uchun maxfiy kalit</div>
                                 </div>
                             </div>
                             <div class="setting-right">
@@ -1549,6 +1692,7 @@
                                         Telefon (SMS)
                                         <span id="secPhoneBadge" class="badge-unverified">Ulanmagan</span>
                                     </div>
+                                    <div class="setting-desc" id="secPhoneDesc">SMS tasdiqlash orqali hisobni himoyalash</div>
                                 </div>
                             </div>
                             <div class="setting-right">
@@ -1565,6 +1709,7 @@
                                         Ishonchli Do'st
                                         <span id="secGuardianBadge" class="badge-unverified" style="display: none;">Tayinlanmagan</span>
                                     </div>
+                                    <div class="setting-desc" id="secGuardianDesc">Parolni unutganda tiklash vositachisi</div>
                                 </div>
                             </div>
                             <div class="setting-right">
@@ -1578,6 +1723,7 @@
                                 <div class="setting-icon-box" style="background: rgba(191, 90, 242, 0.15); color: #bf5af2;">🔒</div>
                                 <div class="setting-info">
                                     <div class="setting-title">2FA Himoyasi</div>
+                                    <div class="setting-desc">Biometrik va xavfsiz sessiya nazorati</div>
                                 </div>
                             </div>
                             <div class="setting-right">
@@ -1590,13 +1736,20 @@
 
                 <!-- PANE 3: QURILMALAR -->
                 <div id="paneDevices" style="display: none;">
-                    <div class="pane-header">
-                        <h2 class="pane-title">Ulangan Qurilmalar</h2>
+                    <div class="pane-header" style="display: flex; align-items: center; justify-content: space-between;">
+                        <h2 class="pane-title" style="margin: 0;">Ulangan Qurilmalar</h2>
+                        <button type="button" class="btn-setting-action" onclick="loadDevices()" title="Qurilmalarni yangilash" style="display: inline-flex; align-items: center; gap: 6px;">
+                            <span id="refreshDevicesIcon">🔄</span>
+                            <span>Yangilash</span>
+                        </button>
                     </div>
 
-                    <div class="apple-card">
+                    <div class="apple-settings-card" id="devicesCard" style="margin-top: 14px;">
                         <div id="devicesContainer">
-                            <div style="text-align: center; color: var(--text-secondary); font-size: 13px; padding: 20px;">Qurilmalar yuklanmoqda...</div>
+                            <div style="text-align: center; color: var(--text-secondary); font-size: 13px; padding: 28px;">
+                                <span class="spinner" style="display: inline-block; margin-bottom: 8px;"></span><br>
+                                Qurilmalar yuklanmoqda...
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2453,34 +2606,80 @@
             return '🌐';
         }
 
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         async function loadDevices() {
             const token = localStorage.getItem('samar_token');
             const container = document.getElementById('devicesContainer');
+            const icon = document.getElementById('refreshDevicesIcon');
+            if (icon) icon.style.animation = 'spin 0.6s linear infinite';
+            if (!container) return;
+
             try {
                 const res = await fetch('/api/auth/sessions', {
                     headers: { 'Authorization': 'Bearer ' + token }
                 });
+                if (!res.ok) {
+                    throw new Error('Server xatosi: ' + res.status);
+                }
                 const list = await res.json();
-                if (!list || list.length === 0) {
-                    container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 16px;">Ulangan qurilmalar yo\'q.</div>';
+                if (!Array.isArray(list) || list.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; color: var(--text-secondary); padding: 32px 16px;">
+                            <div style="font-size: 32px; margin-bottom: 8px;">💻</div>
+                            <div style="font-weight: 600; color: var(--text-primary); font-size: 14px;">Ulangan qurilmalar yo'q</div>
+                            <div style="font-size: 12px; margin-top: 4px;">Faqat joriy sessiyangiz aktiv.</div>
+                        </div>`;
                     return;
                 }
                 container.innerHTML = list.map(d => `
-                    <div class="device-row">
-                        <div class="device-meta">
-                            <div class="device-symbol">${getDeviceIcon(d.device_name)}</div>
-                            <div>
-                                <div class="device-title">
-                                    ${d.device_name}
-                                    ${d.is_current ? '<span style="color: var(--status-green); font-size: 11px; margin-left: 6px;">● Bu Qurilma</span>' : ''}
+                    <div class="apple-device-item ${d.is_current ? 'is-current-device' : ''}">
+                        <div class="apple-device-meta-wrap">
+                            <div class="apple-device-icon-box">
+                                ${getDeviceIcon(d.device_name)}
+                            </div>
+                            <div class="apple-device-info">
+                                <div class="apple-device-title">
+                                    <span>${escapeHtml(d.device_name)}</span>
+                                    ${d.is_current ? '<span class="badge-current-device"><span class="status-pulse" style="width:5px;height:5px;"></span> Bu Qurilma</span>' : ''}
                                 </div>
-                                <div class="device-sub">IP: ${d.ip_address || '127.0.0.1'} • ${d.last_active}</div>
+                                <div class="apple-device-sub">
+                                    <span>IP: ${escapeHtml(d.ip_address || '127.0.0.1')}</span>
+                                    <span style="opacity: 0.5;"> • </span>
+                                    <span>${escapeHtml(d.last_active || 'Hozir faol')}</span>
+                                </div>
                             </div>
                         </div>
-                        ${!d.is_current ? `<button class="btn-text-danger" onclick="revokeSession(${d.id})">Chiqarish</button>` : ''}
+                        <div>
+                            ${!d.is_current ? `
+                                <button type="button" class="btn-device-revoke" onclick="revokeSession(${d.id})">
+                                    Chiqarish
+                                </button>
+                            ` : `
+                                <span class="badge-verified" style="font-size: 10px;">Faol</span>
+                            `}
+                        </div>
                     </div>
                 `).join('');
-            } catch (_) {}
+            } catch (err) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 24px; color: var(--status-red);">
+                        <div style="font-size: 13px; margin-bottom: 10px;">⚠️ Qurilmalar ro'yxatini yuklab bo'lmadi.</div>
+                        <button type="button" class="btn-setting-action" onclick="loadDevices()" style="color: var(--accent); border-color: var(--accent);">Qayta urinish</button>
+                    </div>`;
+            } finally {
+                if (icon) {
+                    setTimeout(() => { icon.style.animation = 'none'; }, 400);
+                }
+            }
         }
 
         async function revokeSession(id) {
@@ -2534,16 +2733,23 @@
             a.click();
         }
 
-        // Apple Smooth "Chiqish" Transition
+        // Apple Smooth "Chiqish" Transition (Desktop & Mobile)
         async function handleLogout() {
             const exitBtn = document.getElementById('btnExitApp');
             const exitSpinner = document.getElementById('exitSpinner');
             const exitText = document.getElementById('exitText');
+            const mExitBtn = document.getElementById('btnMobileProfileExit');
+            const mExitSpinner = document.getElementById('exitSpinnerMobile');
+            const mExitText = document.getElementById('exitTextMobile');
             const windowEl = document.getElementById('mainWindow');
 
-            exitBtn.disabled = true;
-            exitSpinner.style.display = 'inline-block';
-            exitText.innerText = 'Chiqilmoqda...';
+            if (exitBtn) { exitBtn.disabled = true; }
+            if (exitSpinner) { exitSpinner.style.display = 'inline-block'; }
+            if (exitText) { exitText.innerText = 'Chiqilmoqda...'; }
+
+            if (mExitBtn) { mExitBtn.disabled = true; }
+            if (mExitSpinner) { mExitSpinner.style.display = 'inline-block'; }
+            if (mExitText) { mExitText.innerText = 'Chiqilmoqda...'; }
 
             const token = localStorage.getItem('samar_token');
             if (token) {
@@ -2561,9 +2767,13 @@
                 document.getElementById('dashboardSection').style.display = 'none';
                 document.getElementById('authSection').style.display = 'block';
 
-                exitBtn.disabled = false;
-                exitSpinner.style.display = 'none';
-                exitText.innerText = 'Chiqish';
+                if (exitBtn) { exitBtn.disabled = false; }
+                if (exitSpinner) { exitSpinner.style.display = 'none'; }
+                if (exitText) { exitText.innerText = 'Chiqish'; }
+
+                if (mExitBtn) { mExitBtn.disabled = false; }
+                if (mExitSpinner) { mExitSpinner.style.display = 'none'; }
+                if (mExitText) { mExitText.innerText = 'Tizimdan Chiqish'; }
 
                 windowEl.classList.remove('window-fade-out');
             }, 300);
