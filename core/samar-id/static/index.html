@@ -799,10 +799,213 @@
             margin-bottom: 4px;
         }
 
-        .notif-body {
-            font-size: 12.5px;
+        /* Apple-style Grouped Settings List */
+        .apple-settings-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 14px;
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            gap: 16px;
+            transition: background 0.15s;
+        }
+
+        .setting-row:last-child {
+            border-bottom: none;
+        }
+
+        .setting-row:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .setting-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .setting-icon-box {
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .setting-info {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .setting-title {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .setting-desc {
+            font-size: 11.5px;
             color: var(--text-secondary);
-            line-height: 1.5;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .setting-right {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge-verified {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: rgba(48, 209, 88, 0.14);
+            border: 1px solid rgba(48, 209, 88, 0.35);
+            border-radius: 10px;
+            color: var(--status-green);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-unverified {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: rgba(255, 159, 10, 0.14);
+            border: 1px solid rgba(255, 159, 10, 0.35);
+            border-radius: 10px;
+            color: var(--status-orange);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .btn-setting-action {
+            padding: 6px 14px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-setting-action:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--accent);
+            color: #ffffff;
+        }
+
+        .btn-setting-action:active {
+            transform: scale(0.97);
+        }
+
+        /* Modal Dialogs (Apple Sheet style) */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-sheet {
+            background: rgba(26, 29, 38, 0.98);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+            animation: sheetSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+
+        @keyframes sheetSlideUp {
+            from { opacity: 0; transform: translateY(16px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .modal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 16px;
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+
+        .modal-close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .sms-badge-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            background: rgba(48, 209, 88, 0.08);
+            border: 1px solid rgba(48, 209, 88, 0.25);
+            border-radius: 10px;
+            margin-bottom: 14px;
         }
     </style>
 </head>
@@ -1037,52 +1240,78 @@
                     </form>
                 </div>
 
-                <!-- PANE 2: KIRISH VA XAVFSIZLIK (GUARDIAN BILAN) -->
+                <!-- PANE 2: KIRISH VA XAVFSIZLIK (APPLE STYLE GROUPED SETTINGS) -->
                 <div id="paneSecurity" style="display: none;">
                     <div class="pane-header">
                         <h2 class="pane-title">Kirish va Xavfsizlik</h2>
-                        <p class="pane-sub">Parol va ishonchli do'stingiz (Guardian) orqali tiklash sozlamalari</p>
+                        <p class="pane-sub">Samar ID hisobining xavfsizlik protokollari va tasdiqlash vositalari</p>
                     </div>
 
-                    <!-- Parol O'zgartirish Card -->
-                    <div class="apple-card">
-                        <div class="apple-card-title">Parolni Yangilash</div>
-                        <form onsubmit="handlePasswordChange(event)">
-                            <div class="form-row">
-                                <label>Hozirgi Parol</label>
-                                <input type="password" class="input-apple" id="secOldPassword" placeholder="Eski parolingiz" required>
+                    <!-- Apple-style Grouped Settings List -->
+                    <div class="apple-settings-card">
+                        
+                        <!-- Row 1: Parol -->
+                        <div class="setting-row">
+                            <div class="setting-left">
+                                <div class="setting-icon-box" style="background: rgba(10, 132, 255, 0.15); color: var(--accent);">🔑</div>
+                                <div class="setting-info">
+                                    <div class="setting-title">Hisob Paroli</div>
+                                    <div class="setting-desc">Kuchli shifrlangan maxfiy kalit bilan himoyalangan</div>
+                                </div>
                             </div>
-                            <div class="form-row">
-                                <label>Yangi Parol</label>
-                                <input type="password" class="input-apple" id="secNewPassword" placeholder="Kamida 6 ta belgi" required>
+                            <div class="setting-right">
+                                <button type="button" class="btn-setting-action" onclick="openPasswordModal()">Parolni Yangilash...</button>
                             </div>
-                            <div class="form-row">
-                                <label>Yangi Parolni Tasdiqlang</label>
-                                <input type="password" class="input-apple" id="secConfirmPassword" placeholder="Qayta kiriting" required>
-                            </div>
-                            <button type="submit" class="btn-apple-primary" style="max-width: 220px; background: var(--status-red);" id="btnSavePassword">
-                                <span id="savePasswordSpinner" class="spinner" style="display: none;"></span>
-                                <span id="savePasswordText">Parolni Yangilash</span>
-                            </button>
-                        </form>
-                    </div>
+                        </div>
 
-                    <!-- Samar Guardian Card -->
-                    <div class="apple-card">
-                        <div class="apple-card-title">
-                            <span>🛡️ Ishonchli Do'st (Samar Guardian)</span>
-                            <span id="currentGuardianBadge" style="font-size: 11px; color: var(--accent); font-family: 'JetBrains Mono', monospace;">Tayinlanmagan</span>
+                        <!-- Row 2: Telefon Raqam (SMS Tasdiqlash) -->
+                        <div class="setting-row">
+                            <div class="setting-left">
+                                <div class="setting-icon-box" style="background: rgba(48, 209, 88, 0.15); color: var(--status-green);">📱</div>
+                                <div class="setting-info">
+                                    <div class="setting-title">
+                                        Telefon Raqam (SMS 2FA)
+                                        <span id="secPhoneBadge" class="badge-unverified">Ulanmagan</span>
+                                    </div>
+                                    <div class="setting-desc" id="secPhoneDesc">SMS tasdiqlash kodi orqali hisobni himoyalash</div>
+                                </div>
+                            </div>
+                            <div class="setting-right">
+                                <button type="button" class="btn-setting-action" id="btnPhoneAction" onclick="openPhoneModal()">Raqamni Ulash...</button>
+                            </div>
                         </div>
-                        <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px;">
-                            Agar parolingizni unutib qo'ysangiz, ushbu do'stingiz sizga 1 martalik tasdiqlash kodini berib yordam bera oladi.
-                        </p>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="text" class="input-apple" id="guardianInput" placeholder="Do'stingiz Samar ID si (masalan: ali@samar.os)">
-                            <button class="btn-apple-primary" style="white-space: nowrap; max-width: 140px;" id="btnSaveGuardian" onclick="saveGuardianFriend()">
-                                <span id="saveGuardianSpinner" class="spinner" style="display: none;"></span>
-                                <span id="saveGuardianText">Saqlash</span>
-                            </button>
+
+                        <!-- Row 3: Ishonchli Do'st (Guardian) -->
+                        <div class="setting-row">
+                            <div class="setting-left">
+                                <div class="setting-icon-box" style="background: rgba(255, 159, 10, 0.15); color: var(--status-orange);">🛡️</div>
+                                <div class="setting-info">
+                                    <div class="setting-title">
+                                        Ishonchli Do'st (Guardian)
+                                        <span id="secGuardianBadge" class="badge-unverified" style="display: none;">Tayinlanmagan</span>
+                                    </div>
+                                    <div class="setting-desc" id="secGuardianDesc">Parolni unutganda tiklash uchun mas'ul Samar ID</div>
+                                </div>
+                            </div>
+                            <div class="setting-right">
+                                <button type="button" class="btn-setting-action" onclick="openGuardianModal()">Sozlash...</button>
+                            </div>
                         </div>
+
+                        <!-- Row 4: Ikki Bosqichli Himoya Statusi -->
+                        <div class="setting-row" style="border-bottom: none;">
+                            <div class="setting-left">
+                                <div class="setting-icon-box" style="background: rgba(191, 90, 242, 0.15); color: #bf5af2;">🔒</div>
+                                <div class="setting-info">
+                                    <div class="setting-title">Ko'p Bosqichli Himoya (2FA)</div>
+                                    <div class="setting-desc">SMS va Ishonchli Do'st protokollari bilan faol</div>
+                                </div>
+                            </div>
+                            <div class="setting-right">
+                                <span class="badge-verified">● Faollashtirilgan</span>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
@@ -1132,6 +1361,152 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- ================= 3. MODAL DIALOGS (APPLE SHEET STYLE) ================= -->
+
+    <!-- Modal 1: Parolni Yangilash -->
+    <div id="modalPassword" class="modal-overlay" onclick="handleModalBackdropClick(event, 'modalPassword')">
+        <div class="modal-sheet">
+            <div class="modal-head">
+                <div class="modal-title">
+                    <span>🔑</span>
+                    <span>Parolni Yangilash</span>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closePasswordModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div id="modalPassAlert" class="toast-msg"></div>
+                <form onsubmit="handleModalPasswordSubmit(event)">
+                    <div class="form-row">
+                        <label>Hozirgi Parol</label>
+                        <input type="password" class="input-apple" id="modalOldPassword" placeholder="Eski parolingiz" required>
+                    </div>
+                    <div class="form-row">
+                        <label>Yangi Parol</label>
+                        <input type="password" class="input-apple" id="modalNewPassword" placeholder="Kamida 6 ta belgi" required>
+                    </div>
+                    <div class="form-row" style="margin-bottom: 18px;">
+                        <label>Yangi Parolni Qayta Kiriting</label>
+                        <input type="password" class="input-apple" id="modalConfirmPassword" placeholder="Qayta tasdiqlang" required>
+                    </div>
+                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <button type="button" class="btn-apple-secondary" style="max-width: 100px;" onclick="closePasswordModal()">Bekor Qilish</button>
+                        <button type="submit" class="btn-apple-primary" style="max-width: 180px; background: var(--status-red);" id="btnModalSavePass">
+                            <span id="modalPassSpinner" class="spinner" style="display: none;"></span>
+                            <span id="modalPassText">Yangilash</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: Telefon Raqam va SMS Tasdiqlash -->
+    <div id="modalPhone" class="modal-overlay" onclick="handleModalBackdropClick(event, 'modalPhone')">
+        <div class="modal-sheet">
+            <div class="modal-head">
+                <div class="modal-title">
+                    <span>📱</span>
+                    <span>Telefon Raqam va SMS Tasdiqlash</span>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closePhoneModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div id="modalPhoneAlert" class="toast-msg"></div>
+
+                <!-- Holat 1: Raqam allaqachon tasdiqlangan -->
+                <div id="phoneVerifiedState" style="display: none;">
+                    <div class="sms-badge-box">
+                        <div>
+                            <div style="font-size: 11px; color: var(--text-secondary);">Ulangan Raqam</div>
+                            <div style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-top: 2px;" id="modalCurrentPhoneDisplay">+998 -- --- -- --</div>
+                        </div>
+                        <span class="badge-verified">● Tasdiqlangan</span>
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px;">
+                        Ushbu raqam ikki bosqichli xavfsizlik (2FA) va hisobni himoya qilish uchun faol.
+                    </p>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" class="btn-apple-secondary" style="flex: 1;" onclick="showPhoneStepInput()">Boshqa Raqam</button>
+                        <button type="button" class="btn-apple-primary" style="flex: 1; background: var(--status-red);" id="btnUnlinkPhone" onclick="handleUnlinkPhone()">
+                            <span id="unlinkPhoneSpinner" class="spinner" style="display: none;"></span>
+                            <span id="unlinkPhoneText">Raqamni Uzish</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Holat 2: Yangi raqam kiritish va SMS kod olish (Step 1) -->
+                <div id="phoneStep1">
+                    <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px;">
+                        Telefon raqamingizga 6 xonali maxfiy SMS tasdiqlash kodi yuboriladi.
+                    </p>
+                    <div class="form-row" style="margin-bottom: 16px;">
+                        <label>Telefon Raqamingiz</label>
+                        <input type="tel" class="input-apple" id="modalInputPhone" placeholder="+998 90 123 45 67">
+                    </div>
+                    <button type="button" class="btn-apple-primary" id="btnSendSmsCode" onclick="handleSendSmsCode()">
+                        <span id="sendSmsSpinner" class="spinner" style="display: none;"></span>
+                        <span id="sendSmsText">SMS Kod Yuborish</span>
+                    </button>
+                </div>
+
+                <!-- Holat 3: 6 xonali SMS kodni tekshirish (Step 2) -->
+                <div id="phoneStep2" style="display: none;">
+                    <div style="text-align: center; margin-bottom: 14px;">
+                        <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5;">
+                            Tasdiqlash kodi <strong id="step2TargetPhone" style="color: var(--text-primary);"></strong> raqamiga yuborildi.
+                        </p>
+                        <p style="font-size: 11px; color: var(--accent); margin-top: 4px;">
+                            ℹ️ Kod shuningdek profilingizdagi <strong>Xabarnomalar</strong> bo'limiga ham yetkazildi.
+                        </p>
+                    </div>
+                    <div class="form-row" style="margin-bottom: 14px;">
+                        <label style="text-align: center;">6 xonali SMS Kod</label>
+                        <input type="text" class="input-apple" id="modalInputSmsCode" placeholder="••••••" maxlength="6" style="text-align: center; font-size: 20px; letter-spacing: 6px; font-weight: 700;">
+                    </div>
+                    <button type="button" class="btn-apple-primary" id="btnVerifySmsCode" style="background: var(--status-green);" onclick="handleVerifySmsCode()">
+                        <span id="verifySmsSpinner" class="spinner" style="display: none;"></span>
+                        <span id="verifySmsText">Kodni Tasdiqlash & Ulash</span>
+                    </button>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
+                        <button type="button" class="btn-link-subtle" onclick="showPhoneStepInput()">← Raqamni o'zgartirish</button>
+                        <div id="smsResendTimer" style="font-size: 11.5px; color: var(--text-secondary);"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3: Ishonchli Do'st (Guardian) -->
+    <div id="modalGuardian" class="modal-overlay" onclick="handleModalBackdropClick(event, 'modalGuardian')">
+        <div class="modal-sheet">
+            <div class="modal-head">
+                <div class="modal-title">
+                    <span>🛡️</span>
+                    <span>Ishonchli Do'st (Samar Guardian)</span>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeGuardianModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div id="modalGuardianAlert" class="toast-msg"></div>
+                <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px;">
+                    Agar kelajakda parolingizni unutib qo'ysangiz yoki akkauntingiz xavf ostida qolsa, ushbu do'stingiz sizga 1 martalik tasdiqlash kodini berib yordam bera oladi.
+                </p>
+                <div class="form-row" style="margin-bottom: 18px;">
+                    <label>Do'stingizning Samar ID si</label>
+                    <input type="text" class="input-apple" id="modalGuardianInput" placeholder="masalan: do'st@samar.os">
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn-apple-secondary" style="max-width: 100px;" onclick="closeGuardianModal()">Bekor Qilish</button>
+                    <button type="button" class="btn-apple-primary" style="max-width: 180px;" id="btnModalSaveGuardian" onclick="handleModalGuardianSubmit()">
+                        <span id="modalGuardianSpinner" class="spinner" style="display: none;"></span>
+                        <span id="modalGuardianText">Saqlash</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -1393,9 +1768,47 @@
             document.getElementById('editPhone').value = user.phone || '';
             document.getElementById('editBio').value = user.bio || '';
 
-            // Guardian
-            document.getElementById('currentGuardianBadge').innerText = user.guardian_id ? user.guardian_id : 'Tayinlanmagan';
-            if (user.guardian_id) document.getElementById('guardianInput').value = user.guardian_id;
+            // Guardian & Phone Security Row (Apple-Style Grouped Card)
+            const phoneBadge = document.getElementById('secPhoneBadge');
+            const phoneDesc = document.getElementById('secPhoneDesc');
+            const btnPhoneAction = document.getElementById('btnPhoneAction');
+
+            if (user.phone && user.phone_verified) {
+                if (phoneBadge) {
+                    phoneBadge.className = 'badge-verified';
+                    phoneBadge.innerText = '● Tasdiqlangan';
+                }
+                if (phoneDesc) phoneDesc.innerText = user.phone + ' • SMS xavfsizlik himoyasi faol';
+                if (btnPhoneAction) btnPhoneAction.innerText = "O'zgartirish...";
+            } else if (user.phone) {
+                if (phoneBadge) {
+                    phoneBadge.className = 'badge-unverified';
+                    phoneBadge.innerText = 'Tasdiqlanmagan';
+                }
+                if (phoneDesc) phoneDesc.innerText = user.phone + ' • Tasdiqlash kutilmoqda';
+                if (btnPhoneAction) btnPhoneAction.innerText = 'Tasdiqlash...';
+            } else {
+                if (phoneBadge) {
+                    phoneBadge.className = 'badge-unverified';
+                    phoneBadge.innerText = 'Ulanmagan';
+                }
+                if (phoneDesc) phoneDesc.innerText = 'SMS tasdiqlash kodi orqali hisobni himoyalash';
+                if (btnPhoneAction) btnPhoneAction.innerText = 'Raqamni Ulash...';
+            }
+
+            const guardianBadge = document.getElementById('secGuardianBadge');
+            const guardianDesc = document.getElementById('secGuardianDesc');
+            if (user.guardian_id) {
+                if (guardianBadge) {
+                    guardianBadge.style.display = 'inline-flex';
+                    guardianBadge.className = 'badge-verified';
+                    guardianBadge.innerText = '● ' + user.guardian_id;
+                }
+                if (guardianDesc) guardianDesc.innerText = "Tiklash vositachisi: " + user.guardian_id;
+            } else {
+                if (guardianBadge) guardianBadge.style.display = 'none';
+                if (guardianDesc) guardianDesc.innerText = "Parolni unutganda tiklash uchun mas'ul Samar ID";
+            }
 
             loadNotifications();
         }
@@ -1410,6 +1823,247 @@
             document.getElementById('paneAlert').style.display = 'none';
             if (pane === 'devices') loadDevices();
             if (pane === 'inbox') loadNotifications();
+        }
+
+        // Backdrop click to close modals
+        function handleModalBackdropClick(e, modalId) {
+            if (e.target.id === modalId) {
+                if (modalId === 'modalPassword') closePasswordModal();
+                if (modalId === 'modalPhone') closePhoneModal();
+                if (modalId === 'modalGuardian') closeGuardianModal();
+            }
+        }
+
+        // ================== MODAL 1: PAROL YANGILASH ==================
+        function openPasswordModal() {
+            document.getElementById('modalOldPassword').value = '';
+            document.getElementById('modalNewPassword').value = '';
+            document.getElementById('modalConfirmPassword').value = '';
+            document.getElementById('modalPassAlert').style.display = 'none';
+            document.getElementById('modalPassword').style.display = 'flex';
+        }
+
+        function closePasswordModal() {
+            document.getElementById('modalPassword').style.display = 'none';
+        }
+
+        async function handleModalPasswordSubmit(e) {
+            e.preventDefault();
+            const oldP = document.getElementById('modalOldPassword').value;
+            const newP = document.getElementById('modalNewPassword').value;
+            const confP = document.getElementById('modalConfirmPassword').value;
+
+            if (newP !== confP) {
+                showToast('modalPassAlert', 'Yangi parollar bir-biriga mos kelmadi!');
+                return;
+            }
+
+            const token = localStorage.getItem('samar_token');
+            setButtonLoading('btnModalSavePass', 'modalPassSpinner', 'modalPassText', true, 'Yangilanmoqda...', 'Yangilash');
+
+            try {
+                const res = await fetch('/api/auth/change-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ old_password: oldP, new_password: newP })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail);
+                
+                showToast('modalPassAlert', data.message, true);
+                setTimeout(() => {
+                    closePasswordModal();
+                    showToast('paneAlert', data.message, true);
+                }, 1000);
+            } catch (err) {
+                showToast('modalPassAlert', err.message);
+            } finally {
+                setButtonLoading('btnModalSavePass', 'modalPassSpinner', 'modalPassText', false, 'Yangilanmoqda...', 'Yangilash');
+            }
+        }
+
+        // ================== MODAL 2: TELEFON RAQAM VA SMS ==================
+        let smsTimerInterval = null;
+
+        function openPhoneModal() {
+            document.getElementById('modalPhoneAlert').style.display = 'none';
+            if (currentUser && currentUser.phone && currentUser.phone_verified) {
+                document.getElementById('modalCurrentPhoneDisplay').innerText = currentUser.phone;
+                document.getElementById('phoneVerifiedState').style.display = 'block';
+                document.getElementById('phoneStep1').style.display = 'none';
+                document.getElementById('phoneStep2').style.display = 'none';
+            } else {
+                showPhoneStepInput();
+            }
+            document.getElementById('modalPhone').style.display = 'flex';
+        }
+
+        function closePhoneModal() {
+            document.getElementById('modalPhone').style.display = 'none';
+            if (smsTimerInterval) clearInterval(smsTimerInterval);
+        }
+
+        function showPhoneStepInput() {
+            document.getElementById('phoneVerifiedState').style.display = 'none';
+            document.getElementById('phoneStep1').style.display = 'block';
+            document.getElementById('phoneStep2').style.display = 'none';
+            if (currentUser && currentUser.phone) {
+                document.getElementById('modalInputPhone').value = currentUser.phone;
+            }
+        }
+
+        async function handleSendSmsCode() {
+            const phone = document.getElementById('modalInputPhone').value.trim();
+            if (phone.length < 7) {
+                showToast('modalPhoneAlert', 'Iltimos, to\'liq telefon raqamingizni kiriting!');
+                return;
+            }
+
+            const token = localStorage.getItem('samar_token');
+            setButtonLoading('btnSendSmsCode', 'sendSmsSpinner', 'sendSmsText', true, 'Yuborilmoqda...', 'SMS Kod Yuborish');
+
+            try {
+                const res = await fetch('/api/auth/phone/send-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ phone: phone })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail);
+
+                // Switch to Step 2
+                document.getElementById('phoneStep1').style.display = 'none';
+                document.getElementById('phoneStep2').style.display = 'block';
+                document.getElementById('step2TargetPhone').innerText = phone;
+                document.getElementById('modalInputSmsCode').value = '';
+                showToast('modalPhoneAlert', data.message, true);
+
+                // Refresh notifications
+                loadNotifications();
+
+                // Start 60s countdown
+                startSmsTimer(60);
+            } catch (err) {
+                showToast('modalPhoneAlert', err.message);
+            } finally {
+                setButtonLoading('btnSendSmsCode', 'sendSmsSpinner', 'sendSmsText', false, 'Yuborilmoqda...', 'SMS Kod Yuborish');
+            }
+        }
+
+        function startSmsTimer(seconds) {
+            if (smsTimerInterval) clearInterval(smsTimerInterval);
+            let left = seconds;
+            const timerEl = document.getElementById('smsResendTimer');
+            timerEl.innerText = `Qayta yuborish: ${left}s`;
+            smsTimerInterval = setInterval(() => {
+                left--;
+                if (left <= 0) {
+                    clearInterval(smsTimerInterval);
+                    timerEl.innerHTML = `<a href="javascript:void(0)" onclick="handleSendSmsCode()" style="color: var(--accent); text-decoration: none;">Qayta yuborish</a>`;
+                } else {
+                    timerEl.innerText = `Qayta yuborish: ${left}s`;
+                }
+            }, 1000);
+        }
+
+        async function handleVerifySmsCode() {
+            const code = document.getElementById('modalInputSmsCode').value.trim();
+            if (code.length !== 6) {
+                showToast('modalPhoneAlert', '6 xonali SMS kodni kiriting!');
+                return;
+            }
+
+            const token = localStorage.getItem('samar_token');
+            setButtonLoading('btnVerifySmsCode', 'verifySmsSpinner', 'verifySmsText', true, 'Tekshirilmoqda...', 'Kodni Tasdiqlash & Ulash');
+
+            try {
+                const res = await fetch('/api/auth/phone/verify-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ code: code })
+                });
+                const updatedUser = await res.json();
+                if (!res.ok) throw new Error(updatedUser.detail);
+
+                showToast('modalPhoneAlert', 'Telefon raqami muvaffaqiyatli tasdiqlandi!', true);
+                loadDashboard(updatedUser);
+
+                setTimeout(() => {
+                    closePhoneModal();
+                    showToast('paneAlert', 'Telefon raqamingiz Samar ID xavfsizlik protokoliga ulandi!', true);
+                }, 1000);
+            } catch (err) {
+                showToast('modalPhoneAlert', err.message);
+            } finally {
+                setButtonLoading('btnVerifySmsCode', 'verifySmsSpinner', 'verifySmsText', false, 'Tekshirilmoqda...', 'Kodni Tasdiqlash & Ulash');
+            }
+        }
+
+        async function handleUnlinkPhone() {
+            if (!confirm('Raqamni rostdan ham uzmoqchimisiz? SMS orqali 2FA himoyasi o\'chiriladi.')) return;
+            const token = localStorage.getItem('samar_token');
+            setButtonLoading('btnUnlinkPhone', 'unlinkPhoneSpinner', 'unlinkPhoneText', true, 'Uzilmoqda...', 'Raqamni Uzish');
+
+            try {
+                const res = await fetch('/api/auth/phone/unlink', {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const updatedUser = await res.json();
+                if (!res.ok) throw new Error(updatedUser.detail);
+
+                loadDashboard(updatedUser);
+                showPhoneStepInput();
+                showToast('modalPhoneAlert', 'Raqam hisobdan uzildi.', true);
+                setTimeout(() => {
+                    closePhoneModal();
+                    showToast('paneAlert', 'Telefon raqami uzildi.', true);
+                }, 1000);
+            } catch (err) {
+                showToast('modalPhoneAlert', err.message);
+            } finally {
+                setButtonLoading('btnUnlinkPhone', 'unlinkPhoneSpinner', 'unlinkPhoneText', false, 'Uzilmoqda...', 'Raqamni Uzish');
+            }
+        }
+
+        // ================== MODAL 3: GUARDIAN (ISHONCHLI DO'ST) ==================
+        function openGuardianModal() {
+            document.getElementById('modalGuardianAlert').style.display = 'none';
+            document.getElementById('modalGuardianInput').value = (currentUser && currentUser.guardian_id) ? currentUser.guardian_id : '';
+            document.getElementById('modalGuardian').style.display = 'flex';
+        }
+
+        function closeGuardianModal() {
+            document.getElementById('modalGuardian').style.display = 'none';
+        }
+
+        async function handleModalGuardianSubmit() {
+            const gid = document.getElementById('modalGuardianInput').value.trim();
+            const token = localStorage.getItem('samar_token');
+            setButtonLoading('btnModalSaveGuardian', 'modalGuardianSpinner', 'modalGuardianText', true, 'Saqlanmoqda...', 'Saqlash');
+
+            try {
+                const res = await fetch('/api/auth/guardian/set', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ guardian_samar_id: gid })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail);
+
+                if (currentUser) currentUser.guardian_id = gid;
+                loadDashboard(currentUser);
+                showToast('modalGuardianAlert', data.message, true);
+
+                setTimeout(() => {
+                    closeGuardianModal();
+                    showToast('paneAlert', data.message, true);
+                }, 1000);
+            } catch (err) {
+                showToast('modalGuardianAlert', err.message);
+            } finally {
+                setButtonLoading('btnModalSaveGuardian', 'modalGuardianSpinner', 'modalGuardianText', false, 'Saqlanmoqda...', 'Saqlash');
+            }
         }
 
         // Avatar Upload
@@ -1464,63 +2118,6 @@
                 showToast('paneAlert', err.message);
             } finally {
                 setButtonLoading('btnSaveProfile', 'saveProfileSpinner', 'saveProfileText', false, 'Saqlanmoqda...', 'O\'zgarishlarni Saqlash');
-            }
-        }
-
-        // Password Change with Animated State
-        async function handlePasswordChange(e) {
-            e.preventDefault();
-            const oldP = document.getElementById('secOldPassword').value;
-            const newP = document.getElementById('secNewPassword').value;
-            const confP = document.getElementById('secConfirmPassword').value;
-
-            if (newP !== confP) {
-                showToast('paneAlert', 'Yangi parollar bir-biriga mos kelmadi!');
-                return;
-            }
-
-            const token = localStorage.getItem('samar_token');
-            setButtonLoading('btnSavePassword', 'savePasswordSpinner', 'savePasswordText', true, 'Yangilanmoqda...', 'Parolni Yangilash');
-
-            try {
-                const res = await fetch('/api/auth/change-password', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                    body: JSON.stringify({ old_password: oldP, new_password: newP })
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.detail);
-                showToast('paneAlert', data.message, true);
-                document.getElementById('secOldPassword').value = '';
-                document.getElementById('secNewPassword').value = '';
-                document.getElementById('secConfirmPassword').value = '';
-            } catch (err) {
-                showToast('paneAlert', err.message);
-            } finally {
-                setButtonLoading('btnSavePassword', 'savePasswordSpinner', 'savePasswordText', false, 'Yangilanmoqda...', 'Parolni Yangilash');
-            }
-        }
-
-        // Guardian Save with Animated State
-        async function saveGuardianFriend() {
-            const gid = document.getElementById('guardianInput').value.trim();
-            const token = localStorage.getItem('samar_token');
-            setButtonLoading('btnSaveGuardian', 'saveGuardianSpinner', 'saveGuardianText', true, 'Saqlanmoqda...', 'Saqlash');
-
-            try {
-                const res = await fetch('/api/auth/guardian/set', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                    body: JSON.stringify({ guardian_samar_id: gid })
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.detail);
-                showToast('paneAlert', data.message, true);
-                document.getElementById('currentGuardianBadge').innerText = gid;
-            } catch (err) {
-                showToast('paneAlert', err.message);
-            } finally {
-                setButtonLoading('btnSaveGuardian', 'saveGuardianSpinner', 'saveGuardianText', false, 'Saqlanmoqda...', 'Saqlash');
             }
         }
 

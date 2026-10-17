@@ -33,6 +33,13 @@ class GuardianVerifyOtp(BaseModel):
     samar_id: str
     otp_code: str
 
+class PhoneSendCode(BaseModel):
+    phone: str
+
+class PhoneVerifyCode(BaseModel):
+    phone: str
+    code: str
+
 class NotificationItem(BaseModel):
     id: int
     from_user: str
@@ -56,6 +63,7 @@ class UserResponse(BaseModel):
     full_name: str
     email: Optional[str] = None
     phone: Optional[str] = None
+    phone_verified: bool = False
     bio: Optional[str] = None
     specialty: Optional[str] = None
     avatar_path: Optional[str] = None

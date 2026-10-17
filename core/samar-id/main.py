@@ -15,7 +15,8 @@ from database import init_db, engine, is_sqlite
 from schemas import (
     UserRegister, UserLogin, UserResponse, TokenResponse,
     ProfileUpdate, PasswordChange, SessionItem,
-    GuardianSet, GuardianRequestOtp, GuardianVerifyOtp, NotificationItem
+    GuardianSet, GuardianRequestOtp, GuardianVerifyOtp, NotificationItem,
+    PhoneSendCode, PhoneVerifyCode
 )
 from security import hash_password, verify_password, create_access_token, decode_access_token
 
@@ -36,6 +37,7 @@ app.add_middleware(
 security_scheme = HTTPBearer()
 
 ACTIVE_GUARDIAN_OTPS = {}
+ACTIVE_PHONE_OTPS = {}
 
 @app.on_event("startup")
 def on_startup():
@@ -88,7 +90,7 @@ def get_current_user_and_jti(credentials: HTTPAuthorizationCredentials = Depends
         
         user_row = conn.execute(
             text("""
-                SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, created_at
+                SELECT id, samar_id, full_name, email, phone, phone_verified, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, created_at
                 FROM users WHERE samar_id = :samar_id
             """),
             {"samar_id": samar_id}
@@ -98,6 +100,7 @@ def get_current_user_and_jti(credentials: HTTPAuthorizationCredentials = Depends
         raise HTTPException(status_code=404, detail="Foydalanuvchi topilmadi")
     
     user_dict = dict(user_row)
+    user_dict["phone_verified"] = bool(user_dict.get("phone_verified", False))
     user_dict["current_jti"] = jti
     user_dict["created_at"] = str(user_dict["created_at"])
     if user_dict.get("security_freeze_until"):
@@ -112,9 +115,9 @@ def get_status():
         "status": "online",
         "version": "3.1.0",
         "design": "Apple macOS Ultra-Refined",
-        "logo": "Crystal Citadel 3D Monolith",
+        "logo": "Isometric Crystal Citadel Monolith",
         "database": db_type,
-        "features": ["QR Instant Login", "Guardian Social Recovery", "10-Day Freeze", "Persistent Avatar"],
+        "features": ["QR Instant Login", "Guardian Social Recovery", "10-Day Freeze", "Persistent Avatar", "Phone SMS Verification"],
         "ecosystem": "Samar OS",
         "domain_format": "@samar.os"
     }
@@ -164,13 +167,14 @@ def register(user_data: UserRegister, request: Request):
         
         created_user = conn.execute(
             text("""
-                SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, created_at
+                SELECT id, samar_id, full_name, email, phone, phone_verified, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, created_at
                 FROM users WHERE id = :uid
             """),
             {"uid": user_id}
         ).mappings().first()
         
         user_dict = dict(created_user)
+        user_dict["phone_verified"] = bool(user_dict.get("phone_verified", False))
         user_dict["created_at"] = str(user_dict["created_at"])
         user_dict["security_freeze_until"] = str(user_dict["security_freeze_until"]) if user_dict.get("security_freeze_until") else None
         
@@ -187,7 +191,7 @@ def login(login_data: UserLogin, request: Request):
 
     with engine.connect() as conn:
         user_row = conn.execute(
-            text("SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, password_hash, created_at FROM users WHERE samar_id = :target OR email = :raw"),
+            text("SELECT id, samar_id, full_name, email, phone, phone_verified, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, password_hash, created_at FROM users WHERE samar_id = :target OR email = :raw"),
             {"target": target_id, "raw": raw_input}
         ).mappings().first()
         
@@ -196,6 +200,7 @@ def login(login_data: UserLogin, request: Request):
         
         user_dict = dict(user_row)
         del user_dict["password_hash"]
+        user_dict["phone_verified"] = bool(user_dict.get("phone_verified", False))
         user_dict["created_at"] = str(user_dict["created_at"])
         user_dict["security_freeze_until"] = str(user_dict["security_freeze_until"]) if user_dict.get("security_freeze_until") else None
         
@@ -406,13 +411,14 @@ def update_profile(data: ProfileUpdate, current: dict = Depends(get_current_user
             
         updated = conn.execute(
             text("""
-                SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, created_at
+                SELECT id, samar_id, full_name, email, phone, phone_verified, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, created_at
                 FROM users WHERE id = :uid
             """),
             {"uid": current["id"]}
         ).mappings().first()
         
         res_dict = dict(updated)
+        res_dict["phone_verified"] = bool(res_dict.get("phone_verified", False))
         res_dict["created_at"] = str(res_dict["created_at"])
         res_dict["security_freeze_until"] = str(res_dict["security_freeze_until"]) if res_dict.get("security_freeze_until") else None
         return res_dict
@@ -440,6 +446,95 @@ def change_password(data: PasswordChange, current: dict = Depends(get_current_us
         )
         conn.commit()
         return {"message": "Parol yangilandi. Boshqa barcha qurilmalar sessiyasi bekor qilindi."}
+
+# ----------------- TELEFON RAQAM VA SMS TASDIQLASH -----------------
+@app.post("/api/auth/phone/send-code")
+def send_phone_code(data: PhoneSendCode, current: dict = Depends(get_current_user_and_jti)):
+    phone_clean = data.phone.strip()
+    if len(phone_clean) < 7:
+        raise HTTPException(status_code=400, detail="Telefon raqami noto'g'ri kiritildi.")
+    
+    code = str(random.randint(100000, 999999))
+    ACTIVE_PHONE_OTPS[current["id"]] = {
+        "phone": phone_clean,
+        "code": code,
+        "created_at": datetime.now(timezone.utc)
+    }
+    
+    with engine.connect() as conn:
+        conn.execute(
+            text("""
+                INSERT INTO notifications (user_id, from_user, title, message, type, action_data)
+                VALUES (:uid, 'Samar SMS Gateway', 'SMS Tasdiqlash Kodi', :msg, 'security', :code)
+            """),
+            {
+                "uid": current["id"],
+                "msg": f"Sizning Samar ID telefon tasdiqlash kodingiz: {code}. Bu kodni hech kimga bermang!",
+                "code": code
+            }
+        )
+        conn.commit()
+        
+    return {
+        "message": f"SMS tasdiqlash kodi {phone_clean} raqamiga yuborildi.",
+        "debug_code": code
+    }
+
+@app.post("/api/auth/phone/verify-code", response_model=UserResponse)
+def verify_phone_code(data: PhoneVerifyCode, current: dict = Depends(get_current_user_and_jti)):
+    saved_otp = ACTIVE_PHONE_OTPS.get(current["id"])
+    if not saved_otp or saved_otp["code"] != data.code.strip():
+        raise HTTPException(status_code=400, detail="Noto'g'ri yoki muddati o'tgan SMS kod kiritildi.")
+    
+    phone_clean = saved_otp["phone"]
+    del ACTIVE_PHONE_OTPS[current["id"]]
+    
+    with engine.connect() as conn:
+        conn.execute(
+            text("UPDATE users SET phone = :phone, phone_verified = TRUE WHERE id = :uid"),
+            {"phone": phone_clean, "uid": current["id"]}
+        )
+        conn.execute(
+            text("""
+                INSERT INTO notifications (user_id, from_user, title, message, type)
+                VALUES (:uid, 'Samar Security', 'Telefon Raqami Biriktirildi', :msg, 'security')
+            """),
+            {
+                "uid": current["id"],
+                "msg": f"Sizning {phone_clean} raqamingiz muvaffaqiyatli tasdiqlandi va Samar ID xavfsizlik protokoliga ulandi."
+            }
+        )
+        conn.commit()
+        
+        user_row = conn.execute(
+            text("SELECT id, samar_id, full_name, email, phone, phone_verified, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, created_at FROM users WHERE id = :uid"),
+            {"uid": current["id"]}
+        ).mappings().first()
+        
+    res = dict(user_row)
+    res["phone_verified"] = bool(res.get("phone_verified", False))
+    res["created_at"] = str(res["created_at"])
+    res["security_freeze_until"] = str(res["security_freeze_until"]) if res.get("security_freeze_until") else None
+    return res
+
+@app.delete("/api/auth/phone/unlink", response_model=UserResponse)
+def unlink_phone(current: dict = Depends(get_current_user_and_jti)):
+    with engine.connect() as conn:
+        conn.execute(
+            text("UPDATE users SET phone = '', phone_verified = FALSE WHERE id = :uid"),
+            {"uid": current["id"]}
+        )
+        conn.commit()
+        user_row = conn.execute(
+            text("SELECT id, samar_id, full_name, email, phone, phone_verified, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, created_at FROM users WHERE id = :uid"),
+            {"uid": current["id"]}
+        ).mappings().first()
+        
+    res = dict(user_row)
+    res["phone_verified"] = bool(res.get("phone_verified", False))
+    res["created_at"] = str(res["created_at"])
+    res["security_freeze_until"] = str(res["security_freeze_until"]) if res.get("security_freeze_until") else None
+    return res
 
 @app.post("/api/auth/upload-avatar")
 async def upload_avatar(file: UploadFile = File(...), current: dict = Depends(get_current_user_and_jti)):

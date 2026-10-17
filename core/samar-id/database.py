@@ -102,12 +102,14 @@ def init_db():
                 role VARCHAR(50) DEFAULT 'citizen',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                is_active BOOLEAN DEFAULT TRUE
+                is_active BOOLEAN DEFAULT TRUE,
+                phone_verified BOOLEAN DEFAULT FALSE
             );
             """))
             # Agar ustunlar avvalgi bazada yo'q bo'lsa qo'shish
             conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS guardian_id VARCHAR(100) DEFAULT '';"))
             conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS security_freeze_until TIMESTAMP;"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS phone_verified BOOLEAN DEFAULT FALSE;"))
             
             conn.execute(text("""
             CREATE TABLE IF NOT EXISTS sessions (
