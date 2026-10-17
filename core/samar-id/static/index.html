@@ -1007,6 +1007,267 @@
             border-radius: 10px;
             margin-bottom: 14px;
         }
+
+        /* Default Desktop: Mobile Navigation Elements are Hidden */
+        .mobile-top-header { display: none; }
+        .mobile-bottom-nav { display: none; }
+
+        /* ================= MOBILE RESPONSIVE SYSTEM (iOS / ANDROID ADAPTATION) ================= */
+        @media (max-width: 768px) {
+            html, body {
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            }
+
+            body {
+                padding: 0 !important;
+                align-items: stretch !important;
+                justify-content: stretch !important;
+                background: #000000 !important;
+            }
+
+            .macos-window {
+                width: 100% !important;
+                max-width: 100% !important;
+                height: 100vh !important;
+                height: 100dvh !important;
+                max-height: none !important;
+                border: none !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+            }
+
+            /* Titlebar becomes sleek mobile app bar */
+            .titlebar {
+                height: 48px;
+                padding: 0 16px;
+                background: rgba(14, 16, 22, 0.95);
+                backdrop-filter: blur(25px);
+                -webkit-backdrop-filter: blur(25px);
+            }
+
+            .traffic-lights {
+                display: none !important; /* Hide desktop dots on smartphone */
+            }
+
+            .titlebar-center {
+                gap: 10px;
+            }
+
+            .titlebar-logo {
+                width: 24px;
+                height: 24px;
+            }
+
+            .titlebar-text {
+                font-size: 14.5px;
+                font-weight: 700;
+                color: #ffffff;
+            }
+
+            /* HIDE Bulky Desktop Sidebar on Mobile */
+            .sidebar {
+                display: none !important;
+            }
+
+            .dashboard-body {
+                flex-direction: column !important;
+                height: calc(100dvh - 48px) !important;
+                min-height: 0 !important;
+                overflow: hidden !important;
+            }
+
+            /* Mobile User Top Bar */
+            .mobile-top-header {
+                display: flex !important;
+                align-items: center;
+                justify-content: space-between;
+                padding: 10px 14px;
+                background: rgba(26, 29, 39, 0.8);
+                border: 1px solid var(--border);
+                border-radius: 14px;
+                margin-bottom: 14px;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+            }
+
+            .mobile-top-user {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                min-width: 0;
+            }
+
+            .btn-mobile-exit {
+                padding: 6px 12px;
+                background: rgba(255, 69, 58, 0.12);
+                border: 1px solid rgba(255, 69, 58, 0.3);
+                color: var(--status-red);
+                border-radius: 8px;
+                font-size: 12px;
+                font-weight: 600;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                flex-shrink: 0;
+            }
+
+            .btn-mobile-exit:active {
+                transform: scale(0.96);
+            }
+
+            /* Scrollable Content Container */
+            .main-content-pane {
+                padding: 12px 14px calc(76px + env(safe-area-inset-bottom)) 14px !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* iOS-style Bottom Navigation Bar */
+            .mobile-bottom-nav {
+                display: flex !important;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: calc(56px + env(safe-area-inset-bottom));
+                padding-bottom: env(safe-area-inset-bottom);
+                background: rgba(14, 16, 22, 0.94);
+                backdrop-filter: blur(30px);
+                -webkit-backdrop-filter: blur(30px);
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                align-items: center;
+                justify-content: space-around;
+                z-index: 1000;
+            }
+
+            .bottom-nav-item {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
+                background: transparent;
+                border: none;
+                color: var(--text-secondary);
+                font-size: 10px;
+                font-weight: 500;
+                cursor: pointer;
+                position: relative;
+                transition: color 0.15s;
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            .bottom-nav-item.active {
+                color: var(--accent);
+                font-weight: 700;
+            }
+
+            .bottom-nav-icon {
+                font-size: 19px;
+                margin-bottom: 2px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 22px;
+            }
+
+            .bottom-nav-badge {
+                position: absolute;
+                top: 4px;
+                right: 25%;
+                background: var(--status-red);
+                color: white;
+                font-size: 9px;
+                font-weight: 800;
+                padding: 1px 5px;
+                border-radius: 8px;
+                border: 1px solid #000;
+            }
+
+            /* Touch Optimized Form Elements */
+            .input-apple {
+                font-size: 16px !important; /* Prevents auto-zoom on iPhone */
+                padding: 11px 14px !important;
+                min-height: 44px;
+            }
+
+            .btn-apple-primary, .btn-apple-secondary {
+                min-height: 46px !important;
+                font-size: 14px !important;
+                border-radius: 12px !important;
+            }
+
+            /* Mobile Setting Row */
+            .setting-row {
+                padding: 12px 14px !important;
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 12px !important;
+            }
+
+            .setting-left {
+                width: 100% !important;
+            }
+
+            .setting-right {
+                width: 100% !important;
+            }
+
+            .btn-setting-action {
+                width: 100% !important;
+                text-align: center;
+                min-height: 40px !important;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* Auth Screen on Mobile */
+            .auth-container {
+                padding: 16px 14px 40px 14px !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .auth-card {
+                max-width: 100% !important;
+                padding: 20px 16px !important;
+            }
+
+            /* iOS Bottom Sheet Modals */
+            .modal-overlay {
+                align-items: flex-end !important;
+                padding: 0 !important;
+            }
+
+            .modal-sheet {
+                max-width: 100% !important;
+                border-radius: 22px 22px 0 0 !important;
+                border-bottom: none !important;
+                max-height: 85vh !important;
+                overflow-y: auto !important;
+                padding-bottom: calc(24px + env(safe-area-inset-bottom)) !important;
+                animation: mobileSheetSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            }
+
+            .modal-sheet::before {
+                content: '';
+                display: block;
+                width: 36px;
+                height: 4.5px;
+                background: rgba(255, 255, 255, 0.25);
+                border-radius: 3px;
+                margin: 10px auto 4px auto;
+            }
+
+            @keyframes mobileSheetSlideUp {
+                from { transform: translateY(100%); }
+                to { transform: translateY(0); }
+            }
+        }
     </style>
 </head>
 <body>
@@ -1204,6 +1465,23 @@
 
             <!-- Right Content Panes -->
             <div class="main-content-pane">
+                <!-- Mobile User Top Bar (Faqat mobil ekranda ko'rinadi) -->
+                <div class="mobile-top-header">
+                    <div class="mobile-top-user">
+                        <div class="hero-avatar-wrap" style="width: 38px; height: 38px; margin: 0;">
+                            <img id="mDashAvatarImg" class="hero-avatar-img" src="" style="display: none;" alt="User Avatar">
+                            <div id="mDashAvatarFallback" class="hero-avatar-fallback" style="font-size: 15px;">S</div>
+                        </div>
+                        <div style="min-width: 0;">
+                            <div style="font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="mDashFullName">Samar Rahbar</div>
+                            <div style="font-size: 11px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="mDashSamarId">samar@samar.os</div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-mobile-exit" onclick="handleLogout()" title="Chiqish">
+                        <span>Chiqish</span>
+                    </button>
+                </div>
+
                 <div id="paneAlert" class="toast-msg"></div>
 
                 <!-- PANE 1: SHAXSIY MA'LUMOTLAR -->
@@ -1359,6 +1637,31 @@
                 </div>
 
             </div>
+
+            <!-- iOS-style Mobile Bottom Navigation Bar -->
+            <nav class="mobile-bottom-nav">
+                <button type="button" class="bottom-nav-item active" id="mTabNavProfile" onclick="switchPane('profile')">
+                    <span class="bottom-nav-icon">👤</span>
+                    <span class="bottom-nav-label">Profil</span>
+                </button>
+                <button type="button" class="bottom-nav-item" id="mTabNavSecurity" onclick="switchPane('security')">
+                    <span class="bottom-nav-icon">🛡️</span>
+                    <span class="bottom-nav-label">Xavfsizlik</span>
+                </button>
+                <button type="button" class="bottom-nav-item" id="mTabNavDevices" onclick="switchPane('devices')">
+                    <span class="bottom-nav-icon">💻</span>
+                    <span class="bottom-nav-label">Qurilmalar</span>
+                </button>
+                <button type="button" class="bottom-nav-item" id="mTabNavInbox" onclick="switchPane('inbox')">
+                    <span class="bottom-nav-icon">📬</span>
+                    <span class="bottom-nav-label">Xabarlar</span>
+                    <span class="bottom-nav-badge" id="mNotifBadge" style="display: none;">0</span>
+                </button>
+                <button type="button" class="bottom-nav-item" id="mTabNavVault" onclick="switchPane('vault')">
+                    <span class="bottom-nav-icon">📦</span>
+                    <span class="bottom-nav-label">Arxiv</span>
+                </button>
+            </nav>
         </div>
 
     </div>
@@ -1743,15 +2046,31 @@
             document.getElementById('dashFullName').innerText = user.full_name;
             document.getElementById('dashSamarId').innerText = user.samar_id;
 
-            // Avatar Display
+            // Mobile Top Header Info
+            const mFullName = document.getElementById('mDashFullName');
+            const mSamarId = document.getElementById('mDashSamarId');
+            if (mFullName) mFullName.innerText = user.full_name;
+            if (mSamarId) mSamarId.innerText = user.samar_id;
+
+            // Avatar Display (Both Desktop Sidebar and Mobile Header)
+            const mAvatarImg = document.getElementById('mDashAvatarImg');
+            const mAvatarFallback = document.getElementById('mDashAvatarFallback');
+
             if (user.avatar_path) {
                 document.getElementById('dashAvatarImg').src = user.avatar_path;
                 document.getElementById('dashAvatarImg').style.display = 'block';
                 document.getElementById('dashAvatarFallback').style.display = 'none';
+
+                if (mAvatarImg) { mAvatarImg.src = user.avatar_path; mAvatarImg.style.display = 'block'; }
+                if (mAvatarFallback) mAvatarFallback.style.display = 'none';
             } else {
-                document.getElementById('dashAvatarFallback').innerText = user.full_name.charAt(0).toUpperCase();
+                const initial = (user.full_name || 'S').charAt(0).toUpperCase();
+                document.getElementById('dashAvatarFallback').innerText = initial;
                 document.getElementById('dashAvatarFallback').style.display = 'flex';
                 document.getElementById('dashAvatarImg').style.display = 'none';
+
+                if (mAvatarFallback) { mAvatarFallback.innerText = initial; mAvatarFallback.style.display = 'flex'; }
+                if (mAvatarImg) mAvatarImg.style.display = 'none';
             }
 
             // Security Freeze Pill
@@ -1815,10 +2134,14 @@
 
         function switchPane(pane) {
             ['profile', 'security', 'devices', 'inbox', 'vault'].forEach(p => {
-                const nav = document.getElementById('tabNav' + p.charAt(0).toUpperCase() + p.slice(1));
-                const target = document.getElementById('pane' + p.charAt(0).toUpperCase() + p.slice(1));
-                if (nav) nav.classList.toggle('active', p === pane);
-                if (target) target.style.display = (p === pane ? 'block' : 'none');
+                const name = p.charAt(0).toUpperCase() + p.slice(1);
+                const nav = document.getElementById('tabNav' + name);
+                const mNav = document.getElementById('mTabNav' + name);
+                const target = document.getElementById('pane' + name);
+                const isActive = (p === pane);
+                if (nav) nav.classList.toggle('active', isActive);
+                if (mNav) mNav.classList.toggle('active', isActive);
+                if (target) target.style.display = (isActive ? 'block' : 'none');
             });
             document.getElementById('paneAlert').style.display = 'none';
             if (pane === 'devices') loadDevices();
@@ -1936,7 +2259,13 @@
                 document.getElementById('phoneStep2').style.display = 'block';
                 document.getElementById('step2TargetPhone').innerText = phone;
                 document.getElementById('modalInputSmsCode').value = '';
-                showToast('modalPhoneAlert', data.message, true);
+
+                // Show clear feedback on SMS dispatch method
+                if (data.is_real) {
+                    showToast('modalPhoneAlert', `✅ Haqiqiy GSM SMS yuborildi! Provayder: ${data.provider}`, true);
+                } else {
+                    showToast('modalPhoneAlert', `ℹ️ ${data.message} (${data.provider})`, true);
+                }
 
                 // Refresh notifications
                 loadNotifications();
@@ -2179,9 +2508,10 @@
                 });
                 const list = await res.json();
                 const badge = document.getElementById('notifBadge');
+                const mBadge = document.getElementById('mNotifBadge');
                 if (list && list.length > 0) {
-                    badge.innerText = list.length;
-                    badge.style.display = 'inline-block';
+                    if (badge) { badge.innerText = list.length; badge.style.display = 'inline-block'; }
+                    if (mBadge) { mBadge.innerText = list.length; mBadge.style.display = 'inline-block'; }
                     container.innerHTML = list.map(n => `
                         <div class="notif-card">
                             <div class="notif-head">
@@ -2192,7 +2522,8 @@
                         </div>
                     `).join('');
                 } else {
-                    badge.style.display = 'none';
+                    if (badge) badge.style.display = 'none';
+                    if (mBadge) mBadge.style.display = 'none';
                     container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 16px;">Yangi xabarnomalar yo\'q.</div>';
                 }
             } catch (_) {}

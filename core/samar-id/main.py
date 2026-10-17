@@ -447,7 +447,90 @@ def change_password(data: PasswordChange, current: dict = Depends(get_current_us
         conn.commit()
         return {"message": "Parol yangilandi. Boshqa barcha qurilmalar sessiyasi bekor qilindi."}
 
-# ----------------- TELEFON RAQAM VA SMS TASDIQLASH -----------------
+# ----------------- TELEFON RAQAM VA SMS DISPATCHER -----------------
+def dispatch_sms(phone: str, code: str) -> dict:
+    """
+    Haqiqiy GSM/Telecom SMS provayderlari (Eskiz.uz yoki Twilio) orqali SMS yuborish.
+    Agar ESKIZ_EMAIL va ESKIZ_PASSWORD yoki TWILIO kalitlari kiritilmagan bo'lsa,
+    ishonchli simulyatsiya rejimida ishlaydi va tizim bildirishnomalariga yetkazadi.
+    """
+    import urllib.request
+    import urllib.parse
+    import json
+    import re
+
+    clean_digits = re.sub(r"\D", "", phone)
+    
+    # 1. Eskiz.uz (O'zbekiston milliy SMS provayderi)
+    eskiz_email = os.getenv("ESKIZ_EMAIL")
+    eskiz_password = os.getenv("ESKIZ_PASSWORD")
+    eskiz_token = os.getenv("ESKIZ_TOKEN")
+    
+    if eskiz_token or (eskiz_email and eskiz_password):
+        try:
+            auth_token = eskiz_token
+            if not auth_token:
+                login_data = json.dumps({"email": eskiz_email, "password": eskiz_password}).encode("utf-8")
+                req = urllib.request.Request(
+                    "https://notify.eskiz.uz/api/auth/login",
+                    data=login_data,
+                    headers={"Content-Type": "application/json"}
+                )
+                with urllib.request.urlopen(req, timeout=5) as response:
+                    res_body = json.loads(response.read().decode())
+                    auth_token = res_body.get("data", {}).get("token")
+            
+            if auth_token:
+                sms_payload = urllib.parse.urlencode({
+                    "mobile_phone": clean_digits,
+                    "message": f"Samar ID tasdiqlash kodi: {code}. Bu kodni hech kimga bermang!",
+                    "from": os.getenv("ESKIZ_FROM", "4546")
+                }).encode("utf-8")
+                
+                sms_req = urllib.request.Request(
+                    "https://notify.eskiz.uz/api/message/sms/send",
+                    data=sms_payload,
+                    headers={"Authorization": f"Bearer {auth_token}"}
+                )
+                with urllib.request.urlopen(sms_req, timeout=5) as sms_res:
+                    return {"is_real": True, "provider": "Eskiz.uz (O'zbekiston GSM)", "status": "sent"}
+        except Exception as e:
+            print(f"[SMS Gateway] Eskiz xatosi: {e}")
+
+    # 2. Twilio (Xalqaro GSM provayderi)
+    twilio_sid = os.getenv("TWILIO_ACCOUNT_SID")
+    twilio_token = os.getenv("TWILIO_AUTH_TOKEN")
+    twilio_from = os.getenv("TWILIO_FROM_NUMBER")
+    if twilio_sid and twilio_token and twilio_from:
+        try:
+            clean_with_plus = phone if phone.startswith("+") else f"+{clean_digits}"
+            twilio_url = f"https://api.twilio.com/2010-04-01/Accounts/{twilio_sid}/Messages.json"
+            post_data = urllib.parse.urlencode({
+                "To": clean_with_plus,
+                "From": twilio_from,
+                "Body": f"Samar ID tasdiqlash kodi: {code}. Bu kodni hech kimga bermang!"
+            }).encode("utf-8")
+            
+            auth_str = f"{twilio_sid}:{twilio_token}"
+            b64_auth = base64.b64encode(auth_str.encode()).decode()
+            
+            tw_req = urllib.request.Request(
+                twilio_url,
+                data=post_data,
+                headers={"Authorization": f"Basic {b64_auth}"}
+            )
+            with urllib.request.urlopen(tw_req, timeout=5) as tw_res:
+                return {"is_real": True, "provider": "Twilio GSM Global", "status": "sent"}
+        except Exception as e:
+            print(f"[SMS Gateway] Twilio xatosi: {e}")
+
+    # 3. Samar Ichki Simulyatsiya Shlyuzi (Xabarnomalar qutisi orqali daxlsiz yetkazish)
+    return {
+        "is_real": False,
+        "provider": "Samar Internal Gateway (Xabarnomalar qutisi)",
+        "status": "delivered_to_notifications"
+    }
+
 @app.post("/api/auth/phone/send-code")
 def send_phone_code(data: PhoneSendCode, current: dict = Depends(get_current_user_and_jti)):
     phone_clean = data.phone.strip()
@@ -461,6 +544,9 @@ def send_phone_code(data: PhoneSendCode, current: dict = Depends(get_current_use
         "created_at": datetime.now(timezone.utc)
     }
     
+    # GSM Provayderga yuborishga urinish
+    dispatch_res = dispatch_sms(phone_clean, code)
+    
     with engine.connect() as conn:
         conn.execute(
             text("""
@@ -469,7 +555,7 @@ def send_phone_code(data: PhoneSendCode, current: dict = Depends(get_current_use
             """),
             {
                 "uid": current["id"],
-                "msg": f"Sizning Samar ID telefon tasdiqlash kodingiz: {code}. Bu kodni hech kimga bermang!",
+                "msg": f"Sizning Samar ID telefon tasdiqlash kodingiz: {code}. Provayder: {dispatch_res['provider']}.",
                 "code": code
             }
         )
@@ -477,6 +563,8 @@ def send_phone_code(data: PhoneSendCode, current: dict = Depends(get_current_use
         
     return {
         "message": f"SMS tasdiqlash kodi {phone_clean} raqamiga yuborildi.",
+        "is_real": dispatch_res["is_real"],
+        "provider": dispatch_res["provider"],
         "debug_code": code
     }
 
