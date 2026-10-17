@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Samar ID — Ilovaga Kirishni Tasdiqlash</title>
+    <link rel="icon" type="image/svg+xml" href="/static/icon.svg">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0a0d14">
+    <style>
+        :root {
+            --bg-base: #0a0d14;
+            --bg-card: rgba(18, 24, 38, 0.75);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(0, 242, 254, 0.35);
+            --accent: #00f2fe;
+            --accent-glow: rgba(0, 242, 254, 0.25);
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg-base);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-image: 
+                radial-gradient(circle at 50% 10%, rgba(0, 242, 254, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 90%, rgba(127, 0, 255, 0.08) 0%, transparent 50%);
+        }
+        .consent-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 440px;
+            padding: 32px 28px;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), 0 0 30px var(--accent-glow);
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .logo-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+        .logo-box {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: #0d1522;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        .connect-arrow {
+            color: var(--accent);
+            opacity: 0.8;
+            animation: pulseArrow 1.5s infinite ease-in-out;
+        }
+        @keyframes pulseArrow {
+            0%, 100% { transform: translateX(0); opacity: 0.6; }
+            50% { transform: translateX(3px); opacity: 1; }
+        }
+        .title {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.4px;
+            margin-bottom: 6px;
+        }
+        .subtitle {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        .app-name-highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .user-preview {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00f2fe, #7f00ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            object-fit: cover;
+        }
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .user-samarid {
+            font-size: 12px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .scopes-title {
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        .scope-list {
+            list-style: none;
+            margin-bottom: 26px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .scope-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        .scope-icon {
+            width: 18px;
+            height: 18px;
+            color: #10b981;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .btn-allow {
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
+            color: #030a16;
+            border: none;
+            padding: 13px 20px;
+            border-radius: var(--radius-md);
+            font-size: 14.5px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 18px var(--accent-glow);
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .btn-allow:hover {
+            transform: translateY(-1.5px);
+            box-shadow: 0 8px 25px rgba(0, 242, 254, 0.4);
+        }
+        .btn-deny {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            padding: 11px 20px;
+            border-radius: var(--radius-md);
+            font-size: 13.5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .btn-deny:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+        .security-badge {
+            margin-top: 22px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 11.5px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        /* Mini login for unauthenticated users */
+        .login-box {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .input-control {
+            width: 100%;
+            background: rgba(10, 15, 25, 0.7);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 11px 14px;
+            font-size: 13.5px;
+            color: #fff;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-control:focus {
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="consent-card">
+        <div class="header">
+            <div class="logo-row">
+                <div class="logo-box">
+                    <img src="/static/icon.svg" style="width:34px;height:34px;" alt="Samar ID">
+                </div>
+                <div class="connect-arrow">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </div>
+                <div class="logo-box" id="targetAppIcon">📱</div>
+            </div>
+            <h1 class="title">Ruxsatni Tasdiqlash</h1>
+            <p class="subtitle"><span class="app-name-highlight" id="targetAppName">Ilova</span> Samar ID hisobingiz orqali kirishni so'ramoqda.</p>
+        </div>
+
+        <!-- Authenticated User Card -->
+        <div class="user-preview" id="userCard">
+            <div class="user-avatar" id="userAvatar">S</div>
+            <div class="user-info">
+                <div class="user-name" id="userName">Yuklanmoqda...</div>
+                <div class="user-samarid" id="userSamarId">@samar.os</div>
+            </div>
+        </div>
+
+        <!-- Unauthenticated Mini-Login -->
+        <div class="login-box" id="loginBox">
+            <p style="font-size: 12.5px; color: var(--accent); margin-bottom: 4px;">Davom etish uchun Samar ID hisobingizga kiring:</p>
+            <input type="text" id="loginId" class="input-control" placeholder="Samar ID (masalan: ali@samar.os)">
+            <input type="password" id="loginPass" class="input-control" placeholder="Parol">
+            <button type="button" class="btn-allow" style="padding: 10px;" onclick="handleMiniLogin()">Hisobga Kirish</button>
+            <div id="loginError" style="font-size: 12px; color: #ef4444; display: none;"></div>
+        </div>
+
+        <div class="scopes-title">Talab qilinayotgan ruxsatlar</div>
+        <ul class="scope-list">
+            <li class="scope-item">
+                <svg class="scope-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                <span>Shaxsiy Samar ID va identifikatsiya ma'lumotlaringiz</span>
+            </li>
+            <li class="scope-item">
+                <svg class="scope-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                <span>Elektron pochta manzilingiz va tasdiqlangan holati</span>
+            </li>
+            <li class="scope-item">
+                <svg class="scope-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                <span>Xavfsiz aloqa va avtorizatsiya sessiyasi yaratish</span>
+            </li>
+        </ul>
+
+        <div class="btn-group">
+            <button class="btn-allow" id="btnAllow" onclick="approveAccess()">Ruxsat Berish va Kirish</button>
+            <button class="btn-deny" onclick="denyAccess()">Bekor Qilish</button>
+        </div>
+
+        <div class="security-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span>Samar OS Zero-Knowledge xavfsizlik kafolati</span>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const clientId = urlParams.get('client_id') || 'samar_app';
+        const redirectUri = urlParams.get('redirect_uri') || window.location.origin;
+        const state = urlParams.get('state') || '';
+        const scope = urlParams.get('scope') || 'profile,email';
+
+        // Known Samar Apps Registry
+        const APP_REGISTRY = {
+            'samar_cloud': { name: 'Samar Cloud Drive', icon: '☁️' },
+            'samar_chat': { name: 'Samar Chat', icon: '💬' },
+            'samar_ai': { name: 'Samar AI Agent', icon: '🧠' },
+            'samar_drop': { name: 'Samar Drop', icon: '⚡' },
+            'samar_docs': { name: 'Samar Docs & Notes', icon: '📝' }
+        };
+
+        const appMeta = APP_REGISTRY[clientId] || { name: clientId.replace(/_/g, ' ').toUpperCase(), icon: '📱' };
+        document.getElementById('targetAppName').innerText = appMeta.name;
+        document.getElementById('targetAppIcon').innerText = appMeta.icon;
+
+        let currentUser = null;
+
+        async function initConsent() {
+            const token = localStorage.getItem('samar_token');
+            if (!token) {
+                showLoginForm();
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/auth/me', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                if (!res.ok) {
+                    showLoginForm();
+                    return;
+                }
+                currentUser = await res.json();
+                renderUserInfo(currentUser);
+            } catch (err) {
+                showLoginForm();
+            }
+        }
+
+        function renderUserInfo(user) {
+            document.getElementById('userCard').style.display = 'flex';
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('btnAllow').disabled = false;
+            document.getElementById('userName').innerText = user.full_name || user.samar_id;
+            document.getElementById('userSamarId').innerText = user.samar_id;
+            if (user.avatar_path) {
+                document.getElementById('userAvatar').innerHTML = '<img src="' + user.avatar_path + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">';
+            } else {
+                document.getElementById('userAvatar').innerText = (user.full_name || user.samar_id || 'S')[0].toUpperCase();
+            }
+        }
+
+        function showLoginForm() {
+            document.getElementById('userCard').style.display = 'none';
+            document.getElementById('loginBox').style.display = 'flex';
+            document.getElementById('btnAllow').disabled = true;
+        }
+
+        async function handleMiniLogin() {
+            const samarId = document.getElementById('loginId').value.trim();
+            const password = document.getElementById('loginPass').value;
+            const errBox = document.getElementById('loginError');
+            errBox.style.display = 'none';
+
+            if (!samarId || !password) {
+                errBox.innerText = 'Iltimos, barcha maydonlarni to\'ldiring';
+                errBox.style.display = 'block';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ samar_id: samarId, password: password })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    errBox.innerText = data.detail || 'Kirishda xatolik yuz berdi';
+                    errBox.style.display = 'block';
+                    return;
+                }
+                localStorage.setItem('samar_token', data.access_token);
+                currentUser = data.user;
+                renderUserInfo(currentUser);
+            } catch (e) {
+                errBox.innerText = 'Server bilan ulanishda xatolik';
+                errBox.style.display = 'block';
+            }
+        }
+
+        async function approveAccess() {
+            const token = localStorage.getItem('samar_token');
+            if (!token) {
+                showLoginForm();
+                return;
+            }
+
+            const btn = document.getElementById('btnAllow');
+            btn.disabled = true;
+            btn.innerText = 'Ruxsat berilmoqda...';
+
+            try {
+                const res = await fetch('/api/oauth/consent/approve', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({
+                        client_id: clientId,
+                        app_name: appMeta.name,
+                        app_icon: appMeta.icon,
+                        redirect_uri: redirectUri,
+                        scopes: scope,
+                        state: state
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.detail || 'Avtorizatsiyada xatolik yuz berdi');
+                    btn.disabled = false;
+                    btn.innerText = 'Ruxsat Berish va Kirish';
+                    return;
+                }
+
+                // Redirect back to caller app with auth code and state
+                const targetUrl = new URL(redirectUri);
+                targetUrl.searchParams.set('code', data.code);
+                if (state) targetUrl.searchParams.set('state', state);
+
+                if (window.opener) {
+                    // If in popup window, notify opener and close
+                    try {
+                        window.opener.postMessage({ type: 'SAMAR_AUTH_SUCCESS', code: data.code, state: state }, '*');
+                    } catch (e) {}
+                    window.location.href = targetUrl.toString();
+                } else {
+                    window.location.href = targetUrl.toString();
+                }
+            } catch (err) {
+                alert('Aloqa uzildi, qayta urining');
+                btn.disabled = false;
+                btn.innerText = 'Ruxsat Berish va Kirish';
+            }
+        }
+
+        function denyAccess() {
+            try {
+                const targetUrl = new URL(redirectUri);
+                targetUrl.searchParams.set('error', 'access_denied');
+                if (state) targetUrl.searchParams.set('state', state);
+                window.location.href = targetUrl.toString();
+            } catch (e) {
+                window.location.href = '/';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initConsent);
+    </script>
+</body>
+</html>

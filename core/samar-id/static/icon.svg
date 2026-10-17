@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0d14"/>
+      <stop offset="100%" stop-color="#06080d"/>
+    </linearGradient>
+    <linearGradient id="cyberGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="50%" stop-color="#4facfe"/>
+      <stop offset="100%" stop-color="#7f00ff"/>
+    </linearGradient>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#141c2b"/>
+      <stop offset="100%" stop-color="#0a0f18"/>
+    </linearGradient>
+    <filter id="neonBlur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)"/>
+  
+  <!-- Outer Circuit Ring -->
+  <circle cx="256" cy="256" r="210" fill="none" stroke="#1b2538" stroke-width="3" stroke-dasharray="16 8"/>
+  <circle cx="256" cy="256" r="185" fill="none" stroke="url(#cyberGlow)" stroke-width="2" opacity="0.4"/>
+
+  <!-- Shield Base -->
+  <path d="M 256 80 L 380 135 C 380 270 295 380 256 420 C 217 380 132 270 132 135 Z" 
+        fill="url(#shieldGrad)" stroke="url(#cyberGlow)" stroke-width="6" filter="url(#neonBlur)"/>
+
+  <!-- Inner Citadel Monolith -->
+  <polygon points="256,140 330,185 330,285 256,330 182,285 182,185" 
+           fill="#0d1522" stroke="#00f2fe" stroke-width="3"/>
+
+  <!-- Core Quantum Diamond (Key of Identity) -->
+  <polygon points="256,180 296,235 256,290 216,235" 
+           fill="url(#cyberGlow)" filter="url(#neonBlur)"/>
+
+  <circle cx="256" cy="235" r="10" fill="#ffffff" filter="url(#neonBlur)"/>
+  
+  <!-- Circuit Nodes -->
+  <line x1="256" y1="290" x2="256" y2="365" stroke="#00f2fe" stroke-width="3"/>
+  <circle cx="256" cy="365" r="6" fill="#00f2fe"/>
+
+  <line x1="216" y1="235" x2="160" y2="235" stroke="#7f00ff" stroke-width="3"/>
+  <circle cx="160" cy="235" r="5" fill="#7f00ff"/>
+
+  <line x1="296" y1="235" x2="352" y2="235" stroke="#00f2fe" stroke-width="3"/>
+  <circle cx="352" cy="235" r="5" fill="#00f2fe"/>
+</svg>

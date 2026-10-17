@@ -19,7 +19,8 @@ from schemas import (
     GuardianSet, GuardianRequestOtp, GuardianVerifyOtp, NotificationItem,
     PhoneSendCode, PhoneVerifyCode,
     RecoveryLogin, RecoveryCodesResponse, ConnectedAppItem,
-    PasskeyRegisterRequest, PasskeyLoginRequest
+    PasskeyRegisterRequest, PasskeyLoginRequest,
+    OAuthApproveRequest, OAuthTokenRequest, OAuthTokenResponse
 )
 from security import hash_password, verify_password, create_access_token, decode_access_token
 
@@ -667,6 +668,86 @@ def revoke_connected_app(client_id: str, current: dict = Depends(get_current_use
         conn.commit()
     return {"message": f"{app_name} muvaffaqiyatli uzildi."}
 
+@app.post("/api/oauth/consent/approve")
+def approve_oauth_consent(data: OAuthApproveRequest, current: dict = Depends(get_current_user_and_jti)):
+    with engine.connect() as conn:
+        existing = conn.execute(
+            text("SELECT id FROM connected_apps WHERE user_id = :uid AND client_id = :cid"),
+            {"uid": current["id"], "cid": data.client_id}
+        ).first()
+        if not existing:
+            conn.execute(
+                text("INSERT INTO connected_apps (user_id, client_id, app_name, app_icon, scopes) VALUES (:uid, :cid, :name, :icon, :sc)"),
+                {"uid": current["id"], "cid": data.client_id, "name": data.app_name, "icon": data.app_icon, "sc": data.scopes}
+            )
+            conn.execute(
+                text("INSERT INTO notifications (user_id, from_user, title, message, type) VALUES (:uid, 'Samar OAuth', 'Yangi Ilova Ulandi', :msg, 'security')"),
+                {"uid": current["id"], "msg": f"'{data.app_name}' ilovasi Samar ID hisobingizga muvaffaqiyatli ulandi."}
+            )
+
+        auth_code = "samar_code_" + uuid.uuid4().hex
+        expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
+        conn.execute(
+            text("INSERT INTO oauth_codes (code, client_id, user_id, redirect_uri, scopes, expires_at, is_used) VALUES (:code, :cid, :uid, :uri, :sc, :exp, 0)"),
+            {"code": auth_code, "cid": data.client_id, "uid": current["id"], "uri": data.redirect_uri, "sc": data.scopes, "exp": expires_at}
+        )
+        conn.commit()
+
+    return {"code": auth_code, "redirect_uri": data.redirect_uri, "state": data.state}
+
+@app.post("/api/oauth/token", response_model=OAuthTokenResponse)
+def exchange_oauth_token(data: OAuthTokenRequest):
+    with engine.connect() as conn:
+        row = conn.execute(
+            text("SELECT id, code, client_id, user_id, redirect_uri, scopes, expires_at, is_used FROM oauth_codes WHERE code = :c"),
+            {"c": data.code}
+        ).mappings().first()
+        if not row:
+            raise HTTPException(status_code=400, detail="Noto'g'ri yoki mavjud bo'lmagan avtorizatsiya kodi (Invalid authorization code).")
+        if row["is_used"] == 1:
+            raise HTTPException(status_code=400, detail="Ushbu avtorizatsiya kodi allaqachon ishlatilgan (Code has already been used).")
+
+        conn.execute(text("UPDATE oauth_codes SET is_used = 1 WHERE id = :id"), {"id": row["id"]})
+
+        user = conn.execute(
+            text("SELECT id, samar_id, role, status FROM users WHERE id = :uid"),
+            {"uid": row["user_id"]}
+        ).mappings().first()
+        if not user:
+            raise HTTPException(status_code=404, detail="Foydalanuvchi topilmadi.")
+
+        token, jti = create_access_token(user["samar_id"], user["role"])
+        app_name = row["client_id"] or "OAuth Client"
+        conn.execute(
+            text("INSERT INTO sessions (user_id, token_jti, ip_address, user_agent, is_active) VALUES (:uid, :jti, :app, 'Samar SSO', 1)"),
+            {"uid": user["id"], "jti": jti, "app": app_name}
+        )
+        conn.commit()
+
+    return OAuthTokenResponse(
+        access_token=token,
+        token_type="bearer",
+        expires_in=2592000,
+        scope=row["scopes"] or "profile,email"
+    )
+
+@app.get("/api/oauth/userinfo")
+def get_oauth_userinfo(current: dict = Depends(get_current_user_and_jti)):
+    return {
+        "sub": str(current["id"]),
+        "samar_id": current["samar_id"],
+        "full_name": current["full_name"],
+        "email": current["email"],
+        "phone": current["phone"],
+        "phone_verified": current["phone_verified"],
+        "bio": current["bio"],
+        "specialty": current["specialty"],
+        "avatar_path": current["avatar_path"],
+        "role": current["role"],
+        "status": current["status"]
+    }
+
+
 # ----------------- PROFIL & XAVFSIZLIK -----------------
 @app.put("/api/auth/profile", response_model=UserResponse)
 def update_profile(data: ProfileUpdate, current: dict = Depends(get_current_user_and_jti)):
@@ -1074,3 +1155,32 @@ if os.path.exists(STATIC_DIR):
 @app.get("/")
 def serve_home():
     return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+
+@app.get("/manifest.json")
+def get_manifest():
+    manifest_path = os.path.join(STATIC_DIR, "manifest.json")
+    if os.path.exists(manifest_path):
+        return FileResponse(manifest_path, media_type="application/manifest+json")
+    raise HTTPException(status_code=404, detail="manifest.json not found")
+
+@app.get("/sw.js")
+def get_service_worker():
+    sw_path = os.path.join(STATIC_DIR, "sw.js")
+    if os.path.exists(sw_path):
+        return FileResponse(sw_path, media_type="application/javascript", headers={"Service-Worker-Allowed": "/"})
+    raise HTTPException(status_code=404, detail="sw.js not found")
+
+@app.get("/sdk/samar-auth.js")
+def get_samar_auth_sdk():
+    sdk_path = os.path.join(STATIC_DIR, "samar-auth.js")
+    if os.path.exists(sdk_path):
+        return FileResponse(sdk_path, media_type="application/javascript")
+    raise HTTPException(status_code=404, detail="samar-auth.js not found")
+
+@app.get("/oauth/authorize")
+def get_oauth_authorize():
+    consent_path = os.path.join(STATIC_DIR, "oauth_consent.html")
+    if os.path.exists(consent_path):
+        return FileResponse(consent_path)
+    raise HTTPException(status_code=404, detail="oauth_consent.html not found")
+

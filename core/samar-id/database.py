@@ -125,6 +125,19 @@ def init_db():
                 FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
             );
             """))
+            conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS oauth_codes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                code TEXT UNIQUE NOT NULL,
+                client_id TEXT NOT NULL,
+                user_id INTEGER NOT NULL,
+                redirect_uri TEXT NOT NULL,
+                scopes TEXT DEFAULT 'profile,email',
+                expires_at TIMESTAMP NOT NULL,
+                is_used INTEGER DEFAULT 0,
+                FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+            );
+            """))
             # SQLite table migrations
             try:
                 existing_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(users)")).fetchall()]
@@ -242,6 +255,18 @@ def init_db():
                 public_key TEXT,
                 device_name VARCHAR(150) DEFAULT 'Apple Face ID',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            """))
+            conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS oauth_codes (
+                id SERIAL PRIMARY KEY,
+                code VARCHAR(120) UNIQUE NOT NULL,
+                client_id VARCHAR(100) NOT NULL,
+                user_id INTEGER NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+                redirect_uri TEXT NOT NULL,
+                scopes VARCHAR(255) DEFAULT 'profile,email',
+                expires_at TIMESTAMP NOT NULL,
+                is_used INTEGER DEFAULT 0
             );
             """))
         conn.commit()

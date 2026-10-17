@@ -105,3 +105,24 @@ class PasskeyRegisterRequest(BaseModel):
 class PasskeyLoginRequest(BaseModel):
     samar_id: str
     credential_id: Optional[str] = ""
+
+class OAuthApproveRequest(BaseModel):
+    client_id: str
+    app_name: Optional[str] = "Samar App"
+    app_icon: Optional[str] = "📱"
+    redirect_uri: str
+    scopes: Optional[str] = "profile,email"
+    state: Optional[str] = ""
+
+class OAuthTokenRequest(BaseModel):
+    code: str
+    client_id: Optional[str] = None
+    redirect_uri: Optional[str] = None
+    grant_type: Optional[str] = "authorization_code"
+
+class OAuthTokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    expires_in: int = 2592000
+    scope: str = "profile,email"
+

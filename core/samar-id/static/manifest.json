@@ -1,0 +1,38 @@
+{
+  "name": "Samar ID — Yagona Shaxsiy Ekotizim",
+  "short_name": "Samar ID",
+  "description": "Samar OS xavfsiz shaxsiy identifikatsiya, biometrik himoya va SSO markazi",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0d14",
+  "theme_color": "#0a0d14",
+  "categories": ["productivity", "utilities", "security"],
+  "icons": [
+    {
+      "src": "/static/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/assets/logo_citadel.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Shaxsiy Profil",
+      "url": "/#profile",
+      "description": "Samar ID profil sozlamalari"
+    },
+    {
+      "name": "Xavfsizlik & Passkey",
+      "url": "/#security",
+      "description": "Biometrik kirish va xavfsizlik sozlamalari"
+    }
+  ]
+}
