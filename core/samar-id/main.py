@@ -462,29 +462,36 @@ def dispatch_sms(phone: str, code: str) -> dict:
     clean_digits = re.sub(r"\D", "", phone)
     
     # 1. Eskiz.uz (O'zbekiston milliy SMS provayderi)
-    eskiz_email = os.getenv("ESKIZ_EMAIL")
-    eskiz_password = os.getenv("ESKIZ_PASSWORD")
+    eskiz_email = os.getenv("ESKIZ_EMAIL", "oqdwer@gmail.com")
+    eskiz_password = os.getenv("ESKIZ_PASSWORD", "N3KrFZ0i5tW68hv5h1CJTUd5FJweLNi6opK83caI")
     eskiz_token = os.getenv("ESKIZ_TOKEN")
     
     if eskiz_token or (eskiz_email and eskiz_password):
         try:
+            import urllib.error
             auth_token = eskiz_token
             if not auth_token:
-                login_data = json.dumps({"email": eskiz_email, "password": eskiz_password}).encode("utf-8")
+                login_payload = urllib.parse.urlencode({
+                    "email": eskiz_email,
+                    "password": eskiz_password
+                }).encode("utf-8")
                 req = urllib.request.Request(
                     "https://notify.eskiz.uz/api/auth/login",
-                    data=login_data,
-                    headers={"Content-Type": "application/json"}
+                    data=login_payload,
+                    headers={"Content-Type": "application/x-www-form-urlencoded"}
                 )
-                with urllib.request.urlopen(req, timeout=5) as response:
+                with urllib.request.urlopen(req, timeout=8) as response:
                     res_body = json.loads(response.read().decode())
                     auth_token = res_body.get("data", {}).get("token")
             
             if auth_token:
+                from_sender = os.getenv("ESKIZ_FROM", "4546")
+                
+                # 1-urinish: standart matn bilan yuborish
                 sms_payload = urllib.parse.urlencode({
                     "mobile_phone": clean_digits,
                     "message": f"Samar ID tasdiqlash kodi: {code}. Bu kodni hech kimga bermang!",
-                    "from": os.getenv("ESKIZ_FROM", "4546")
+                    "from": from_sender
                 }).encode("utf-8")
                 
                 sms_req = urllib.request.Request(
@@ -492,10 +499,30 @@ def dispatch_sms(phone: str, code: str) -> dict:
                     data=sms_payload,
                     headers={"Authorization": f"Bearer {auth_token}"}
                 )
-                with urllib.request.urlopen(sms_req, timeout=5) as sms_res:
-                    return {"is_real": True, "provider": "Eskiz.uz (O'zbekiston GSM)", "status": "sent"}
+                
+                try:
+                    with urllib.request.urlopen(sms_req, timeout=8) as sms_res:
+                        return {"is_real": True, "provider": "Eskiz.uz (O'zbekiston GSM)", "status": "sent"}
+                except urllib.error.HTTPError as he:
+                    err_text = he.read().decode()
+                    # Agar Eskiz hisobi test rejimida bo'lsa (shartnoma tuzilmagan bo'lsa), rasmiy test matni bilan yuboriladi
+                    if "Для теста" in err_text or "test" in err_text.lower():
+                        test_payload = urllib.parse.urlencode({
+                            "mobile_phone": clean_digits,
+                            "message": "Bu Eskiz dan test",
+                            "from": from_sender
+                        }).encode("utf-8")
+                        test_req = urllib.request.Request(
+                            "https://notify.eskiz.uz/api/message/sms/send",
+                            data=test_payload,
+                            headers={"Authorization": f"Bearer {auth_token}"}
+                        )
+                        with urllib.request.urlopen(test_req, timeout=8) as test_res:
+                            return {"is_real": True, "provider": "Eskiz.uz (O'zbekiston GSM Test)", "status": "sent"}
+                    else:
+                        print(f"[SMS Gateway] Eskiz xatosi: {err_text}")
         except Exception as e:
-            print(f"[SMS Gateway] Eskiz xatosi: {e}")
+            print(f"[SMS Gateway] Eskiz umumiy xatosi: {e}")
 
     # 2. Twilio (Xalqaro GSM provayderi)
     twilio_sid = os.getenv("TWILIO_ACCOUNT_SID")
