@@ -77,3 +77,27 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserResponse
+
+class RecoveryLogin(BaseModel):
+    samar_id: str
+    code: str
+
+class RecoveryCodesResponse(BaseModel):
+    codes: List[str]
+
+class ConnectedAppItem(BaseModel):
+    id: int
+    client_id: str
+    app_name: str
+    app_icon: str
+    scopes: str
+    connected_at: str
+
+class PasskeyRegisterRequest(BaseModel):
+    credential_id: str
+    public_key: Optional[str] = ""
+    device_name: Optional[str] = "Face ID / Touch ID"
+
+class PasskeyLoginRequest(BaseModel):
+    samar_id: str
+    credential_id: Optional[str] = ""

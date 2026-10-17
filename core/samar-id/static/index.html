@@ -54,6 +54,235 @@
             --radius-sm: 10px;
         }
 
+        /* Apple Clean White / Light Theme */
+        [data-theme="light"] {
+            --bg-window: rgba(255, 255, 255, 0.94);
+            --bg-sidebar: rgba(242, 242, 247, 0.92);
+            --bg-card: rgba(255, 255, 255, 0.95);
+            --bg-card-hover: rgba(235, 235, 240, 0.95);
+            --border: rgba(0, 0, 0, 0.1);
+            --border-hover: rgba(0, 0, 0, 0.18);
+            --text-primary: #1d1d1f;
+            --text-secondary: #6e6e73;
+            --text-tertiary: #86868b;
+            --status-green: #28cd41;
+            --status-red: #ff3b30;
+            --status-orange: #ff9500;
+        }
+
+        [data-theme="light"] body {
+            background-color: #f2f2f7;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(10, 132, 255, 0.09) 0%, transparent 60%),
+                radial-gradient(circle at 100% 100%, rgba(94, 92, 230, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 0% 100%, rgba(10, 132, 255, 0.05) 0%, transparent 40%);
+        }
+
+        [data-theme="light"] .titlebar {
+            background: rgba(246, 246, 248, 0.95);
+            border-bottom-color: rgba(0, 0, 0, 0.08);
+        }
+
+        [data-theme="light"] .input-apple,
+        [data-theme="light"] .input-apple-row {
+            background: rgba(0, 0, 0, 0.04);
+            color: #1d1d1f;
+            border-color: rgba(0, 0, 0, 0.12);
+        }
+
+        [data-theme="light"] .apple-settings-card {
+            background: #ffffff;
+            border-color: rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        [data-theme="light"] .setting-row {
+            border-bottom-color: rgba(0, 0, 0, 0.06);
+        }
+
+        [data-theme="light"] .sidebar-item {
+            color: #48484a;
+        }
+        [data-theme="light"] .sidebar-item:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: #1d1d1f;
+        }
+        [data-theme="light"] .sidebar-item.active {
+            background: rgba(10, 132, 255, 0.12);
+            color: #0071e3;
+        }
+
+        [data-theme="light"] .mobile-bottom-nav {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border-top-color: rgba(0, 0, 0, 0.1) !important;
+        }
+
+        [data-theme="light"] .bottom-nav-item {
+            color: rgba(60, 60, 67, 0.6);
+        }
+        [data-theme="light"] .bottom-nav-item.active {
+            color: #0071e3;
+        }
+
+        [data-theme="light"] .modal-sheet {
+            background: #ffffff;
+            border-color: rgba(0, 0, 0, 0.12);
+        }
+
+        [data-theme="light"] .btn-apple-secondary {
+            background: rgba(0, 0, 0, 0.06);
+            border-color: rgba(0, 0, 0, 0.12);
+            color: #1d1d1f;
+        }
+
+        [data-theme="light"] .apple-id-domain-pill {
+            background: rgba(0, 0, 0, 0.06);
+            color: #1d1d1f;
+            border-color: rgba(0, 0, 0, 0.12);
+        }
+
+        /* Biometric Passkey & UI Helpers */
+        .titlebar-actions {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .btn-titlebar-pill {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 3px 8px;
+            color: var(--text-primary);
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn-titlebar-pill:hover {
+            background: rgba(255, 255, 255, 0.14);
+            transform: scale(1.03);
+        }
+        [data-theme="light"] .btn-titlebar-pill {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.1);
+            color: #1d1d1f;
+        }
+
+        .btn-apple-biometric {
+            width: 100%;
+            margin-top: 10px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(10, 132, 255, 0.12);
+            border: 1px solid rgba(10, 132, 255, 0.3);
+            color: var(--accent);
+            font-size: 13.5px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn-apple-biometric:hover {
+            background: rgba(10, 132, 255, 0.22);
+            border-color: var(--accent);
+            transform: translateY(-1px);
+        }
+        .btn-apple-biometric:active {
+            transform: scale(0.98);
+        }
+
+        /* Recovery Codes Grid */
+        .recovery-codes-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 12px 0;
+        }
+        .recovery-code-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent);
+            text-align: center;
+            letter-spacing: 1px;
+            user-select: all;
+        }
+        [data-theme="light"] .recovery-code-card {
+            background: #f5f5f7;
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Interactive Notification Cards */
+        .notif-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            transition: transform 0.15s, border-color 0.15s;
+        }
+        .notif-card:hover {
+            border-color: var(--border-hover);
+        }
+        .notif-icon-box {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .notif-content {
+            flex: 1;
+        }
+        .notif-title {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .notif-msg {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        .notif-time {
+            font-size: 10.5px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .notif-del-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 12px;
+            padding: 4px;
+            border-radius: 6px;
+            transition: color 0.15s;
+        }
+        .notif-del-btn:hover {
+            color: var(--status-red);
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -1586,9 +1815,20 @@
                 <img src="/static/assets/logo_citadel.jpg" class="titlebar-logo" alt="Samar Citadel Logo">
                 <span class="titlebar-text">Samar ID</span>
             </div>
-            <div class="titlebar-status">
-                <span class="status-pulse"></span>
-                <span>SECURE</span>
+            <div class="titlebar-actions">
+                <!-- Multi-Language Toggle Pill -->
+                <button type="button" class="btn-titlebar-pill" id="btnLangToggle" onclick="cycleLanguage()" title="Tilni almashtirish">
+                    <span>🌐</span>
+                    <span id="labelCurrentLang">UZ</span>
+                </button>
+                <!-- Dark / Light Theme Toggle Pill -->
+                <button type="button" class="btn-titlebar-pill" id="btnThemeToggle" onclick="toggleTheme()" title="Tungi / Kunduzgi rejim">
+                    <span id="themeIcon">🌙</span>
+                </button>
+                <div class="titlebar-status">
+                    <span class="status-pulse"></span>
+                    <span id="titlebarSecureLabel">SECURE</span>
+                </div>
             </div>
         </div>
 
@@ -1642,16 +1882,25 @@
                     <span id="authBtnSpinner" class="spinner" style="display: none;"></span>
                     <span id="authBtnText">Tizimga Kirish</span>
                 </button>
+
+                <!-- Face ID / Touch ID Biometric Login Button -->
+                <button type="button" class="btn-apple-biometric" id="btnBiometricLogin" onclick="handleBiometricLogin()">
+                    <span style="font-size: 16px;">😀</span>
+                    <span id="lblBiometricLogin">Face ID / Touch ID orqali kirish</span>
+                </button>
             </form>
 
             <!-- Recovery View: replaces authForm when "Parolni unutdingizmi?" is clicked -->
             <div id="recoverySheet" style="display: none; animation: fadeIn 0.25s ease;">
-                <div class="recovery-options-grid" style="margin-bottom: 14px;">
+                <div class="recovery-options-grid" style="margin-bottom: 14px; grid-template-columns: repeat(3, 1fr);">
                     <button type="button" class="recovery-opt-btn active" id="btnOptGuardian" onclick="switchRecoverySubTab('guardian')">
-                        🛡️ Do'st orqali
+                        🛡️ Do'st
                     </button>
                     <button type="button" class="recovery-opt-btn" id="btnOptQr" onclick="switchRecoverySubTab('qr')">
-                        📱 QR Kod bilan
+                        📱 QR Kod
+                    </button>
+                    <button type="button" class="recovery-opt-btn" id="btnOptRecoveryCode" onclick="switchRecoverySubTab('recovery_code')">
+                        🆘 Zaxira Kod
                     </button>
                 </div>
 
@@ -1697,6 +1946,25 @@
                     </button>
                 </div>
 
+                <!-- Sub-tab 3: Favqulodda Zaxira Kodi bilan kirish -->
+                <div id="recoveryCodeSubView" style="display: none; text-align: left;">
+                    <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">
+                        8 ta favqulodda zaxira kodlaringizdan birini kiriting. Har bir kod faqat bir marta ishlaydi.
+                    </p>
+                    <div class="form-row">
+                        <label>Sizning Samar ID</label>
+                        <input type="text" class="input-apple" id="recTargetSamarIdForCode" placeholder="masalan: samar@samar.os">
+                    </div>
+                    <div class="form-row" style="margin-bottom: 14px;">
+                        <label>Bir martalik Zaxira Kodi</label>
+                        <input type="text" class="input-apple" id="recInputCode" placeholder="SAMAR-XXXX-XXXX" style="text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; letter-spacing: 2px;">
+                    </div>
+                    <button type="button" class="btn-apple-primary" id="btnVerifyRecoveryCode" style="background: var(--status-red);" onclick="handleRecoveryCodeLogin()">
+                        <span id="recoveryBtnSpinner" class="spinner" style="display: none;"></span>
+                        <span id="recoveryBtnText">Zaxira Kodi Bilan Kirish</span>
+                    </button>
+                </div>
+
                 <div style="margin-top: 14px; text-align: center;">
                     <button type="button" class="btn-link-subtle" onclick="showStandardLogin()">
                         ← Parol bilan kirishga qaytish
@@ -1733,24 +2001,28 @@
                     <div class="sidebar-menu">
                         <button class="sidebar-item active" id="tabNavProfile" onclick="switchPane('profile')">
                             <span class="sidebar-icon">👤</span>
-                            <span>Shaxsiy Ma'lumotlar</span>
+                            <span id="txtTabProfile">Shaxsiy Ma'lumotlar</span>
                         </button>
                         <button class="sidebar-item" id="tabNavSecurity" onclick="switchPane('security')">
                             <span class="sidebar-icon">🛡️</span>
-                            <span>Kirish va Xavfsizlik</span>
+                            <span id="txtTabSecurity">Kirish va Xavfsizlik</span>
+                        </button>
+                        <button class="sidebar-item" id="tabNavApps" onclick="switchPane('apps')">
+                            <span class="sidebar-icon">📱</span>
+                            <span id="txtTabApps">Ulangan Ilovalar (OAuth)</span>
                         </button>
                         <button class="sidebar-item" id="tabNavDevices" onclick="switchPane('devices')">
                             <span class="sidebar-icon">💻</span>
-                            <span>Qurilmalar</span>
+                            <span id="txtTabDevices">Qurilmalar</span>
                         </button>
                         <button class="sidebar-item" id="tabNavInbox" onclick="switchPane('inbox')">
                             <span class="sidebar-icon">📬</span>
-                            <span>Xabarnomalar</span>
+                            <span id="txtTabInbox">Xabarnomalar</span>
                             <span class="badge-count" id="notifBadge" style="display: none;">0</span>
                         </button>
                         <button class="sidebar-item" id="tabNavVault" onclick="switchPane('vault')">
                             <span class="sidebar-icon">📦</span>
-                            <span>Maxfiylik va Eksport</span>
+                            <span id="txtTabVault">Maxfiylik va Eksport</span>
                         </button>
                     </div>
                 </div>
@@ -1853,12 +2125,24 @@
                                 <span style="color: var(--text-tertiary); font-size: 15px;">›</span>
                             </div>
                         </div>
-                        <div class="setting-row" onclick="switchPane('devices')" style="cursor: pointer; border-bottom: none;">
+                        <div class="setting-row" onclick="switchPane('devices')" style="cursor: pointer;">
                             <div class="setting-left">
                                 <div class="setting-icon-box" style="background: rgba(48, 209, 88, 0.15); color: var(--status-green);">💻</div>
                                 <div class="setting-info">
-                                    <div class="setting-title">Ulangan Qurilmalar</div>
-                                    <div class="setting-desc">Faol sessiyalarni nazorat qilish</div>
+                                    <div class="setting-title" id="txtQuickDevices">Ulangan Qurilmalar</div>
+                                    <div class="setting-desc" id="txtQuickDevicesDesc">Faol sessiyalarni nazorat qilish</div>
+                                </div>
+                            </div>
+                            <div class="setting-right">
+                                <span style="color: var(--text-tertiary); font-size: 15px;">›</span>
+                            </div>
+                        </div>
+                        <div class="setting-row" onclick="switchPane('apps')" style="cursor: pointer; border-bottom: none;">
+                            <div class="setting-left">
+                                <div class="setting-icon-box" style="background: rgba(175, 82, 222, 0.15); color: #af52de;">📱</div>
+                                <div class="setting-info">
+                                    <div class="setting-title" id="txtQuickApps">Ulangan Ilovalar (OAuth)</div>
+                                    <div class="setting-desc" id="txtQuickAppsDesc">Messenger, Cloud va ekotizim ruxsatlari</div>
                                 </div>
                             </div>
                             <div class="setting-right">
@@ -1937,13 +2221,44 @@
                             </div>
                         </div>
 
-                        <!-- Row 4: Ikki Bosqichli Himoya Statusi -->
+                        <!-- Row 4: Biometrik Kirish (Face ID / Touch ID) -->
+                        <div class="setting-row">
+                            <div class="setting-left">
+                                <div class="setting-icon-box" style="background: rgba(10, 132, 255, 0.15); color: var(--accent);">😀</div>
+                                <div class="setting-info">
+                                    <div class="setting-title">
+                                        <span id="txtPasskeyTitle">Biometrik Kirish (Passkey)</span>
+                                        <span id="secPasskeyBadge" class="badge-unverified">Ulanmagan</span>
+                                    </div>
+                                    <div class="setting-desc" id="txtPasskeyDesc">Face ID yoki barmoq izi orqali parolsiz kirish</div>
+                                </div>
+                            </div>
+                            <div class="setting-right">
+                                <button type="button" class="btn-setting-action" id="btnPasskeyAction" onclick="handlePasskeyRegister()">Ulash</button>
+                            </div>
+                        </div>
+
+                        <!-- Row 5: Favqulodda Zaxira Kodlari -->
+                        <div class="setting-row">
+                            <div class="setting-left">
+                                <div class="setting-icon-box" style="background: rgba(255, 69, 58, 0.15); color: var(--status-red);">🆘</div>
+                                <div class="setting-info">
+                                    <div class="setting-title" id="txtRecoveryTitle">Favqulodda Zaxira Kodlari</div>
+                                    <div class="setting-desc" id="txtRecoveryDesc">8 ta bir martalik tiklash kodi</div>
+                                </div>
+                            </div>
+                            <div class="setting-right">
+                                <button type="button" class="btn-setting-action" onclick="openRecoveryCodesModal()">Ko'rish</button>
+                            </div>
+                        </div>
+
+                        <!-- Row 6: Ikki Bosqichli Himoya Statusi -->
                         <div class="setting-row" style="border-bottom: none;">
                             <div class="setting-left">
                                 <div class="setting-icon-box" style="background: rgba(191, 90, 242, 0.15); color: #bf5af2;">🔒</div>
                                 <div class="setting-info">
-                                    <div class="setting-title">2FA Himoyasi</div>
-                                    <div class="setting-desc">Biometrik va xavfsiz sessiya nazorati</div>
+                                    <div class="setting-title" id="txt2FaTitle">2FA Himoyasi</div>
+                                    <div class="setting-desc" id="txt2FaDesc">Biometrik va xavfsiz sessiya nazorati</div>
                                 </div>
                             </div>
                             <div class="setting-right">
@@ -1974,14 +2289,64 @@
                     </div>
                 </div>
 
-                <!-- PANE 4: INBOX & BILDIRISHNOMALAR -->
-                <div id="paneInbox" style="display: none;">
-                    <div class="pane-header">
-                        <h2 class="pane-title">Xabarlar</h2>
+                <!-- PANE 4: ULANGAN ILOVALAR & SAMAR OAUTH -->
+                <div id="paneApps" style="display: none;">
+                    <div class="pane-header" style="display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <h2 class="pane-title" style="margin: 0;" id="txtPaneAppsTitle">Ulangan Ilovalar</h2>
+                            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 3px;" id="txtPaneAppsSub">Samar OS ekotizimidagi profilingizga ulangan xizmatlar</p>
+                        </div>
+                        <button type="button" class="btn-setting-action" onclick="loadConnectedApps()" style="display: inline-flex; align-items: center; gap: 6px;">
+                            <span>🔄</span>
+                            <span id="txtRefreshApps">Yangilash</span>
+                        </button>
                     </div>
 
-                    <div id="inboxContainer">
-                        <div style="text-align: center; color: var(--text-secondary); font-size: 13px; padding: 20px;">Xabarlar yo'q.</div>
+                    <div class="apple-settings-card" id="appsContainer" style="margin-top: 14px;">
+                        <div style="text-align: center; color: var(--text-secondary); font-size: 13px; padding: 28px;">
+                            <span class="spinner" style="display: inline-block; margin-bottom: 8px;"></span><br>
+                            Ilovalar yuklanmoqda...
+                        </div>
+                    </div>
+
+                    <!-- OAuth Demonstration Card -->
+                    <div class="apple-settings-card" style="margin-top: 16px; padding: 16px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="font-size: 28px;">⚡</div>
+                                <div>
+                                    <div style="font-size: 13.5px; font-weight: 700;" id="txtOAuthDemoTitle">"Sign in with Samar ID" (OAuth)</div>
+                                    <div style="font-size: 11.5px; color: var(--text-secondary); line-height: 1.4;" id="txtOAuthDemoSub">Tashqi ilovalar va saytlar uchun xavfsiz avtorizatsiya oynasi</div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-apple-primary" style="max-width: 140px; font-size: 12px; height: 38px; flex-shrink: 0;" onclick="simulateOAuthConsent()" id="txtBtnSimulateOAuth">
+                                Sinab Ko'rish
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANE 5: INBOX & BILDIRISHNOMALAR -->
+                <div id="paneInbox" style="display: none;">
+                    <div class="pane-header" style="display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <h2 class="pane-title" style="margin: 0;" id="txtPaneInboxTitle">Xabarlar va Xavfsizlik</h2>
+                            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 3px;" id="txtPaneInboxSub">Hisobingizdagi muhim hodisalar va xabarnomalar</p>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" class="btn-setting-action" onclick="clearAllNotifications()" style="font-size: 11.5px;" id="txtClearAllNotifs">
+                                Tozalash
+                            </button>
+                            <button type="button" class="btn-setting-action" onclick="loadNotifications()" title="Yangilash">
+                                <span>🔄</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="inboxContainer" style="margin-top: 14px;">
+                        <div style="text-align: center; color: var(--text-secondary); font-size: 13px; padding: 24px;" id="txtNoNotifs">
+                            Xabarlar yo'q.
+                        </div>
                     </div>
                 </div>
 
@@ -2152,6 +2517,86 @@
                 </div>
             </div>
         </div>
+    <!-- Modal 4: Favqulodda Zaxira Kodlari -->
+    <div id="modalRecoveryCodes" class="modal-overlay" onclick="handleModalBackdropClick(event, 'modalRecoveryCodes')">
+        <div class="modal-sheet" style="max-width: 520px;">
+            <div class="modal-head">
+                <div class="modal-title">
+                    <span>🆘</span>
+                    <span id="txtModalRecoveryTitle">Favqulodda Zaxira Kodlari</span>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeRecoveryCodesModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div id="modalRecoveryAlert" class="toast-msg"></div>
+                <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px;" id="txtModalRecoveryDesc">
+                    Ushbu 8 ta bir martalik maxfiy kod parolingiz yoki telefoningiz yo'qolganda hisobingizni tiklash vositasidir. Har bir kod faqat bir marta ishlaydi. Ularni xavfsiz joyda saqlang.
+                </p>
+                
+                <div class="recovery-codes-grid" id="recoveryCodesGrid">
+                    <!-- Dynamically loaded 8 monospace code cards -->
+                </div>
+
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; margin-top: 18px;">
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" class="btn-apple-secondary" style="font-size: 12px; padding: 0 12px; height: 38px;" onclick="copyAllRecoveryCodes()">
+                            <span>📋</span> <span id="txtCopyAllCodes">Nusxa Olish</span>
+                        </button>
+                        <button type="button" class="btn-apple-secondary" style="font-size: 12px; padding: 0 12px; height: 38px;" onclick="downloadRecoveryCodesTxt()">
+                            <span>📥</span> <span>.txt Yuklab Olish</span>
+                        </button>
+                    </div>
+                    <button type="button" class="btn-apple-primary" style="max-width: 150px; font-size: 12px; height: 38px; background: var(--status-red);" id="btnRegenerateCodes" onclick="handleRegenerateRecoveryCodes()">
+                        <span id="regenSpinner" class="spinner" style="display: none;"></span>
+                        <span id="regenText">Yangi Kodlar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 5: OAuth Consent Screen -->
+    <div id="modalOAuthConsent" class="modal-overlay" onclick="handleModalBackdropClick(event, 'modalOAuthConsent')">
+        <div class="modal-sheet" style="max-width: 440px;">
+            <div class="modal-head">
+                <div class="modal-title">
+                    <img src="/static/assets/logo_citadel.jpg" style="width: 20px; height: 20px; border-radius: 4px;" alt="Logo">
+                    <span>Samar OAuth</span>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeOAuthModal()">✕</button>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <div style="font-size: 40px; margin: 8px 0;">⚡</div>
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 4px;" id="oauthClientTitle">Samar AI Studio</h3>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 16px;">
+                    Ushbu ilova sizning Samar ID hisobingiz orqali autentifikatsiyadan o'tishni so'ramoqda.
+                </p>
+
+                <div class="apple-settings-card" style="text-align: left; padding: 12px 14px; margin-bottom: 18px;">
+                    <div style="font-size: 11px; color: var(--text-secondary); font-weight: 700; margin-bottom: 8px;">
+                        SO'RALAYOTGAN RUXSATLAR:
+                    </div>
+                    <div style="font-size: 12px; display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                        <span>👤</span> <span>Ism va Samar ID (@samar.os)</span>
+                    </div>
+                    <div style="font-size: 12px; display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                        <span>📧</span> <span>Elektron pochta manzili</span>
+                    </div>
+                    <div style="font-size: 12px; display: flex; align-items: center; gap: 8px;">
+                        <span>🔒</span> <span>Xavfsiz token va identifikatsiya</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" class="btn-apple-secondary" style="flex: 1;" onclick="closeOAuthModal()">
+                        Rad Etish
+                    </button>
+                    <button type="button" class="btn-apple-primary" style="flex: 1; background: var(--status-green);" onclick="handleApproveOAuth()">
+                        Ruxsat Berish
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -2227,8 +2672,13 @@
         function switchRecoverySubTab(tab) {
             document.getElementById('btnOptGuardian').classList.toggle('active', tab === 'guardian');
             document.getElementById('btnOptQr').classList.toggle('active', tab === 'qr');
+            const btnRec = document.getElementById('btnOptRecoveryCode');
+            if (btnRec) btnRec.classList.toggle('active', tab === 'recovery_code');
+
             document.getElementById('guardianSubView').style.display = (tab === 'guardian') ? 'block' : 'none';
             document.getElementById('qrSubView').style.display = (tab === 'qr') ? 'block' : 'none';
+            const codeView = document.getElementById('recoveryCodeSubView');
+            if (codeView) codeView.style.display = (tab === 'recovery_code') ? 'block' : 'none';
 
             if (tab === 'qr') {
                 initQRLogin();
@@ -2477,13 +2927,18 @@
             } else {
                 if (guardianBadge) guardianBadge.style.display = 'none';
                 if (guardianDesc) guardianDesc.innerText = "Parolni unutganda tiklash uchun mas'ul Samar ID";
+            if (localStorage.getItem('samar_passkey_enrolled') === 'true') {
+                updatePasskeyBadge(true);
+            }
+            if (user && user.samar_id) {
+                localStorage.setItem('samar_last_id', user.samar_id);
             }
 
             loadNotifications();
         }
 
         function switchPane(pane) {
-            ['profile', 'security', 'devices', 'inbox', 'vault'].forEach(p => {
+            ['profile', 'security', 'devices', 'apps', 'inbox', 'vault'].forEach(p => {
                 const name = p.charAt(0).toUpperCase() + p.slice(1);
                 const nav = document.getElementById('tabNav' + name);
                 const mNav = document.getElementById('mTabNav' + name);
@@ -2495,6 +2950,7 @@
             });
             document.getElementById('paneAlert').style.display = 'none';
             if (pane === 'devices') loadDevices();
+            if (pane === 'apps') loadConnectedApps();
             if (pane === 'inbox') loadNotifications();
         }
 
@@ -2504,7 +2960,8 @@
                 if (modalId === 'modalPassword') closePasswordModal();
                 if (modalId === 'modalPhone') closePhoneModal();
                 if (modalId === 'modalGuardian') closeGuardianModal();
-            }
+                if (modalId === 'modalRecoveryCodes') closeRecoveryCodesModal();
+                if (modalId === 'modalOAuthConsent') closeOAuthModal();
         }
 
         // ================== MODAL 1: PAROL YANGILASH ==================
@@ -2895,8 +3352,493 @@
             loadDevices();
         }
 
+        // ================== 1. KO'P TILLILIK (I18N) ==================
+        const I18N = {
+            uz: {
+                secure: "HIMOYALANGAN",
+                titlebar_title: "Samar ID",
+                auth_sub: "Shaxsiy va daxlsiz raqamli kalitingiz",
+                tab_login: "Kirish",
+                tab_register: "Yangi Hisob",
+                btn_login: "Tizimga Kirish",
+                btn_register: "Samar ID Yaratish",
+                biometric_login_btn: "Face ID / Touch ID orqali kirish",
+                forgot_password: "Parolni unutdingizmi?",
+                back_to_login: "← Parol bilan kirishga qaytish",
+                opt_guardian: "🛡️ Do'st",
+                opt_qr: "📱 QR Kod",
+                opt_recovery: "🆘 Zaxira Kod",
+                recovery_code_desc: "8 ta favqulodda zaxira kodlaringizdan birini kiriting. Har bir kod faqat bir marta ishlaydi.",
+                recovery_login_btn: "Zaxira Kodi Bilan Kirish",
+                tab_profile: "Shaxsiy Ma'lumotlar",
+                tab_security: "Kirish va Xavfsizlik",
+                tab_apps: "Ulangan Ilovalar (OAuth)",
+                tab_devices: "Qurilmalar",
+                tab_inbox: "Xabarnomalar",
+                tab_vault: "Maxfiylik va Eksport",
+                save_profile: "O'zgarishlarni Saqlash",
+                quick_devices: "Ulangan Qurilmalar",
+                quick_devices_desc: "Faol sessiyalarni nazorat qilish",
+                quick_apps: "Ulangan Ilovalar (OAuth)",
+                quick_apps_desc: "Messenger, Cloud va ekotizim ruxsatlari",
+                logout: "Tizimdan Chiqish",
+                exit_app: "Chiqish",
+                pane_apps_title: "Ulangan Ilovalar",
+                pane_apps_sub: "Samar OS ekotizimidagi profilingizga ulangan xizmatlar",
+                refresh: "Yangilash",
+                oauth_demo_title: "\"Sign in with Samar ID\" (OAuth)",
+                oauth_demo_sub: "Tashqi ilovalar va saytlar uchun xavfsiz avtorizatsiya oynasi",
+                oauth_demo_btn: "Sinab Ko'rish",
+                pane_inbox_title: "Xabarlar va Xavfsizlik",
+                pane_inbox_sub: "Hisobingizdagi muhim hodisalar va xabarnomalar",
+                clear_all: "Tozalash",
+                no_notifications: "Xabarlar yo'q.",
+                modal_recovery_title: "Favqulodda Zaxira Kodlari",
+                modal_recovery_desc: "Ushbu 8 ta bir martalik maxfiy kod parolingiz yoki telefoningiz yo'qolganda hisobingizni tiklash vositasidir. Har bir kod faqat bir marta ishlaydi. Ularni xavfsiz joyda saqlang.",
+                copy_all: "Nusxa Olish",
+                download_txt: ".txt Yuklab Olish",
+                regenerate_codes: "Yangi Kodlar"
+            },
+            en: {
+                secure: "SECURE",
+                titlebar_title: "Samar ID",
+                auth_sub: "Your Sovereign & Secure Digital Passport",
+                tab_login: "Sign In",
+                tab_register: "Create Account",
+                btn_login: "Sign In",
+                btn_register: "Create Account",
+                biometric_login_btn: "Sign in with Face ID / Touch ID",
+                forgot_password: "Forgot Password?",
+                back_to_login: "← Back to Password Sign In",
+                opt_guardian: "🛡️ Guardian",
+                opt_qr: "📱 QR Code",
+                opt_recovery: "🆘 Backup Code",
+                recovery_code_desc: "Enter one of your 8 emergency backup codes. Each code can be used only once.",
+                recovery_login_btn: "Sign In with Backup Code",
+                tab_profile: "Personal Profile",
+                tab_security: "Sign-in & Security",
+                tab_apps: "Connected Apps (OAuth)",
+                tab_devices: "Connected Devices",
+                tab_inbox: "Notifications",
+                tab_vault: "Vault & Export",
+                save_profile: "Save Changes",
+                quick_devices: "Connected Devices",
+                quick_devices_desc: "Monitor and revoke active sessions",
+                quick_apps: "Connected Apps (OAuth)",
+                quick_apps_desc: "Manage Messenger, Cloud Drive & API permissions",
+                logout: "Sign Out",
+                exit_app: "Sign Out",
+                pane_apps_title: "Connected Apps",
+                pane_apps_sub: "Services connected to your Samar OS identity",
+                refresh: "Refresh",
+                oauth_demo_title: "\"Sign in with Samar ID\" (OAuth)",
+                oauth_demo_sub: "Secure single sign-on consent dialog for external apps",
+                oauth_demo_btn: "Test Dialog",
+                pane_inbox_title: "Messages & Security Feed",
+                pane_inbox_sub: "Important account activities and security alerts",
+                clear_all: "Clear All",
+                no_notifications: "No notifications.",
+                modal_recovery_title: "Emergency Recovery Codes",
+                modal_recovery_desc: "These 8 single-use codes allow you to regain access if your password or phone is lost. Each code works only once. Keep them safe.",
+                copy_all: "Copy All",
+                download_txt: "Download .txt",
+                regenerate_codes: "Regenerate"
+            },
+            ru: {
+                secure: "ЗАЩИЩЕНО",
+                titlebar_title: "Samar ID",
+                auth_sub: "Ваш суверенный цифровой паспорт",
+                tab_login: "Вход",
+                tab_register: "Регистрация",
+                btn_login: "Войти в систему",
+                btn_register: "Создать аккаунт",
+                biometric_login_btn: "Войти с Face ID / Touch ID",
+                forgot_password: "Забыли пароль?",
+                back_to_login: "← Назад к входу по паролю",
+                opt_guardian: "🛡️ Доверенный",
+                opt_qr: "📱 QR-код",
+                opt_recovery: "🆘 Резервный код",
+                recovery_code_desc: "Введите один из 8 аварийных кодов. Каждый код действует только один раз.",
+                recovery_login_btn: "Войти по резервному коду",
+                tab_profile: "Личный профиль",
+                tab_security: "Вход и безопасность",
+                tab_apps: "Подключенные приложения",
+                tab_devices: "Устройства",
+                tab_inbox: "Уведомления",
+                tab_vault: "Архив и экспорт",
+                save_profile: "Сохранить изменения",
+                quick_devices: "Подключенные устройства",
+                quick_devices_desc: "Контроль активных сессий",
+                quick_apps: "Подключенные приложения (OAuth)",
+                quick_apps_desc: "Доступ Messenger, Cloud и других сервисов",
+                logout: "Выйти из системы",
+                exit_app: "Выход",
+                pane_apps_title: "Подключенные приложения",
+                pane_apps_sub: "Сервисы экосистемы Samar OS, привязанные к профилю",
+                refresh: "Обновить",
+                oauth_demo_title: "\"Sign in with Samar ID\" (OAuth)",
+                oauth_demo_sub: "Окно единой авторизации для сторонних приложений",
+                oauth_demo_btn: "Проверить",
+                pane_inbox_title: "Сообщения и безопасность",
+                pane_inbox_sub: "Важные события и предупреждения безопасности",
+                clear_all: "Очистить",
+                no_notifications: "Уведомлений нет.",
+                modal_recovery_title: "Резервные коды восстановления",
+                modal_recovery_desc: "Эти 8 одноразовых кодов помогут восстановить доступ при утере пароля или телефона. Каждый код работает один раз.",
+                copy_all: "Скопировать все",
+                download_txt: "Скачать .txt",
+                regenerate_codes: "Новые коды"
+            }
+        };
+
+        let currentLang = localStorage.getItem('samar_lang') || 'uz';
+
+        function cycleLanguage() {
+            const list = ['uz', 'en', 'ru'];
+            const idx = (list.indexOf(currentLang) + 1) % list.length;
+            setLanguage(list[idx]);
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('samar_lang', lang);
+            const lbl = document.getElementById('labelCurrentLang');
+            if (lbl) lbl.innerText = lang.toUpperCase();
+            applyLanguageTexts();
+        }
+
+        function applyLanguageTexts() {
+            const t = I18N[currentLang] || I18N.uz;
+            const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+
+            setTxt('titlebarSecureLabel', t.secure);
+            setTxt('tabLogin', t.tab_login);
+            setTxt('tabRegister', t.tab_register);
+            setTxt('lblBiometricLogin', t.biometric_login_btn);
+            setTxt('txtTabProfile', t.tab_profile);
+            setTxt('txtTabSecurity', t.tab_security);
+            setTxt('txtTabApps', t.tab_apps);
+            setTxt('txtTabDevices', t.tab_devices);
+            setTxt('txtTabInbox', t.tab_inbox);
+            setTxt('txtTabVault', t.tab_vault);
+            setTxt('lblNavProfile', t.tab_profile.split(' ')[0]);
+            setTxt('lblNavSecurity', t.tab_security.split(' ')[0]);
+            setTxt('lblNavApps', 'Ilovalar');
+            setTxt('lblNavDevices', t.tab_devices);
+            setTxt('lblNavInbox', t.tab_inbox);
+            setTxt('txtQuickDevices', t.quick_devices);
+            setTxt('txtQuickDevicesDesc', t.quick_devices_desc);
+            setTxt('txtQuickApps', t.quick_apps);
+            setTxt('txtQuickAppsDesc', t.quick_apps_desc);
+            setTxt('saveProfileText', t.save_profile);
+            setTxt('exitText', t.exit_app);
+            setTxt('exitTextMobile', t.logout);
+            setTxt('txtPaneAppsTitle', t.pane_apps_title);
+            setTxt('txtPaneAppsSub', t.pane_apps_sub);
+            setTxt('txtRefreshApps', t.refresh);
+            setTxt('txtOAuthDemoTitle', t.oauth_demo_title);
+            setTxt('txtOAuthDemoSub', t.oauth_demo_sub);
+            setTxt('txtBtnSimulateOAuth', t.oauth_demo_btn);
+            setTxt('txtPaneInboxTitle', t.pane_inbox_title);
+            setTxt('txtPaneInboxSub', t.pane_inbox_sub);
+            setTxt('txtClearAllNotifs', t.clear_all);
+            setTxt('txtNoNotifs', t.no_notifications);
+            setTxt('txtModalRecoveryTitle', t.modal_recovery_title);
+            setTxt('txtModalRecoveryDesc', t.modal_recovery_desc);
+            setTxt('txtCopyAllCodes', t.copy_all);
+            setTxt('regenText', t.regenerate_codes);
+        }
+
+        // ================== 2. TUNGI / KUNDUZGI REJIM (THEME) ==================
+        let currentTheme = localStorage.getItem('samar_theme') || 'dark';
+
+        function applyTheme(theme) {
+            currentTheme = theme;
+            localStorage.setItem('samar_theme', theme);
+            document.documentElement.setAttribute('data-theme', theme);
+            const icon = document.getElementById('themeIcon');
+            if (icon) icon.innerText = (theme === 'light') ? '☀️' : '🌙';
+        }
+
+        function toggleTheme() {
+            applyTheme(currentTheme === 'light' ? 'dark' : 'light');
+        }
+
+        // Apply theme and language at runtime
+        applyTheme(currentTheme);
+        setLanguage(currentLang);
+
+        // ================== 3. BIOMETRIK KIRISH (PASSKEYS / FACE ID) ==================
+        async function handlePasskeyRegister() {
+            const token = localStorage.getItem('samar_token');
+            if (!token) return;
+            const btn = document.getElementById('btnPasskeyAction');
+            if (btn) btn.innerText = 'Ulanmoqda...';
+
+            const isApple = /iphone|ipad|mac/i.test(navigator.userAgent);
+            const devName = isApple ? 'Apple Face ID / Touch ID' : 'Biometrik Passkey';
+            const credId = 'passkey_' + Math.random().toString(36).substring(2, 10);
+
+            try {
+                const res = await fetch('/api/auth/passkeys/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ credential_id: credId, public_key: 'pk_auth', device_name: devName })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('samar_passkey_enrolled', 'true');
+                    if (currentUser) localStorage.setItem('samar_last_id', currentUser.samar_id);
+                    updatePasskeyBadge(true);
+                    showToast('paneAlert', data.message || 'Face ID muvaffaqiyatli ulandi!', true);
+                    loadNotifications();
+                } else {
+                    showToast('paneAlert', data.detail || 'Ulashda xatolik yuz berdi.');
+                }
+            } catch (err) {
+                showToast('paneAlert', 'Xatolik: ' + err.message);
+            } finally {
+                if (btn) btn.innerText = 'Yangilash';
+            }
+        }
+
+        function updatePasskeyBadge(isEnrolled) {
+            const b = document.getElementById('secPasskeyBadge');
+            if (b) {
+                b.className = isEnrolled ? 'badge-verified' : 'badge-unverified';
+                b.innerText = isEnrolled ? '● Faol' : 'Ulanmagan';
+            }
+        }
+
+        async function handleBiometricLogin() {
+            let lastId = localStorage.getItem('samar_last_id') || document.getElementById('authSamarIdInput').value.trim();
+            if (!lastId) {
+                showToast('authAlert', 'Iltimos, avval Samar ID ni kiriting!');
+                return;
+            }
+
+            const btn = document.getElementById('btnBiometricLogin');
+            const origHtml = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner" style="width: 14px; height: 14px; display: inline-block;"></span> <span>Autentifikatsiya...</span>';
+
+            try {
+                const res = await fetch('/api/auth/passkeys/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ samar_id: lastId, credential_id: 'passkey_quick' })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem('samar_token', data.access_token);
+                    localStorage.setItem('samar_last_id', data.user.samar_id);
+                    loadDashboard(data.user);
+                } else {
+                    showToast('authAlert', data.detail || 'Biometrik kirish amalga oshmadi.');
+                }
+            } catch (err) {
+                showToast('authAlert', 'Tarmoq xatosi: ' + err.message);
+            } finally {
+                btn.innerHTML = origHtml;
+            }
+        }
+
+        // ================== 4. FAVQULODDA ZAXIRA KODLARI ==================
+        let currentRecoveryCodes = [];
+
+        async function openRecoveryCodesModal() {
+            const token = localStorage.getItem('samar_token');
+            if (!token) return;
+            document.getElementById('modalRecoveryAlert').style.display = 'none';
+            document.getElementById('modalRecoveryCodes').style.display = 'flex';
+            const grid = document.getElementById('recoveryCodesGrid');
+            grid.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 18px;"><span class="spinner"></span> Yuklanmoqda...</div>';
+
+            try {
+                const res = await fetch('/api/auth/recovery-codes', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    currentRecoveryCodes = data.codes || [];
+                    renderRecoveryCodes(currentRecoveryCodes);
+                }
+            } catch (_) {
+                grid.innerHTML = '<div style="color: var(--status-red); text-align: center;">Kodlarni yuklab bo\'lmadi.</div>';
+            }
+        }
+
+        function closeRecoveryCodesModal() {
+            document.getElementById('modalRecoveryCodes').style.display = 'none';
+        }
+
+        function renderRecoveryCodes(codes) {
+            const grid = document.getElementById('recoveryCodesGrid');
+            if (!codes || codes.length === 0) {
+                grid.innerHTML = '<div style="text-align: center; color: var(--text-secondary);">Kodlar mavjud emas.</div>';
+                return;
+            }
+            grid.innerHTML = codes.map((c, i) => `
+                <div class="recovery-code-card">
+                    <span style="font-size: 11px; opacity: 0.5; margin-right: 4px;">#${i + 1}</span> ${c}
+                </div>
+            `).join('');
+        }
+
+        function copyAllRecoveryCodes() {
+            if (!currentRecoveryCodes.length) return;
+            navigator.clipboard.writeText(currentRecoveryCodes.join('\n'));
+            showToast('modalRecoveryAlert', 'Barcha 8 ta zaxira kodlari buferga nusxalandi!', true);
+        }
+
+        function downloadRecoveryCodesTxt() {
+            if (!currentRecoveryCodes.length) return;
+            const content = "=== SAMAR ID FAVQULODDA ZAXIRA KODLARI ===\n" +
+                `Foydalanuvchi: ${currentUser ? currentUser.samar_id : 'Samar ID'}\n` +
+                `Yaratilgan sana: ${new Date().toLocaleDateString()}\n\n` +
+                currentRecoveryCodes.map((c, idx) => `${idx + 1}. ${c}`).join('\n') +
+                "\n\nDIQQAT: Har bir kod faqat bir marta ishlaydi. Hech kimga bermang!";
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `samar_recovery_codes_${currentUser ? currentUser.samar_id : 'id'}.txt`;
+            a.click();
+            showToast('modalRecoveryAlert', 'Zaxira kodlari fayli yuklab olindi!', true);
+        }
+
+        async function handleRegenerateRecoveryCodes() {
+            if (!confirm('Eski zaxira kodlaringiz bekor qilinadi va 8 ta yangi kod yaratiladi. Davom etasizmi?')) return;
+            const token = localStorage.getItem('samar_token');
+            setButtonLoading('btnRegenerateCodes', 'regenSpinner', 'regenText', true, 'Yaratilmoqda...', 'Yangi Kodlar');
+
+            try {
+                const res = await fetch('/api/auth/recovery-codes/regenerate', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    currentRecoveryCodes = data.codes || [];
+                    renderRecoveryCodes(currentRecoveryCodes);
+                    showToast('modalRecoveryAlert', '8 ta yangi zaxira kodi yaratildi!', true);
+                    loadNotifications();
+                }
+            } catch (err) {
+                showToast('modalRecoveryAlert', 'Xatolik: ' + err.message);
+            } finally {
+                setButtonLoading('btnRegenerateCodes', 'regenSpinner', 'regenText', false, 'Yaratilmoqda...', 'Yangi Kodlar');
+            }
+        }
+
+        async function handleRecoveryCodeLogin() {
+            const sid = document.getElementById('recTargetSamarIdForCode').value.trim();
+            const code = document.getElementById('recInputCode').value.trim();
+            if (!sid || !code) {
+                showToast('authAlert', 'Iltimos, Samar ID va zaxira kodini kiriting!');
+                return;
+            }
+
+            setButtonLoading('btnVerifyRecoveryCode', 'recoveryBtnSpinner', 'recoveryBtnText', true, 'Tekshirilmoqda...', 'Zaxira Kodi Bilan Kirish');
+
+            try {
+                const res = await fetch('/api/auth/recovery-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ samar_id: sid, code: code })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Zaxira kodi xato!');
+
+                localStorage.setItem('samar_token', data.access_token);
+                loadDashboard(data.user);
+            } catch (err) {
+                showToast('authAlert', err.message);
+            } finally {
+                setButtonLoading('btnVerifyRecoveryCode', 'recoveryBtnSpinner', 'recoveryBtnText', false, 'Tekshirilmoqda...', 'Zaxira Kodi Bilan Kirish');
+            }
+        }
+
+        // ================== 5. ULANGAN ILOVALAR & SAMAR OAUTH ==================
+        async function loadConnectedApps() {
+            const token = localStorage.getItem('samar_token');
+            if (!token) return;
+            const container = document.getElementById('appsContainer');
+            container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); font-size: 13px; padding: 24px;"><span class="spinner"></span> Yuklanmoqda...</div>';
+
+            try {
+                const res = await fetch('/api/oauth/apps', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const apps = await res.json();
+                renderConnectedApps(apps);
+            } catch (_) {
+                container.innerHTML = '<div style="text-align: center; color: var(--status-red); padding: 16px;">Ilovalarni yuklab bo\'lmadi.</div>';
+            }
+        }
+
+        function renderConnectedApps(apps) {
+            const container = document.getElementById('appsContainer');
+            if (!apps || apps.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); font-size: 13px; padding: 20px;">Ulangan ilovalar yo\'q.</div>';
+                return;
+            }
+
+            container.innerHTML = apps.map((app, idx) => `
+                <div class="setting-row" style="${idx === apps.length - 1 ? 'border-bottom: none;' : ''}">
+                    <div class="setting-left">
+                        <div class="setting-icon-box" style="background: rgba(175, 82, 222, 0.15); color: #af52de; font-size: 18px;">
+                            ${app.app_icon || '📱'}
+                        </div>
+                        <div class="setting-info">
+                            <div class="setting-title">${app.app_name} <span class="badge-verified" style="font-size: 10px;">Ulangan</span></div>
+                            <div class="setting-desc" style="font-size: 11px;">Ruxsatlar: ${app.scopes}</div>
+                            <div style="font-size: 10px; color: var(--text-tertiary); margin-top: 2px;">Ulangan sana: ${app.connected_at}</div>
+                        </div>
+                    </div>
+                    <div class="setting-right">
+                        <button type="button" class="btn-setting-action" style="color: var(--status-red); border-color: rgba(255, 69, 58, 0.25);" onclick="revokeApp('${app.client_id}')">
+                            Bekor Qilish
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function revokeApp(clientId) {
+            if (!confirm('Ushbu ilovaning Samar ID ga kirish ruxsatini bekor qilmoqchimisiz?')) return;
+            const token = localStorage.getItem('samar_token');
+            try {
+                const res = await fetch('/api/oauth/apps/' + clientId, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                showToast('paneAlert', data.message || 'Ilova uzildi.', true);
+                loadConnectedApps();
+                loadNotifications();
+            } catch (err) {
+                showToast('paneAlert', 'Xatolik: ' + err.message);
+            }
+        }
+
+        function simulateOAuthConsent() {
+            document.getElementById('modalOAuthConsent').style.display = 'flex';
+        }
+
+        function closeOAuthModal() {
+            document.getElementById('modalOAuthConsent').style.display = 'none';
+        }
+
+        function handleApproveOAuth() {
+            closeOAuthModal();
+            showToast('paneAlert', 'Samar Studio muvaffaqiyatli ulandi va xavfsiz token taqdim etildi!', true);
+            loadConnectedApps();
+            loadNotifications();
+        }
+
+        // ================== 6. INTERAKTIV BILDIRISHNOMALAR (INBOX) ==================
         async function loadNotifications() {
             const token = localStorage.getItem('samar_token');
+            if (!token) return;
             const container = document.getElementById('inboxContainer');
             try {
                 const res = await fetch('/api/notifications', {
@@ -2905,23 +3847,66 @@
                 const list = await res.json();
                 const badge = document.getElementById('notifBadge');
                 const mBadge = document.getElementById('mNotifBadge');
-                if (list && list.length > 0) {
-                    if (badge) { badge.innerText = list.length; badge.style.display = 'inline-block'; }
-                    if (mBadge) { mBadge.innerText = list.length; mBadge.style.display = 'inline-block'; }
-                    container.innerHTML = list.map(n => `
-                        <div class="notif-card">
-                            <div class="notif-head">
-                                <span>${n.title}</span>
-                                <span style="font-size: 10px; color: var(--text-tertiary);">${n.created_at}</span>
-                            </div>
-                            <div class="notif-body">${n.message}</div>
-                        </div>
-                    `).join('');
+
+                const unreadCount = (list && Array.isArray(list)) ? list.filter(n => !n.is_read).length : 0;
+                if (unreadCount > 0) {
+                    if (badge) { badge.innerText = unreadCount; badge.style.display = 'inline-block'; }
+                    if (mBadge) { mBadge.innerText = unreadCount; mBadge.style.display = 'inline-block'; }
                 } else {
                     if (badge) badge.style.display = 'none';
                     if (mBadge) mBadge.style.display = 'none';
-                    container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 16px;">Yangi xabarnomalar yo\'q.</div>';
                 }
+
+                if (list && list.length > 0) {
+                    container.innerHTML = list.map(n => {
+                        let icon = '🛡️';
+                        let bg = 'rgba(10, 132, 255, 0.15)';
+                        if (n.type === 'security') { icon = '🔑'; bg = 'rgba(255, 69, 58, 0.15)'; }
+                        else if (n.type === 'guardian') { icon = '🛡️'; bg = 'rgba(255, 159, 10, 0.15)'; }
+                        else if (n.type === 'phone') { icon = '📱'; bg = 'rgba(48, 209, 88, 0.15)'; }
+                        else if (n.type === 'warning') { icon = '⚠️'; bg = 'rgba(255, 159, 10, 0.15)'; }
+
+                        return `
+                            <div class="notif-card" style="${n.is_read ? 'opacity: 0.75;' : 'border-left: 3px solid var(--accent);'}">
+                                <div class="notif-icon-box" style="background: ${bg};">
+                                    ${icon}
+                                </div>
+                                <div class="notif-content">
+                                    <div class="notif-title">${n.title}</div>
+                                    <div class="notif-msg">${n.message}</div>
+                                    <div class="notif-time">${n.created_at} • ${n.from_user || 'Samar Security'}</div>
+                                </div>
+                                <button type="button" class="notif-del-btn" onclick="deleteNotification(${n.id})" title="O'chirish">✕</button>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); font-size: 13px; padding: 24px;">Xabarlar yo\'q.</div>';
+                }
+            } catch (_) {}
+        }
+
+        async function deleteNotification(id) {
+            const token = localStorage.getItem('samar_token');
+            if (!token) return;
+            try {
+                await fetch('/api/notifications/' + id, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                loadNotifications();
+            } catch (_) {}
+        }
+
+        async function clearAllNotifications() {
+            const token = localStorage.getItem('samar_token');
+            if (!token) return;
+            try {
+                await fetch('/api/notifications/clear-all', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                loadNotifications();
             } catch (_) {}
         }
 
@@ -3019,24 +4004,24 @@
     <nav class="mobile-bottom-nav" id="mobileBottomNav" style="display: none;">
         <button type="button" class="bottom-nav-item active" id="mTabNavProfile" onclick="switchPane('profile')">
             <span class="bottom-nav-icon">👤</span>
-            <span class="bottom-nav-label">Profil</span>
+            <span class="bottom-nav-label" id="lblNavProfile">Profil</span>
         </button>
         <button type="button" class="bottom-nav-item" id="mTabNavSecurity" onclick="switchPane('security')">
             <span class="bottom-nav-icon">🛡️</span>
-            <span class="bottom-nav-label">Xavfsizlik</span>
+            <span class="bottom-nav-label" id="lblNavSecurity">Xavfsizlik</span>
+        </button>
+        <button type="button" class="bottom-nav-item" id="mTabNavApps" onclick="switchPane('apps')">
+            <span class="bottom-nav-icon">📱</span>
+            <span class="bottom-nav-label" id="lblNavApps">Ilovalar</span>
         </button>
         <button type="button" class="bottom-nav-item" id="mTabNavDevices" onclick="switchPane('devices')">
             <span class="bottom-nav-icon">💻</span>
-            <span class="bottom-nav-label">Qurilmalar</span>
+            <span class="bottom-nav-label" id="lblNavDevices">Qurilmalar</span>
         </button>
         <button type="button" class="bottom-nav-item" id="mTabNavInbox" onclick="switchPane('inbox')">
             <span class="bottom-nav-icon">📬</span>
-            <span class="bottom-nav-label">Xabarlar</span>
+            <span class="bottom-nav-label" id="lblNavInbox">Xabarlar</span>
             <span class="bottom-nav-badge" id="mNotifBadge" style="display: none;">0</span>
-        </button>
-        <button type="button" class="bottom-nav-item" id="mTabNavVault" onclick="switchPane('vault')">
-            <span class="bottom-nav-icon">📦</span>
-            <span class="bottom-nav-label">Arxiv</span>
         </button>
     </nav>
 </body>

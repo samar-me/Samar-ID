@@ -82,6 +82,40 @@ def init_db():
                 FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
             );
             """))
+            conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS recovery_codes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                code_hash TEXT NOT NULL,
+                code_preview TEXT NOT NULL,
+                is_used BOOLEAN DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+            );
+            """))
+            conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS connected_apps (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                client_id TEXT NOT NULL,
+                app_name TEXT NOT NULL,
+                app_icon TEXT DEFAULT '📱',
+                scopes TEXT DEFAULT 'profile,email',
+                connected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+            );
+            """))
+            conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS passkey_credentials (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                credential_id TEXT UNIQUE NOT NULL,
+                public_key TEXT,
+                device_name TEXT DEFAULT 'Apple Face ID',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+            );
+            """))
         else:
             # PostgreSQL (Neon Cloud)
             conn.execute(text("""
@@ -141,6 +175,37 @@ def init_db():
                 type VARCHAR(50) DEFAULT 'info',
                 is_read BOOLEAN DEFAULT FALSE,
                 action_data TEXT DEFAULT '',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            """))
+            conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS recovery_codes (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+                code_hash VARCHAR(255) NOT NULL,
+                code_preview VARCHAR(50) NOT NULL,
+                is_used BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            """))
+            conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS connected_apps (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+                client_id VARCHAR(100) NOT NULL,
+                app_name VARCHAR(150) NOT NULL,
+                app_icon VARCHAR(50) DEFAULT '📱',
+                scopes VARCHAR(255) DEFAULT 'profile,email',
+                connected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            """))
+            conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS passkey_credentials (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+                credential_id VARCHAR(255) UNIQUE NOT NULL,
+                public_key TEXT,
+                device_name VARCHAR(150) DEFAULT 'Apple Face ID',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
             """))

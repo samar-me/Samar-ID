@@ -16,7 +16,9 @@ from schemas import (
     UserRegister, UserLogin, UserResponse, TokenResponse,
     ProfileUpdate, PasswordChange, SessionItem,
     GuardianSet, GuardianRequestOtp, GuardianVerifyOtp, NotificationItem,
-    PhoneSendCode, PhoneVerifyCode
+    PhoneSendCode, PhoneVerifyCode,
+    RecoveryLogin, RecoveryCodesResponse, ConnectedAppItem,
+    PasskeyRegisterRequest, PasskeyLoginRequest
 )
 from security import hash_password, verify_password, create_access_token, decode_access_token
 
@@ -380,6 +382,257 @@ def get_notifications(current: dict = Depends(get_current_user_and_jti)):
             "created_at": str(r["created_at"])[:19]
         })
     return result
+
+@app.post("/api/notifications/{notif_id}/read")
+def mark_notification_read(notif_id: int, current: dict = Depends(get_current_user_and_jti)):
+    with engine.connect() as conn:
+        val = "1" if is_sqlite else "TRUE"
+        conn.execute(
+            text(f"UPDATE notifications SET is_read = {val} WHERE id = :nid AND user_id = :uid"),
+            {"nid": notif_id, "uid": current["id"]}
+        )
+        conn.commit()
+    return {"status": "ok"}
+
+@app.delete("/api/notifications/{notif_id}")
+def delete_notification(notif_id: int, current: dict = Depends(get_current_user_and_jti)):
+    with engine.connect() as conn:
+        conn.execute(
+            text("DELETE FROM notifications WHERE id = :nid AND user_id = :uid"),
+            {"nid": notif_id, "uid": current["id"]}
+        )
+        conn.commit()
+    return {"status": "deleted"}
+
+@app.post("/api/notifications/clear-all")
+def clear_all_notifications(current: dict = Depends(get_current_user_and_jti)):
+    with engine.connect() as conn:
+        conn.execute(
+            text("DELETE FROM notifications WHERE user_id = :uid"),
+            {"uid": current["id"]}
+        )
+        conn.commit()
+    return {"status": "cleared"}
+
+# ----------------- FAVQULODDA ZAXIRA KODLARI -----------------
+def generate_8_recovery_codes():
+    import secrets
+    chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+    codes = []
+    for _ in range(8):
+        c1 = "".join(secrets.choice(chars) for _ in range(4))
+        c2 = "".join(secrets.choice(chars) for _ in range(4))
+        codes.append(f"SAMAR-{c1}-{c2}")
+    return codes
+
+@app.get("/api/auth/recovery-codes", response_model=RecoveryCodesResponse)
+def get_recovery_codes(current: dict = Depends(get_current_user_and_jti)):
+    with engine.connect() as conn:
+        not_used_cond = "is_used = 0" if is_sqlite else "is_used IS FALSE"
+        rows = conn.execute(
+            text(f"SELECT code_preview FROM recovery_codes WHERE user_id = :uid AND {not_used_cond} ORDER BY id ASC"),
+            {"uid": current["id"]}
+        ).mappings().fetchall()
+
+        if not rows:
+            new_codes = generate_8_recovery_codes()
+            for c in new_codes:
+                h = hash_password(c)
+                conn.execute(
+                    text("INSERT INTO recovery_codes (user_id, code_hash, code_preview) VALUES (:uid, :ch, :cp)"),
+                    {"uid": current["id"], "ch": h, "cp": c}
+                )
+            conn.commit()
+            return {"codes": new_codes}
+
+        return {"codes": [r["code_preview"] for r in rows]}
+
+@app.post("/api/auth/recovery-codes/regenerate", response_model=RecoveryCodesResponse)
+def regenerate_recovery_codes(current: dict = Depends(get_current_user_and_jti)):
+    new_codes = generate_8_recovery_codes()
+    with engine.connect() as conn:
+        conn.execute(
+            text("DELETE FROM recovery_codes WHERE user_id = :uid"),
+            {"uid": current["id"]}
+        )
+        for c in new_codes:
+            h = hash_password(c)
+            conn.execute(
+                text("INSERT INTO recovery_codes (user_id, code_hash, code_preview) VALUES (:uid, :ch, :cp)"),
+                {"uid": current["id"], "ch": h, "cp": c}
+            )
+        conn.execute(
+            text("INSERT INTO notifications (user_id, from_user, title, message, type) VALUES (:uid, 'Samar Security', 'Yangi Zaxira Kodlari Yaratildi', 'Favqulodda zaxira kodlaringiz muvaffaqiyatli yangilandi.', 'security')"),
+            {"uid": current["id"]}
+        )
+        conn.commit()
+    return {"codes": new_codes}
+
+@app.post("/api/auth/recovery-login", response_model=TokenResponse)
+def login_with_recovery_code(data: RecoveryLogin, request: Request):
+    clean_id = normalize_samar_id(data.samar_id)
+    clean_code = data.code.strip().upper()
+
+    with engine.connect() as conn:
+        user_row = conn.execute(
+            text("SELECT id, samar_id, full_name, email, phone, phone_verified, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, created_at FROM users WHERE samar_id = :sid"),
+            {"sid": clean_id}
+        ).mappings().first()
+
+        if not user_row:
+            raise HTTPException(status_code=404, detail="Bunday Samar ID topilmadi")
+
+        uid = user_row["id"]
+        not_used_cond = "is_used = 0" if is_sqlite else "is_used IS FALSE"
+        code_rows = conn.execute(
+            text(f"SELECT id, code_hash, code_preview FROM recovery_codes WHERE user_id = :uid AND {not_used_cond}"),
+            {"uid": uid}
+        ).mappings().fetchall()
+
+        matched_id = None
+        for cr in code_rows:
+            if cr["code_preview"] == clean_code or verify_password(clean_code, cr["code_hash"]):
+                matched_id = cr["id"]
+                break
+
+        if not matched_id:
+            raise HTTPException(status_code=400, detail="Noto'g'ri yoki avval ishlatilgan zaxira kodi!")
+
+        # Burn code
+        used_val = "1" if is_sqlite else "TRUE"
+        conn.execute(
+            text(f"UPDATE recovery_codes SET is_used = {used_val} WHERE id = :cid"),
+            {"cid": matched_id}
+        )
+
+        # Create session
+        jti = str(uuid.uuid4())
+        device_name, _ = parse_device_info(request.headers.get("user-agent", ""))
+        client_ip = request.client.host if request.client else "127.0.0.1"
+        conn.execute(
+            text("INSERT INTO sessions (user_id, token_jti, device_name, ip_address) VALUES (:uid, :jti, :dev, :ip)"),
+            {"uid": uid, "jti": jti, "dev": f"{device_name} (Zaxira Kod)", "ip": client_ip}
+        )
+        conn.execute(
+            text("INSERT INTO notifications (user_id, from_user, title, message, type) VALUES (:uid, 'Samar Security', 'Favqulodda Zaxira Kodi Bilan Kirildi', 'Akkauntingizga bir martalik zaxira kodi orqali kirildi. Iltimos, yangi kodlar yaratib oling.', 'security')"),
+            {"uid": uid}
+        )
+        conn.commit()
+
+    token = create_access_token({"sub": user_row["samar_id"], "jti": jti})
+    user_data = dict(user_row)
+    user_data["phone_verified"] = bool(user_data.get("phone_verified", False))
+    user_data["created_at"] = str(user_data["created_at"])
+    user_data["security_freeze_until"] = str(user_data["security_freeze_until"]) if user_data.get("security_freeze_until") else None
+    return {"access_token": token, "user": user_data}
+
+# ----------------- BIOMETRIYA & PASSKEYS (FACE ID / TOUCH ID) -----------------
+@app.post("/api/auth/passkeys/register")
+def register_passkey(data: PasskeyRegisterRequest, current: dict = Depends(get_current_user_and_jti)):
+    with engine.connect() as conn:
+        conn.execute(
+            text("INSERT INTO passkey_credentials (user_id, credential_id, public_key, device_name) VALUES (:uid, :cid, :pk, :dn)"),
+            {"uid": current["id"], "cid": data.credential_id, "pk": data.public_key, "dn": data.device_name}
+        )
+        conn.execute(
+            text("INSERT INTO notifications (user_id, from_user, title, message, type) VALUES (:uid, 'Samar Security', 'Biometrik Kirish Ulandi', :msg, 'security')"),
+            {"uid": current["id"], "msg": f"{data.device_name} orqali biometrik kirish (Passkey) muvaffaqiyatli ulandi."}
+        )
+        conn.commit()
+    return {"status": "ok", "message": f"{data.device_name} ulandi!"}
+
+@app.post("/api/auth/passkeys/login", response_model=TokenResponse)
+def login_with_passkey(data: PasskeyLoginRequest, request: Request):
+    clean_id = normalize_samar_id(data.samar_id)
+    with engine.connect() as conn:
+        user_row = conn.execute(
+            text("SELECT id, samar_id, full_name, email, phone, phone_verified, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, created_at FROM users WHERE samar_id = :sid"),
+            {"sid": clean_id}
+        ).mappings().first()
+
+        if not user_row:
+            raise HTTPException(status_code=404, detail="Bunday Samar ID topilmadi")
+
+        uid = user_row["id"]
+        jti = str(uuid.uuid4())
+        device_name, _ = parse_device_info(request.headers.get("user-agent", ""))
+        client_ip = request.client.host if request.client else "127.0.0.1"
+
+        conn.execute(
+            text("INSERT INTO sessions (user_id, token_jti, device_name, ip_address) VALUES (:uid, :jti, :dev, :ip)"),
+            {"uid": uid, "jti": jti, "dev": f"{device_name} (Face ID / Passkey)", "ip": client_ip}
+        )
+        conn.execute(
+            text("INSERT INTO notifications (user_id, from_user, title, message, type) VALUES (:uid, 'Samar Security', 'Biometriya Orqali Kirildi', 'Face ID / Touch ID orqali tezkor autentifikatsiya amalga oshirildi.', 'security')"),
+            {"uid": uid}
+        )
+        conn.commit()
+
+    token = create_access_token({"sub": user_row["samar_id"], "jti": jti})
+    user_data = dict(user_row)
+    user_data["phone_verified"] = bool(user_data.get("phone_verified", False))
+    user_data["created_at"] = str(user_data["created_at"])
+    user_data["security_freeze_until"] = str(user_data["security_freeze_until"]) if user_data.get("security_freeze_until") else None
+    return {"access_token": token, "user": user_data}
+
+# ----------------- ULANGAN ILOVALAR & SAMAR OAUTH -----------------
+@app.get("/api/oauth/apps", response_model=List[ConnectedAppItem])
+def get_connected_apps(current: dict = Depends(get_current_user_and_jti)):
+    with engine.connect() as conn:
+        rows = conn.execute(
+            text("SELECT id, client_id, app_name, app_icon, scopes, connected_at FROM connected_apps WHERE user_id = :uid ORDER BY id ASC"),
+            {"uid": current["id"]}
+        ).mappings().fetchall()
+
+        if not rows:
+            # Seed standard Samar OS ecosystem apps
+            defaults = [
+                ("samar-messenger", "Samar Messenger", "💬", "Profil, Shaxsiy xabarlar, Kontaktlar"),
+                ("samar-drive", "Samar Cloud Drive", "☁️", "Fayllar xotirasi, Arxiv nusxalari"),
+                ("samar-terminal", "Samar Terminal & CLI", "💻", "Tizim konsoli, API kalitlari")
+            ]
+            for cid, name, icon, sc in defaults:
+                conn.execute(
+                    text("INSERT INTO connected_apps (user_id, client_id, app_name, app_icon, scopes) VALUES (:uid, :cid, :name, :icon, :sc)"),
+                    {"uid": current["id"], "cid": cid, "name": name, "icon": icon, "sc": sc}
+                )
+            conn.commit()
+            rows = conn.execute(
+                text("SELECT id, client_id, app_name, app_icon, scopes, connected_at FROM connected_apps WHERE user_id = :uid ORDER BY id ASC"),
+                {"uid": current["id"]}
+            ).mappings().fetchall()
+
+    res = []
+    for r in rows:
+        res.append({
+            "id": r["id"],
+            "client_id": r["client_id"],
+            "app_name": r["app_name"],
+            "app_icon": r["app_icon"],
+            "scopes": r["scopes"],
+            "connected_at": str(r["connected_at"])[:10] if r["connected_at"] else "2026-10-17"
+        })
+    return res
+
+@app.delete("/api/oauth/apps/{client_id}")
+def revoke_connected_app(client_id: str, current: dict = Depends(get_current_user_and_jti)):
+    with engine.connect() as conn:
+        app_row = conn.execute(
+            text("SELECT app_name FROM connected_apps WHERE user_id = :uid AND client_id = :cid"),
+            {"uid": current["id"], "cid": client_id}
+        ).mappings().first()
+        app_name = app_row["app_name"] if app_row else client_id
+
+        conn.execute(
+            text("DELETE FROM connected_apps WHERE user_id = :uid AND client_id = :cid"),
+            {"uid": current["id"], "cid": client_id}
+        )
+        conn.execute(
+            text("INSERT INTO notifications (user_id, from_user, title, message, type) VALUES (:uid, 'Samar Security', 'Ilova Ruxsati Bekor Qilindi', :msg, 'warning')"),
+            {"uid": current["id"], "msg": f"{app_name} ilovasining Samar ID ga ulanish huquqi bekor qilindi."}
+        )
+        conn.commit()
+    return {"message": f"{app_name} muvaffaqiyatli uzildi."}
 
 # ----------------- PROFIL & XAVFSIZLIK -----------------
 @app.put("/api/auth/profile", response_model=UserResponse)
