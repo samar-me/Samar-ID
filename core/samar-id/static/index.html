@@ -2927,6 +2927,7 @@
             } else {
                 if (guardianBadge) guardianBadge.style.display = 'none';
                 if (guardianDesc) guardianDesc.innerText = "Parolni unutganda tiklash uchun mas'ul Samar ID";
+            }
             if (localStorage.getItem('samar_passkey_enrolled') === 'true') {
                 updatePasskeyBadge(true);
             }
@@ -2962,6 +2963,7 @@
                 if (modalId === 'modalGuardian') closeGuardianModal();
                 if (modalId === 'modalRecoveryCodes') closeRecoveryCodesModal();
                 if (modalId === 'modalOAuthConsent') closeOAuthModal();
+            }
         }
 
         // ================== MODAL 1: PAROL YANGILASH ==================
