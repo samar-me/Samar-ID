@@ -9,7 +9,8 @@ class UserRegister(BaseModel):
     captcha_answer: Optional[str] = None
 
 class UserLogin(BaseModel):
-    samar_id_or_email: str
+    samar_id_or_email: Optional[str] = None
+    samar_id: Optional[str] = None
     password: str
     captcha_answer: Optional[str] = None
 
@@ -24,7 +25,8 @@ class PasswordChange(BaseModel):
     new_password: str = Field(..., min_length=6)
 
 class GuardianSet(BaseModel):
-    guardian_samar_id: str
+    guardian_samar_id: Optional[str] = None
+    guardian_id: Optional[str] = None
 
 class GuardianRequestOtp(BaseModel):
     samar_id: str
@@ -37,7 +39,7 @@ class PhoneSendCode(BaseModel):
     phone: str
 
 class PhoneVerifyCode(BaseModel):
-    phone: str
+    phone: Optional[str] = None
     code: str
 
 class NotificationItem(BaseModel):

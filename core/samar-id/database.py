@@ -116,6 +116,28 @@ def init_db():
                 FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
             );
             """))
+            # SQLite table migrations
+            try:
+                existing_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(users)")).fetchall()]
+                if existing_cols:
+                    if "phone" not in existing_cols:
+                        conn.execute(text("ALTER TABLE users ADD COLUMN phone TEXT DEFAULT '';"))
+                    if "phone_verified" not in existing_cols:
+                        conn.execute(text("ALTER TABLE users ADD COLUMN phone_verified BOOLEAN DEFAULT 0;"))
+                    if "bio" not in existing_cols:
+                        conn.execute(text("ALTER TABLE users ADD COLUMN bio TEXT DEFAULT '';"))
+                    if "specialty" not in existing_cols:
+                        conn.execute(text("ALTER TABLE users ADD COLUMN specialty TEXT DEFAULT 'Developer';"))
+                    if "avatar_path" not in existing_cols:
+                        conn.execute(text("ALTER TABLE users ADD COLUMN avatar_path TEXT DEFAULT '';"))
+                    if "guardian_id" not in existing_cols:
+                        conn.execute(text("ALTER TABLE users ADD COLUMN guardian_id TEXT DEFAULT '';"))
+                    if "security_freeze_until" not in existing_cols:
+                        conn.execute(text("ALTER TABLE users ADD COLUMN security_freeze_until TIMESTAMP;"))
+                    if "two_factor_enabled" not in existing_cols:
+                        conn.execute(text("ALTER TABLE users ADD COLUMN two_factor_enabled BOOLEAN DEFAULT 0;"))
+            except Exception:
+                pass
         else:
             # PostgreSQL (Neon Cloud)
             conn.execute(text("""
@@ -141,6 +163,10 @@ def init_db():
             );
             """))
             # Agar ustunlar avvalgi bazada yo'q bo'lsa qo'shish
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(50);"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT DEFAULT '';"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS specialty VARCHAR(100) DEFAULT 'Developer';"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_path TEXT DEFAULT '';"))
             conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS guardian_id VARCHAR(100) DEFAULT '';"))
             conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS security_freeze_until TIMESTAMP;"))
             conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS phone_verified BOOLEAN DEFAULT FALSE;"))

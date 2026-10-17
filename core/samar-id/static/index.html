@@ -1628,10 +1628,23 @@
             type = type || 'error';
             const el = document.getElementById(elementId);
             if (!el) return;
+            // Safely convert any type to string (handles FastAPI validation arrays/objects)
+            var msg;
+            if (!message && message !== 0) {
+                msg = type === 'error' ? 'Xatolik yuz berdi' : 'Muvaffaqiyatli';
+            } else if (typeof message === 'string') {
+                msg = message;
+            } else if (Array.isArray(message)) {
+                msg = message.map(function(e) { return e.msg || e.message || JSON.stringify(e); }).join('; ');
+            } else if (typeof message === 'object') {
+                msg = message.detail || message.message || message.msg || JSON.stringify(message);
+            } else {
+                msg = String(message);
+            }
             el.className = 'toast-msg ' + type;
-            el.innerText = message;
+            el.innerText = msg;
             el.style.display = 'block';
-            setTimeout(() => { el.style.display = 'none'; }, 5000);
+            setTimeout(function() { el.style.display = 'none'; }, 5000);
         }
 
         function switchAuthMode(mode) {
@@ -1688,6 +1701,19 @@
             if (tab === 'qr') initQRLogin();
         }
 
+
+        // Helper: extract readable error message from API response data
+        function extractApiError(data, fallback) {
+            if (!data) return fallback || 'Xatolik yuz berdi';
+            if (typeof data.detail === 'string') return data.detail;
+            if (Array.isArray(data.detail)) {
+                return data.detail.map(function(e) { return e.msg || JSON.stringify(e); }).join('; ');
+            }
+            if (typeof data.detail === 'object' && data.detail !== null) return JSON.stringify(data.detail);
+            if (typeof data.message === 'string') return data.message;
+            return fallback || 'Xatolik yuz berdi';
+        }
+
         async function handleAuthSubmit(e) {
             e.preventDefault();
             const samarId = document.getElementById('authSamarIdInput').value.trim();
@@ -1707,18 +1733,19 @@
                         body: JSON.stringify({ samar_id: samarId, password: password, full_name: fullName })
                     });
                     const data = await res.json();
-                    if (!res.ok) throw new Error(data.detail || "Ro'yxatdan o'tishda xatolik yuz berdi");
+                    if (!res.ok) throw new Error(extractApiError(data, "Ro'yxatdan o'tishda xatolik yuz berdi"));
                     localStorage.setItem('samar_token', data.access_token);
                     await checkSession();
                 } else {
                     const res = await fetch('/api/auth/login', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ samar_id: samarId, password: password })
+                        body: JSON.stringify({ samar_id_or_email: samarId, samar_id: samarId, password: password })
                     });
                     const data = await res.json();
-                    if (!res.ok) throw new Error(data.detail || "ID yoki parol noto'g'ri");
+                    if (!res.ok) throw new Error(extractApiError(data, "ID yoki parol noto'g'ri"));
                     localStorage.setItem('samar_token', data.access_token);
+                    localStorage.setItem('samar_last_id', samarId);
                     await checkSession();
                 }
             } catch (err) {
@@ -1800,7 +1827,7 @@
                     body: JSON.stringify({ samar_id: samarId, recovery_code: code })
                 });
                 const data = await res.json();
-                if (!res.ok) throw new Error(data.detail || "Kod noto'g'ri");
+                if (!res.ok) throw new Error(extractApiError(data, "Kod noto'g'ri"));
                 localStorage.setItem('samar_token', data.access_token);
                 await checkSession();
             } catch (err) {
@@ -1817,7 +1844,7 @@
                     body: JSON.stringify({ samar_id: lastId, credential_id: 'passkey_' + lastId })
                 });
                 const data = await res.json();
-                if (!res.ok) throw new Error(data.detail || "Biometrik kirish rad etildi");
+                if (!res.ok) throw new Error(extractApiError(data, "Biometrik kirish rad etildi"));
                 localStorage.setItem('samar_token', data.access_token);
                 await checkSession();
             } catch (err) {

@@ -188,8 +188,11 @@ def register(user_data: UserRegister, request: Request):
 
 @app.post("/api/auth/login", response_model=TokenResponse)
 def login(login_data: UserLogin, request: Request):
-    target_id = normalize_samar_id(login_data.samar_id_or_email)
-    raw_input = login_data.samar_id_or_email.strip()
+    login_id = (login_data.samar_id_or_email or login_data.samar_id or "").strip()
+    if not login_id:
+        raise HTTPException(status_code=400, detail="Samar ID yoki Email kiritilishi shart.")
+    target_id = normalize_samar_id(login_id)
+    raw_input = login_id
 
     with engine.connect() as conn:
         user_row = conn.execute(
@@ -267,7 +270,10 @@ def check_qr_status(qr_token: str):
 # ----------------- GUARDIAN (DO'ST ORQALI TIKLASH) -----------------
 @app.post("/api/auth/guardian/set")
 def set_guardian(data: GuardianSet, current: dict = Depends(get_current_user_and_jti)):
-    guardian_final = normalize_samar_id(data.guardian_samar_id)
+    gid = (data.guardian_samar_id or data.guardian_id or "").strip()
+    if not gid:
+        raise HTTPException(status_code=400, detail="Do'stingizning Samar ID si kiritilishi shart.")
+    guardian_final = normalize_samar_id(gid)
     with engine.connect() as conn:
         guardian = conn.execute(text("SELECT id FROM users WHERE samar_id = :gid"), {"gid": guardian_final}).mappings().first()
         if not guardian:
