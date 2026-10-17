@@ -33,7 +33,8 @@ class GuardianRequestOtp(BaseModel):
 
 class GuardianVerifyOtp(BaseModel):
     samar_id: str
-    otp_code: str
+    otp_code: Optional[str] = None
+    otp: Optional[str] = None
 
 class PhoneSendCode(BaseModel):
     phone: str
@@ -50,7 +51,7 @@ class NotificationItem(BaseModel):
     type: str
     is_read: bool
     action_data: Optional[str] = ""
-    created_at: str
+    created_at: Optional[str] = ""
 
 class SessionItem(BaseModel):
     id: int
@@ -78,11 +79,12 @@ class UserResponse(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
-    user: UserResponse
+    user: Optional[UserResponse] = None
 
 class RecoveryLogin(BaseModel):
     samar_id: str
-    code: str
+    code: Optional[str] = None
+    recovery_code: Optional[str] = None
 
 class RecoveryCodesResponse(BaseModel):
     codes: List[str]

@@ -1609,6 +1609,35 @@
             } else {
                 document.getElementById('authBtnText').innerText = dict.register_btn;
             }
+
+            // Desktop tab buttons
+            const tProf = document.getElementById('txtTabProfile'); if (tProf) tProf.innerText = dict.personal_info;
+            const tSec = document.getElementById('txtTabSecurity'); if (tSec) tSec.innerText = dict.security;
+            const tDev = document.getElementById('txtTabDevices'); if (tDev) tDev.innerText = dict.devices;
+            const tApp = document.getElementById('txtTabApps'); if (tApp) tApp.innerText = dict.apps;
+            const tInb = document.getElementById('txtTabInbox'); if (tInb) tInb.innerText = dict.inbox;
+
+            // Mobile tab bar
+            const mProf = document.getElementById('lblNavProfile'); if (mProf) mProf.innerText = dict.lang === 'RU' ? 'Профиль' : (dict.lang === 'EN' ? 'Profile' : 'Profil');
+            const mSec = document.getElementById('lblNavSecurity'); if (mSec) mSec.innerText = dict.security;
+            const mDev = document.getElementById('lblNavDevices'); if (mDev) mDev.innerText = dict.devices;
+            const mApp = document.getElementById('lblNavApps'); if (mApp) mApp.innerText = dict.apps;
+            const mInb = document.getElementById('lblNavInbox'); if (mInb) mInb.innerText = dict.inbox;
+
+            // Segmented auth tabs
+            const tabLog = document.getElementById('tabLogin'); if (tabLog) tabLog.innerText = dict.login;
+            const tabReg = document.getElementById('tabRegister'); if (tabReg) tabReg.innerText = dict.register;
+        }
+
+        function syncThemeIcon() {
+            const current = document.documentElement.getAttribute('data-theme') || 'dark';
+            const iconWrap = document.getElementById('themeIcon');
+            if (!iconWrap) return;
+            if (current === 'light') {
+                iconWrap.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+            } else {
+                iconWrap.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+            }
         }
 
         function toggleTheme() {
@@ -1616,12 +1645,7 @@
             const next = current === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', next);
             localStorage.setItem('samar_theme', next);
-            const iconWrap = document.getElementById('themeIcon');
-            if (next === 'light') {
-                iconWrap.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
-            } else {
-                iconWrap.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
-            }
+            syncThemeIcon();
         }
 
         function showToast(elementId, message, type) {
@@ -1837,15 +1861,20 @@
 
         async function handleBiometricLogin() {
             try {
-                const lastId = localStorage.getItem('samar_last_id') || 'samar';
+                let targetId = localStorage.getItem('samar_last_id') || '';
+                const inputVal = document.getElementById('authSamarIdInput').value.trim();
+                if (inputVal) targetId = inputVal;
+                if (!targetId) targetId = 'samar';
+
                 const res = await fetch('/api/auth/passkeys/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ samar_id: lastId, credential_id: 'passkey_' + lastId })
+                    body: JSON.stringify({ samar_id: targetId, credential_id: 'passkey_' + targetId })
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(extractApiError(data, "Biometrik kirish rad etildi"));
                 localStorage.setItem('samar_token', data.access_token);
+                localStorage.setItem('samar_last_id', targetId);
                 await checkSession();
             } catch (err) {
                 showToast('authAlert', err.message, 'error');
@@ -1925,6 +1954,7 @@
             // Cache ID
             if (user.samar_id) localStorage.setItem('samar_last_id', user.samar_id);
 
+            checkPasskeyStatus();
             loadNotifications();
         }
 
@@ -2211,6 +2241,33 @@
             }
         }
 
+        // Passkey & Biometric Status Check
+        async function checkPasskeyStatus() {
+            const token = localStorage.getItem('samar_token');
+            if (!token) return;
+            try {
+                const res = await fetch('/api/auth/passkeys/status', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    const badge = document.getElementById('passkeyBadgeStatus');
+                    const btn = document.getElementById('btnTogglePasskey');
+                    if (badge) {
+                        if (data.has_passkey) {
+                            badge.className = 'badge-verified';
+                            badge.innerText = '● Faol' + (data.device_name ? ` (${data.device_name})` : '');
+                            if (btn) btn.innerText = "Yangilash";
+                        } else {
+                            badge.className = 'badge-unverified';
+                            badge.innerText = "O'chirilgan";
+                            if (btn) btn.innerText = "Faollashtirish";
+                        }
+                    }
+                }
+            } catch (_) {}
+        }
+
         // Passkey Registration
         async function handlePasskeyRegister() {
             const token = localStorage.getItem('samar_token');
@@ -2286,10 +2343,18 @@
                 });
                 const apps = await res.json();
                 if (!apps || !apps.length) {
-                    container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-tertiary);">Ulangan ilovalar yo\'q</div>';
+                    container.innerHTML = `
+                        <div style="padding: 32px 20px; text-align: center; color: var(--text-tertiary);">
+                            <div style="font-size: 30px; margin-bottom: 8px;">🛡️</div>
+                            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">Ulangan ilovalar yo'q</div>
+                            <div style="font-size: 12px; max-width: 320px; margin: 0 auto; color: var(--text-secondary); line-height: 1.5;">Samar OS ekotizimidagi ilovalarga 'Sign in with Samar ID' orqali kirganingizda, ular bu yerda xavfsiz boshqaruv uchun ko'rinadi.</div>
+                        </div>
+                    `;
                     return;
                 }
-                container.innerHTML = apps.map(app => `
+                container.innerHTML = apps.map(app => {
+                    const scopesText = Array.isArray(app.scopes) ? app.scopes.join(', ') : (app.scopes || 'profile');
+                    return `
                     <div class="app-item">
                         <div class="group-row-left">
                             <div class="row-icon-box" style="background: rgba(94, 92, 230, 0.15); color: #5e5ce6;">
@@ -2297,12 +2362,12 @@
                             </div>
                             <div class="row-info">
                                 <div class="row-title">${escapeHtml(app.app_name)}</div>
-                                <div class="row-desc">Ruxsatlar: ${escapeHtml((app.scopes || []).join(', '))}</div>
+                                <div class="row-desc">Ruxsatlar: ${escapeHtml(scopesText)}</div>
                             </div>
                         </div>
                         <button type="button" class="btn-inline-action" style="color:var(--status-red);" onclick="revokeApp('${app.client_id}')">Uzish</button>
                     </div>
-                `).join('');
+                `;}).join('');
             } catch (_) {
                 container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--status-red);">Ilovalarni yuklashda xatolik</div>';
             }
@@ -2341,7 +2406,7 @@
                 }
 
                 if (!notifs || !notifs.length) {
-                    container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-tertiary);">Yangi xabarlar yo\'q</div>';
+                    container.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-tertiary);">Yangi xabarlar yo\'q</div>';
                     return;
                 }
                 container.innerHTML = notifs.map(n => `
@@ -2352,7 +2417,7 @@
                         <div class="row-info">
                             <div class="row-title">${escapeHtml(n.title)}</div>
                             <div class="row-desc" style="color:var(--text-primary);margin-top:2px;">${escapeHtml(n.message)}</div>
-                            <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">${escapeHtml(n.timestamp || 'Hozir')}</div>
+                            <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">${escapeHtml(n.created_at || n.timestamp || 'Hozir')}</div>
                         </div>
                         <button type="button" class="btn-link" style="color:var(--text-tertiary);padding:0;" onclick="deleteNotification(${n.id})">✕</button>
                     </div>
@@ -2384,9 +2449,28 @@
             } catch (_) {}
         }
 
-        function exportDataVault() {
+        async function exportDataVault() {
             const token = localStorage.getItem('samar_token');
-            window.location.href = '/api/auth/export-data?token=' + encodeURIComponent(token);
+            if (!token) return;
+            try {
+                const res = await fetch('/api/auth/export-data', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                if (!res.ok) throw new Error("Eksport yuklab olinmadi");
+                const data = await res.json();
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                const fileName = ((currentUser && currentUser.samar_id) ? currentUser.samar_id.replace(/[@.]/g, '_') : 'samar_id') + '_vault.json';
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (_) {
+                window.location.href = '/api/auth/export-data?token=' + encodeURIComponent(token);
+            }
         }
 
         async function handleLogout() {
@@ -2448,6 +2532,7 @@
 
         // Initialize on load
         document.addEventListener('DOMContentLoaded', () => {
+            syncThemeIcon();
             setLanguage(currentLang);
             checkSession();
         });

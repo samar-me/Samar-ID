@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 from fastapi import FastAPI, HTTPException, Depends, status, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -27,6 +28,8 @@ app = FastAPI(
     description="Samar OS ekotizimining eng ilg'or, xavfsiz va mustaqil shaxsiy autentifikatsiya xizmati.",
     version="3.1.0"
 )
+
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 app.add_middleware(
     CORSMiddleware,
@@ -236,7 +239,8 @@ def generate_qr():
     with engine.connect() as conn:
         conn.execute(text("INSERT INTO qr_logins (qr_token, status) VALUES (:tok, 'pending')"), {"tok": qr_token})
         conn.commit()
-    return {"qr_token": qr_token}
+    qr_image = f"https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=samar_os_auth:{qr_token}"
+    return {"qr_token": qr_token, "qr_image": qr_image}
 
 @app.get("/api/auth/qr/status/{qr_token}")
 def check_qr_status(qr_token: str):
@@ -245,13 +249,14 @@ def check_qr_status(qr_token: str):
         if not row:
             raise HTTPException(status_code=404, detail="QR token topilmadi")
         
-        if row["status"] == "approved" and row["user_id"]:
+        if row["status"] in ("approved", "authenticated") and row["user_id"]:
             user_row = conn.execute(
-                text("SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, created_at FROM users WHERE id = :uid"),
+                text("SELECT id, samar_id, full_name, email, phone, phone_verified, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, created_at FROM users WHERE id = :uid"),
                 {"uid": row["user_id"]}
             ).mappings().first()
             
             user_dict = dict(user_row)
+            user_dict["phone_verified"] = bool(user_dict.get("phone_verified", False))
             user_dict["created_at"] = str(user_dict["created_at"])
             user_dict["security_freeze_until"] = str(user_dict["security_freeze_until"]) if user_dict.get("security_freeze_until") else None
             
@@ -260,7 +265,7 @@ def check_qr_status(qr_token: str):
             conn.commit()
             
             return {
-                "status": "approved",
+                "status": "authenticated",
                 "access_token": token,
                 "token_type": "bearer",
                 "user": user_dict
@@ -331,7 +336,8 @@ def verify_guardian_otp(data: GuardianVerifyOtp, request: Request):
     target_id = normalize_samar_id(data.samar_id)
     expected_otp = ACTIVE_GUARDIAN_OTPS.get(target_id)
     
-    if not expected_otp or expected_otp != data.otp_code.strip():
+    otp_input = (data.otp_code or data.otp or "").strip()
+    if not expected_otp or expected_otp != otp_input:
         raise HTTPException(status_code=400, detail="Noto'g'ri yoki eskirgan bir martalik kod.")
         
     del ACTIVE_GUARDIAN_OTPS[target_id]
@@ -343,11 +349,12 @@ def verify_guardian_otp(data: GuardianVerifyOtp, request: Request):
             {"freeze": freeze_until, "sid": target_id}
         )
         user_row = conn.execute(
-            text("SELECT id, samar_id, full_name, email, phone, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, created_at FROM users WHERE samar_id = :sid"),
+            text("SELECT id, samar_id, full_name, email, phone, phone_verified, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, created_at FROM users WHERE samar_id = :sid"),
             {"sid": target_id}
         ).mappings().first()
         
         user_dict = dict(user_row)
+        user_dict["phone_verified"] = bool(user_dict.get("phone_verified", False))
         user_dict["created_at"] = str(user_dict["created_at"])
         user_dict["security_freeze_until"] = str(user_dict["security_freeze_until"])
         
@@ -477,7 +484,9 @@ def regenerate_recovery_codes(current: dict = Depends(get_current_user_and_jti))
 @app.post("/api/auth/recovery-login", response_model=TokenResponse)
 def login_with_recovery_code(data: RecoveryLogin, request: Request):
     clean_id = normalize_samar_id(data.samar_id)
-    clean_code = data.code.strip().upper()
+    clean_code = (data.code or data.recovery_code or "").strip().upper()
+    if not clean_code:
+        raise HTTPException(status_code=400, detail="Zaxira kodi kiritilishi shart.")
 
     with engine.connect() as conn:
         user_row = conn.execute(
@@ -511,10 +520,10 @@ def login_with_recovery_code(data: RecoveryLogin, request: Request):
             {"cid": matched_id}
         )
 
-        # Create session
-        jti = str(uuid.uuid4())
+        token, jti = create_access_token({"sub": user_row["samar_id"], "user_id": uid})
         device_name, _ = parse_device_info(request.headers.get("user-agent", ""))
         client_ip = request.client.host if request.client else "127.0.0.1"
+
         conn.execute(
             text("INSERT INTO sessions (user_id, token_jti, device_name, ip_address) VALUES (:uid, :jti, :dev, :ip)"),
             {"uid": uid, "jti": jti, "dev": f"{device_name} (Zaxira Kod)", "ip": client_ip}
@@ -525,14 +534,22 @@ def login_with_recovery_code(data: RecoveryLogin, request: Request):
         )
         conn.commit()
 
-    token = create_access_token({"sub": user_row["samar_id"], "jti": jti})
     user_data = dict(user_row)
     user_data["phone_verified"] = bool(user_data.get("phone_verified", False))
     user_data["created_at"] = str(user_data["created_at"])
     user_data["security_freeze_until"] = str(user_data["security_freeze_until"]) if user_data.get("security_freeze_until") else None
-    return {"access_token": token, "user": user_data}
+    return {"access_token": token, "token_type": "bearer", "user": user_data}
 
 # ----------------- BIOMETRIYA & PASSKEYS (FACE ID / TOUCH ID) -----------------
+@app.get("/api/auth/passkeys/status")
+def get_passkey_status(current: dict = Depends(get_current_user_and_jti)):
+    with engine.connect() as conn:
+        row = conn.execute(
+            text("SELECT id, device_name FROM passkey_credentials WHERE user_id = :uid ORDER BY id DESC LIMIT 1"),
+            {"uid": current["id"]}
+        ).mappings().first()
+    return {"has_passkey": bool(row), "device_name": row["device_name"] if row else None}
+
 @app.post("/api/auth/passkeys/register")
 def register_passkey(data: PasskeyRegisterRequest, current: dict = Depends(get_current_user_and_jti)):
     with engine.connect() as conn:
@@ -560,7 +577,7 @@ def login_with_passkey(data: PasskeyLoginRequest, request: Request):
             raise HTTPException(status_code=404, detail="Bunday Samar ID topilmadi")
 
         uid = user_row["id"]
-        jti = str(uuid.uuid4())
+        token, jti = create_access_token({"sub": user_row["samar_id"], "user_id": uid})
         device_name, _ = parse_device_info(request.headers.get("user-agent", ""))
         client_ip = request.client.host if request.client else "127.0.0.1"
 
@@ -574,12 +591,11 @@ def login_with_passkey(data: PasskeyLoginRequest, request: Request):
         )
         conn.commit()
 
-    token = create_access_token({"sub": user_row["samar_id"], "jti": jti})
     user_data = dict(user_row)
     user_data["phone_verified"] = bool(user_data.get("phone_verified", False))
     user_data["created_at"] = str(user_data["created_at"])
     user_data["security_freeze_until"] = str(user_data["security_freeze_until"]) if user_data.get("security_freeze_until") else None
-    return {"access_token": token, "user": user_data}
+    return {"access_token": token, "token_type": "bearer", "user": user_data}
 
 # ----------------- ULANGAN ILOVALAR & SAMAR OAUTH -----------------
 @app.get("/api/oauth/apps", response_model=List[ConnectedAppItem])
@@ -590,35 +606,46 @@ def get_connected_apps(current: dict = Depends(get_current_user_and_jti)):
             {"uid": current["id"]}
         ).mappings().fetchall()
 
-        if not rows:
-            # Seed standard Samar OS ecosystem apps
-            defaults = [
-                ("samar-messenger", "Samar Messenger", "💬", "Profil, Shaxsiy xabarlar, Kontaktlar"),
-                ("samar-drive", "Samar Cloud Drive", "☁️", "Fayllar xotirasi, Arxiv nusxalari"),
-                ("samar-terminal", "Samar Terminal & CLI", "💻", "Tizim konsoli, API kalitlari")
-            ]
-            for cid, name, icon, sc in defaults:
-                conn.execute(
-                    text("INSERT INTO connected_apps (user_id, client_id, app_name, app_icon, scopes) VALUES (:uid, :cid, :name, :icon, :sc)"),
-                    {"uid": current["id"], "cid": cid, "name": name, "icon": icon, "sc": sc}
-                )
-            conn.commit()
-            rows = conn.execute(
-                text("SELECT id, client_id, app_name, app_icon, scopes, connected_at FROM connected_apps WHERE user_id = :uid ORDER BY id ASC"),
-                {"uid": current["id"]}
-            ).mappings().fetchall()
-
     res = []
     for r in rows:
         res.append({
             "id": r["id"],
             "client_id": r["client_id"],
             "app_name": r["app_name"],
-            "app_icon": r["app_icon"],
-            "scopes": r["scopes"],
-            "connected_at": str(r["connected_at"])[:10] if r["connected_at"] else "2026-10-17"
+            "app_icon": r["app_icon"] or "📱",
+            "scopes": r["scopes"] or "profile",
+            "connected_at": str(r["connected_at"])[:10] if r["connected_at"] else datetime.now(timezone.utc).strftime("%Y-%m-%d")
         })
     return res
+
+@app.post("/api/oauth/apps/authorize", response_model=ConnectedAppItem)
+def authorize_app(client_id: str, app_name: str, scopes: str = "Profil, Email", current: dict = Depends(get_current_user_and_jti)):
+    with engine.connect() as conn:
+        existing = conn.execute(
+            text("SELECT id, client_id, app_name, app_icon, scopes, connected_at FROM connected_apps WHERE user_id = :uid AND client_id = :cid"),
+            {"uid": current["id"], "cid": client_id}
+        ).mappings().first()
+        if existing:
+            r = dict(existing)
+            r["connected_at"] = str(r["connected_at"])[:10]
+            return r
+
+        conn.execute(
+            text("INSERT INTO connected_apps (user_id, client_id, app_name, app_icon, scopes) VALUES (:uid, :cid, :name, '🛡️', :sc)"),
+            {"uid": current["id"], "cid": client_id, "name": app_name, "sc": scopes}
+        )
+        conn.execute(
+            text("INSERT INTO notifications (user_id, from_user, title, message, type) VALUES (:uid, 'Samar OAuth', 'Yangi Ilova Ulandi', :msg, 'security')"),
+            {"uid": current["id"], "msg": f"'{app_name}' ilovasi Samar ID hisobingizga muvaffaqiyatli ulandi."}
+        )
+        conn.commit()
+        row = conn.execute(
+            text("SELECT id, client_id, app_name, app_icon, scopes, connected_at FROM connected_apps WHERE user_id = :uid AND client_id = :cid"),
+            {"uid": current["id"], "cid": client_id}
+        ).mappings().first()
+    r = dict(row)
+    r["connected_at"] = str(r["connected_at"])[:10]
+    return r
 
 @app.delete("/api/oauth/apps/{client_id}")
 def revoke_connected_app(client_id: str, current: dict = Depends(get_current_user_and_jti)):
@@ -978,32 +1005,66 @@ def logout(current: dict = Depends(get_current_user_and_jti)):
     return {"message": "Chiqildi."}
 
 @app.get("/api/auth/export-data")
-def export_data(current: dict = Depends(get_current_user_and_jti)):
+def export_data(request: Request, token: Optional[str] = None):
+    raw_token = None
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        raw_token = auth_header.split(" ")[1]
+    elif token:
+        raw_token = token.strip()
+
+    if not raw_token:
+        raise HTTPException(status_code=401, detail="Eksport qilish uchun avtorizatsiya talab qilinadi")
+
+    payload = decode_access_token(raw_token)
+    if not payload or "sub" not in payload:
+        raise HTTPException(status_code=401, detail="Yaroqsiz yoki muddati o'tgan sessiya")
+
+    samar_id = payload["sub"]
     with engine.connect() as conn:
         user_row = conn.execute(
-            text("SELECT id, samar_id, full_name, email, phone, bio, specialty, role, created_at FROM users WHERE id = :uid"),
-            {"uid": current["id"]}
+            text("SELECT id, samar_id, full_name, email, phone, phone_verified, bio, specialty, avatar_path, guardian_id, security_freeze_until, role, two_factor_enabled, created_at FROM users WHERE samar_id = :sid"),
+            {"sid": samar_id}
         ).mappings().first()
+
+        if not user_row:
+            raise HTTPException(status_code=404, detail="Foydalanuvchi topilmadi")
+
         sessions = conn.execute(
-            text("SELECT device_name, ip_address, last_active FROM sessions WHERE user_id = :uid"),
-            {"uid": current["id"]}
+            text("SELECT device_name, ip_address, last_active FROM sessions WHERE user_id = :uid ORDER BY id DESC"),
+            {"uid": user_row["id"]}
         ).mappings().fetchall()
-    
+
+        connected_apps = conn.execute(
+            text("SELECT client_id, app_name, scopes, connected_at FROM connected_apps WHERE user_id = :uid"),
+            {"uid": user_row["id"]}
+        ).mappings().fetchall()
+
     user_data = dict(user_row)
+    user_data["phone_verified"] = bool(user_data.get("phone_verified", False))
     user_data["created_at"] = str(user_data["created_at"])
-    
+    user_data["security_freeze_until"] = str(user_data["security_freeze_until"]) if user_data.get("security_freeze_until") else None
+
     clean_sessions = []
     for s in sessions:
         sd = dict(s)
         sd["last_active"] = str(sd["last_active"])
         clean_sessions.append(sd)
-    
+
+    clean_apps = []
+    for a in connected_apps:
+        ad = dict(a)
+        ad["connected_at"] = str(ad["connected_at"])
+        clean_apps.append(ad)
+
     return {
         "ecosystem": "Samar OS",
-        "export_date": "2026-10-16",
+        "system": "Samar ID Sovereign Data Vault",
+        "export_date": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
         "user_profile": user_data,
-        "device_history": clean_sessions,
-        "sovereign_guarantee": "Ushbu ma'lumotlar faqat sizning shaxsiy mulkingiz hisoblanadi."
+        "active_devices": clean_sessions,
+        "connected_apps": clean_apps,
+        "sovereign_guarantee": "Ushbu ma'lumotlar faqat sizning shaxsiy daxlsiz mulkingiz hisoblanadi."
     }
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
