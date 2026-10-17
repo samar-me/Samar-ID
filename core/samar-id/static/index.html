@@ -35,34 +35,39 @@
             -webkit-font-smoothing: antialiased;
         }
 
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Bitta ekranga to'liq sig'dirish - tana aylanmasligi uchun */
+        }
+
         body {
             background-color: #000000;
             color: var(--text-primary);
-            min-height: 100vh;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
-            padding: 20px 16px;
+            justify-content: center;
+            padding: 12px 16px;
             background-image: 
                 radial-gradient(circle at 50% 0%, rgba(10, 132, 255, 0.14) 0%, transparent 60%),
                 radial-gradient(circle at 100% 100%, rgba(94, 92, 230, 0.09) 0%, transparent 50%),
                 radial-gradient(circle at 0% 100%, rgba(10, 132, 255, 0.06) 0%, transparent 40%);
             background-attachment: fixed;
-            overflow-y: auto;
         }
 
-        /* Apple Window Container */
+        /* Apple Window Container - 100% Single Screen Fit */
         .macos-window {
             width: 100%;
-            max-width: 940px;
-            margin: auto;
+            max-width: 960px;
+            height: calc(100vh - 24px);
+            max-height: 640px;
             background: var(--bg-window);
             backdrop-filter: blur(50px);
             -webkit-backdrop-filter: blur(50px);
             border: 1px solid var(--border);
-            border-radius: var(--radius-window);
-            box-shadow: 0 30px 90px -15px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.06);
+            border-radius: 18px;
+            box-shadow: 0 25px 80px -15px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.06);
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -77,13 +82,14 @@
 
         /* Titlebar */
         .titlebar {
-            height: 44px;
-            padding: 0 18px;
+            height: 40px;
+            flex-shrink: 0;
+            padding: 0 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             border-bottom: 1px solid var(--border);
-            background: rgba(12, 14, 18, 0.55);
+            background: rgba(12, 14, 18, 0.6);
             user-select: none;
         }
 
@@ -109,29 +115,29 @@
         }
 
         .titlebar-logo {
-            width: 20px;
-            height: 20px;
-            border-radius: 5px;
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
             object-fit: cover;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.4);
         }
 
         .titlebar-text {
-            font-size: 12.5px;
+            font-size: 12px;
             font-weight: 600;
             color: var(--text-secondary);
             letter-spacing: -0.2px;
         }
 
         .titlebar-status {
-            font-size: 11px;
+            font-size: 10.5px;
             color: var(--status-green);
             font-weight: 600;
             font-family: 'JetBrains Mono', monospace;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
         }
 
         .status-pulse {
@@ -150,12 +156,26 @@
 
         /* ----------------- AUTHENTICATION VIEW ----------------- */
         .auth-view {
-            padding: 30px 24px 34px;
-            max-width: 420px;
+            flex: 1;
+            min-height: 0;
+            padding: 20px 24px;
+            max-width: 390px;
             margin: auto;
             width: 100%;
             text-align: center;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .auth-view::-webkit-scrollbar {
+            width: 4px;
+        }
+        .auth-view::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
         }
 
         @keyframes fadeIn {
@@ -221,28 +241,28 @@
         }
 
         .form-row {
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             text-align: left;
         }
 
         .form-row label {
             display: block;
-            font-size: 11.5px;
+            font-size: 11px;
             font-weight: 600;
             color: var(--text-secondary);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .input-apple {
             width: 100%;
-            padding: 12px 14px;
+            padding: 9px 12px;
             background: rgba(0, 0, 0, 0.35);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
             color: var(--text-primary);
-            font-size: 14px;
+            font-size: 13.5px;
             outline: none;
             transition: all 0.2s;
         }
@@ -261,15 +281,15 @@
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            margin-top: -6px;
-            margin-bottom: 18px;
+            margin-top: -4px;
+            margin-bottom: 12px;
         }
 
         .btn-link-subtle {
             background: none;
             border: none;
             color: var(--accent);
-            font-size: 12.5px;
+            font-size: 12px;
             font-weight: 500;
             cursor: pointer;
             text-decoration: none;
@@ -285,15 +305,15 @@
         /* Buttons with tactile feedback & spinners */
         .btn-apple-primary {
             width: 100%;
-            padding: 13px 18px;
+            padding: 10px 16px;
             background: var(--accent-gradient);
             border: none;
             border-radius: var(--radius-sm);
             color: white;
-            font-size: 14px;
+            font-size: 13.5px;
             font-weight: 600;
             cursor: pointer;
-            box-shadow: 0 6px 18px rgba(10, 132, 255, 0.35);
+            box-shadow: 0 4px 14px rgba(10, 132, 255, 0.35);
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             display: inline-flex;
             align-items: center;
@@ -448,19 +468,22 @@
         .dashboard-body {
             display: flex;
             flex: 1;
-            min-height: 570px;
-            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            min-height: 0; /* Ichki skroll va to'liq sig'dirish uchun muhim */
+            overflow: hidden;
+            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         /* Frosted Left Sidebar */
         .sidebar {
-            width: 290px;
+            width: 240px;
+            flex-shrink: 0;
             background: var(--bg-sidebar);
             border-right: 1px solid var(--border);
-            padding: 24px 16px;
+            padding: 12px 10px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            overflow-y: auto;
         }
 
         @media (max-width: 820px) {
@@ -470,16 +493,16 @@
 
         .user-hero-badge {
             text-align: center;
-            padding-bottom: 22px;
-            margin-bottom: 18px;
+            padding-bottom: 10px;
+            margin-bottom: 8px;
             border-bottom: 1px solid var(--border);
         }
 
         .hero-avatar-wrap {
             position: relative;
-            width: 72px;
-            height: 72px;
-            margin: 0 auto 12px;
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 6px;
         }
 
         .hero-avatar-img {
@@ -488,7 +511,7 @@
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid var(--accent);
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
         }
 
         .hero-avatar-fallback {
@@ -497,21 +520,21 @@
             border-radius: 50%;
             background: var(--accent-gradient);
             color: white;
-            font-size: 26px;
+            font-size: 20px;
             font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: center;
             border: 2px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
         }
 
         .hero-avatar-edit {
             position: absolute;
             bottom: -2px;
             right: -2px;
-            width: 26px;
-            height: 26px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: #2c303e;
             border: 1px solid var(--border);
@@ -519,7 +542,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 10px;
             transition: all 0.2s;
         }
 
@@ -529,27 +552,27 @@
         }
 
         .hero-user-name {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 700;
             letter-spacing: -0.3px;
         }
 
         .hero-user-email {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-secondary);
             font-family: 'JetBrains Mono', monospace;
-            margin-top: 3px;
+            margin-top: 1px;
         }
 
         .freeze-pill {
             display: inline-block;
-            margin-top: 8px;
-            padding: 3px 10px;
+            margin-top: 4px;
+            padding: 2px 7px;
             background: rgba(255, 159, 10, 0.15);
             border: 1px solid rgba(255, 159, 10, 0.35);
-            border-radius: 20px;
+            border-radius: 12px;
             color: var(--status-orange);
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
         }
 
@@ -557,23 +580,23 @@
         .sidebar-menu {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 2px;
         }
 
         .sidebar-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 10px 14px;
+            gap: 10px;
+            padding: 7px 10px;
             background: transparent;
             border: none;
             color: var(--text-secondary);
-            font-size: 13.5px;
+            font-size: 12.5px;
             font-weight: 500;
-            border-radius: var(--radius-sm);
+            border-radius: 8px;
             cursor: pointer;
             text-align: left;
-            transition: all 0.2s;
+            transition: all 0.15s;
             position: relative;
         }
 
@@ -589,8 +612,8 @@
         }
 
         .sidebar-icon {
-            font-size: 16px;
-            width: 20px;
+            font-size: 14px;
+            width: 18px;
             text-align: center;
         }
 
@@ -598,33 +621,33 @@
             margin-left: auto;
             background: var(--accent);
             color: white;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
-            padding: 2px 7px;
-            border-radius: 10px;
+            padding: 2px 6px;
+            border-radius: 8px;
         }
 
         /* Dedicated "Chiqish" Button in Footer */
         .sidebar-footer {
-            padding-top: 16px;
+            padding-top: 8px;
             border-top: 1px solid var(--border);
         }
 
         .btn-exit {
             width: 100%;
-            padding: 11px 16px;
+            padding: 8px 12px;
             background: rgba(255, 69, 58, 0.08);
             border: 1px solid rgba(255, 69, 58, 0.22);
             color: var(--status-red);
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
-            border-radius: var(--radius-sm);
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .btn-exit:hover {
@@ -636,40 +659,55 @@
             transform: scale(0.98);
         }
 
-        /* Content Area */
+        /* Content Area - Single Screen Scrollable Pane */
         .main-content-pane {
             flex: 1;
-            padding: 32px 36px;
+            min-height: 0;
+            padding: 16px 24px;
             overflow-y: auto;
-            background: rgba(20, 22, 28, 0.5);
+            background: rgba(20, 22, 28, 0.45);
+        }
+
+        .main-content-pane::-webkit-scrollbar {
+            width: 5px;
+        }
+        .main-content-pane::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .main-content-pane::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.14);
+            border-radius: 4px;
+        }
+        .main-content-pane::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.28);
         }
 
         @media (max-width: 600px) {
-            .main-content-pane { padding: 20px 16px; }
+            .main-content-pane { padding: 14px 12px; }
         }
 
         .pane-header {
-            margin-bottom: 24px;
+            margin-bottom: 12px;
         }
 
         .pane-title {
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 700;
-            letter-spacing: -0.4px;
+            letter-spacing: -0.3px;
         }
 
         .pane-sub {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-secondary);
-            margin-top: 4px;
+            margin-top: 2px;
         }
 
         .apple-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: var(--radius-card);
-            padding: 20px;
-            margin-bottom: 20px;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
             transition: border-color 0.2s;
         }
 
@@ -678,9 +716,9 @@
         }
 
         .apple-card-title {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
-            margin-bottom: 14px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
