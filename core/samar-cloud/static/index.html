@@ -1037,6 +1037,7 @@
         }
 
         function renderFiles(files) {
+            const token = localStorage.getItem('samar_cloud_token') || '';
             const container = document.getElementById('filesList');
             if (!files || !files.length) {
                 container.innerHTML = `
