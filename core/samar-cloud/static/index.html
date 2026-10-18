@@ -614,6 +614,25 @@
             align-items: center;
         }
 
+        .moment-video-badge, .file-video-play-badge {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            pointer-events: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 2;
+        }
+
         /* Auth View (SSO Login) */
         #authSection {
             display: none;
@@ -1031,10 +1050,11 @@
             }
 
             container.innerHTML = files.map(f => {
-                const isImage = f.category === 'image';
-                const isVideo = f.category === 'video';
-                const isAudio = f.category === 'audio';
-                const isPdf = f.file_type === 'application/pdf';
+                const ext = (f.name.toLowerCase().split('.').pop() || '').trim();
+                const isImage = f.category === 'image' || (f.file_type && f.file_type.startsWith('image/')) || ['jpg','jpeg','png','webp','gif','svg','heic'].includes(ext);
+                const isVideo = f.category === 'video' || (f.file_type && f.file_type.startsWith('video/')) || ['mp4','webm','mov','mkv','avi','m4v'].includes(ext);
+                const isAudio = f.category === 'audio' || (f.file_type && f.file_type.startsWith('audio/')) || ['mp3','wav','m4a','flac','ogg','aac'].includes(ext);
+                const isPdf = f.file_type === 'application/pdf' || ext === 'pdf';
 
                 let icon = '📄';
                 if (isImage) icon = '🖼️';
@@ -1044,16 +1064,23 @@
                 if (f.category === 'archive') icon = '📦';
                 if (f.category === 'code') icon = '💻';
 
-                const thumb = isImage 
-                    ? `/api/files/${f.id}/stream?token=${encodeURIComponent(token || '')}`
-                    : null;
+                const streamUrl = `/api/files/${f.id}/stream?token=${encodeURIComponent(token || '')}`;
+                let thumbHtml = '';
+                if (isImage) {
+                    thumbHtml = `<img src="${streamUrl}" class="file-thumb-img" alt="${escapeHtml(f.name)}" loading="lazy">`;
+                } else if (isVideo) {
+                    thumbHtml = `
+                        <video src="${streamUrl}#t=0.5" class="file-thumb-img" preload="metadata" muted playsinline style="object-fit:cover;width:100%;height:100%;pointer-events:none;"></video>
+                        <span class="file-video-play-badge">▶</span>
+                    `;
+                } else {
+                    thumbHtml = `<span class="file-icon-placeholder">${icon}</span>`;
+                }
 
                 return `
                 <div class="file-card">
                     <div class="file-thumb-box" onclick="openPreview(${f.id}, '${escapeHtml(f.name)}', '${f.file_type}', '${f.category}')">
-                        ${thumb 
-                            ? `<img src="${thumb}" class="file-thumb-img" alt="${escapeHtml(f.name)}" loading="lazy">` 
-                            : `<span class="file-icon-placeholder">${icon}</span>`}
+                        ${thumbHtml}
                     </div>
                     <div class="file-details">
                         <div class="file-name" title="${escapeHtml(f.name)}">${escapeHtml(f.name)}</div>
@@ -1105,15 +1132,23 @@
                             <span>${escapeHtml(g.group_title)}</span>
                         </div>
                         <div class="moments-grid">
-                            ${g.items.map(item => `
-                                <div class="moment-item" onclick="openPreview(${item.id}, '${escapeHtml(item.name)}', '${item.file_type}', 'image')">
-                                    <img src="/api/files/${item.id}/stream?token=${encodeURIComponent(token || '')}" class="moment-img" alt="${escapeHtml(item.name)}" loading="lazy">
+                            ${g.items.map(item => {
+                                const ext = (item.name.toLowerCase().split('.').pop() || '').trim();
+                                const isVid = item.category === 'video' || (item.file_type && item.file_type.startsWith('video/')) || ['mp4','webm','mov','mkv','avi','m4v'].includes(ext);
+                                const mStreamUrl = `/api/files/${item.id}/stream?token=${encodeURIComponent(token || '')}`;
+                                return `
+                                <div class="moment-item" onclick="openPreview(${item.id}, '${escapeHtml(item.name)}', '${item.file_type}', '${item.category}')">
+                                    ${isVid
+                                        ? `<video src="${mStreamUrl}#t=0.5" class="moment-img" preload="metadata" muted playsinline style="object-fit:cover;width:100%;height:100%;pointer-events:none;"></video><span class="moment-video-badge">▶ Video</span>`
+                                        : `<img src="${mStreamUrl}" class="moment-img" alt="${escapeHtml(item.name)}" loading="lazy">`
+                                    }
                                     <div class="moment-overlay">
                                         <div>${escapeHtml(item.name)}</div>
-                                        ${item.exif_camera ? `<div>📷 ${escapeHtml(item.exif_camera)}</div>` : ''}
+                                        ${isVid ? '<div>🎬 Video</div>' : (item.exif_camera ? `<div>📷 ${escapeHtml(item.exif_camera)}</div>` : '')}
                                     </div>
                                 </div>
-                            `).join('')}
+                                `;
+                            }).join('')}
                         </div>
                     </div>
                 `).join('');
@@ -1129,32 +1164,41 @@
             const streamUrl = `/api/files/${fileId}/stream?token=${encodeURIComponent(token || '')}`;
             const downloadUrl = `/api/files/${fileId}/download?token=${encodeURIComponent(token || '')}`;
 
-            if (category === 'image') {
-                mediaBox.innerHTML = `<img src="${streamUrl}" class="lightbox-media" alt="${name}">`;
-            } else if (category === 'video') {
-                mediaBox.innerHTML = `<video src="${streamUrl}" class="lightbox-media" controls autoplay style="max-height:75vh;"></video>`;
-            } else if (category === 'audio') {
+            const ext = (name.toLowerCase().split('.').pop() || '').trim();
+            const isVideo = (category === 'video') || (mime && mime.startsWith('video/')) || ['mp4', 'webm', 'mov', 'mkv', 'avi', 'm4v'].includes(ext);
+            const isAudio = (category === 'audio') || (mime && mime.startsWith('audio/')) || ['mp3', 'wav', 'm4a', 'flac', 'ogg', 'aac'].includes(ext);
+            const isPdf = (category === 'document' && ext === 'pdf') || mime === 'application/pdf' || ext === 'pdf';
+            const isImage = (category === 'image') || (mime && mime.startsWith('image/')) || ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'heic', 'bmp'].includes(ext);
+
+            if (isVideo) {
                 mediaBox.innerHTML = `
-                    <div style="background:rgba(255,255,255,0.05);padding:30px;border-radius:14px;border:1px solid var(--border);text-align:center;">
-                        <div style="font-size:48px;margin-bottom:12px;">🎵</div>
-                        <audio src="${streamUrl}" controls autoplay style="width:300px;"></audio>
+                    <video src="${streamUrl}" class="lightbox-media" controls autoplay playsinline style="max-height:80vh; max-width:90vw; border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,0.8); background:#000; outline:none;"></video>
+                `;
+            } else if (isAudio) {
+                mediaBox.innerHTML = `
+                    <div style="background:rgba(18, 25, 40, 0.95); padding:40px 30px; border-radius:18px; border:1px solid var(--border); text-align:center; max-width:440px; width:90vw; box-shadow:0 12px 35px rgba(0,0,0,0.6);">
+                        <div style="font-size:54px; margin-bottom:14px;">🎵</div>
+                        <div style="font-size:16px; font-weight:700; margin-bottom:20px; color:#fff; word-break:break-all;">${name}</div>
+                        <audio src="${streamUrl}" controls autoplay style="width:100%; border-radius:10px;"></audio>
                     </div>
                 `;
-            } else if (mime === 'application/pdf') {
-                mediaBox.innerHTML = `<iframe src="${streamUrl}" style="width:80vw;height:80vh;border-radius:12px;border:none;"></iframe>`;
+            } else if (isImage) {
+                mediaBox.innerHTML = `<img src="${streamUrl}" class="lightbox-media" alt="${name}" style="max-height:80vh; max-width:90vw; border-radius:14px; object-fit:contain; box-shadow:0 20px 60px rgba(0,0,0,0.8);">`;
+            } else if (isPdf) {
+                mediaBox.innerHTML = `<iframe src="${streamUrl}" style="width:85vw; height:80vh; border-radius:14px; border:none; background:#fff; box-shadow:0 20px 60px rgba(0,0,0,0.8);"></iframe>`;
             } else {
                 mediaBox.innerHTML = `
-                    <div style="padding:40px;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;text-align:center;">
-                        <div style="font-size:42px;margin-bottom:12px;">📄</div>
-                        <div style="font-size:16px;font-weight:700;margin-bottom:14px;">${name}</div>
-                        <a href="${downloadUrl}" class="btn-upload" style="display:inline-flex;">Faylni Yuklab Olish</a>
+                    <div style="padding:40px; background:rgba(18, 25, 40, 0.95); border:1px solid var(--border); border-radius:18px; text-align:center; max-width:420px; width:90vw; box-shadow:0 12px 35px rgba(0,0,0,0.6);">
+                        <div style="font-size:52px; margin-bottom:14px;">📄</div>
+                        <div style="font-size:16px; font-weight:700; margin-bottom:18px; word-break:break-all; color:#fff;">${name}</div>
+                        <a href="${downloadUrl}" class="btn-upload" style="display:inline-flex; padding:12px 24px; text-decoration:none;">Faylni Yuklab Olish</a>
                     </div>
                 `;
             }
 
             infoBox.innerHTML = `
-                <span>${name}</span>
-                <a href="${downloadUrl}" style="color:var(--accent);text-decoration:none;font-weight:600;" download>Yuklab Olish ⬇</a>
+                <span style="font-weight:600; color:#fff;">${name}</span>
+                <a href="${downloadUrl}" style="color:var(--accent); text-decoration:none; font-weight:700; display:inline-flex; align-items:center; gap:6px;" download>Yuklab Olish ⬇</a>
             `;
             overlay.style.display = 'flex';
         }
