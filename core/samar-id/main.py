@@ -710,17 +710,17 @@ def exchange_oauth_token(data: OAuthTokenRequest):
         conn.execute(text("UPDATE oauth_codes SET is_used = 1 WHERE id = :id"), {"id": row["id"]})
 
         user = conn.execute(
-            text("SELECT id, samar_id, role, status FROM users WHERE id = :uid"),
+            text("SELECT id, samar_id, role, is_active FROM users WHERE id = :uid"),
             {"uid": row["user_id"]}
         ).mappings().first()
         if not user:
             raise HTTPException(status_code=404, detail="Foydalanuvchi topilmadi.")
 
-        token, jti = create_access_token(user["samar_id"], user["role"])
+        token, jti = create_access_token({"sub": user["samar_id"], "user_id": user["id"]})
         app_name = row["client_id"] or "OAuth Client"
         conn.execute(
-            text("INSERT INTO sessions (user_id, token_jti, ip_address, user_agent, is_active) VALUES (:uid, :jti, :app, 'Samar SSO', 1)"),
-            {"uid": user["id"], "jti": jti, "app": app_name}
+            text("INSERT INTO sessions (user_id, token_jti, device_name, ip_address) VALUES (:uid, :jti, :dev, 'Samar SSO')"),
+            {"uid": user["id"], "jti": jti, "dev": f"{app_name} (OAuth)"}
         )
         conn.commit()
 
@@ -744,7 +744,7 @@ def get_oauth_userinfo(current: dict = Depends(get_current_user_and_jti)):
         "specialty": current["specialty"],
         "avatar_path": current["avatar_path"],
         "role": current["role"],
-        "status": current["status"]
+        "status": "active" if current.get("is_active", 1) else "suspended"
     }
 
 
