@@ -1,11 +1,12 @@
 // Samar ID Progressive Web App Service Worker (v1.0.0)
-const CACHE_NAME = 'samar-id-v1';
+const CACHE_NAME = 'samar-id-v2';
 const STATIC_ASSETS = [
     '/',
     '/static/index.html',
     '/static/icon.svg',
     '/static/manifest.json',
-    '/static/assets/logo_citadel.jpg'
+    '/static/assets/icon-192.png',
+    '/static/assets/icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {

@@ -62,7 +62,29 @@ def create_access_token(user_id: int, samar_id: str) -> str:
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
-def get_current_user(
+_app_auth_cache = {}
+
+async def verify_samar_id_app_authorization(samar_id: str) -> bool:
+    import time
+    now = time.time()
+    cached = _app_auth_cache.get(samar_id)
+    if cached and (now - cached[1] < 10):
+        return cached[0]
+    
+    try:
+        async with httpx.AsyncClient(timeout=3.0) as client:
+            res = await client.get(f"{SAMAR_ID_URL}/api/oauth/apps/check/samar_cloud", params={"samar_id": samar_id})
+            if res.status_code == 200:
+                is_auth = res.json().get("authorized", True)
+                _app_auth_cache[samar_id] = (is_auth, now)
+                return is_auth
+    except Exception:
+        if cached:
+            return cached[0]
+        return True
+    return True
+
+async def get_current_user(
     request: Request,
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     token: Optional[str] = Query(None)
@@ -83,6 +105,15 @@ def get_current_user(
         samar_id = payload.get("samar_id")
     except (JWTError, ValueError):
         raise HTTPException(status_code=401, detail="Yaroqsiz token (Invalid token)")
+
+    # Verify that the app permission has not been revoked in Samar ID
+    if samar_id:
+        is_authorized = await verify_samar_id_app_authorization(samar_id)
+        if not is_authorized:
+            raise HTTPException(
+                status_code=401, 
+                detail="Samar ID orqali Samar Cloud ruxsati bekor qilingan (Application access revoked in Samar ID)"
+            )
 
     with engine.connect() as conn:
         user = conn.execute(

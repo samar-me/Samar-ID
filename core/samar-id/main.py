@@ -668,6 +668,25 @@ def revoke_connected_app(client_id: str, current: dict = Depends(get_current_use
         conn.commit()
     return {"message": f"{app_name} muvaffaqiyatli uzildi."}
 
+@app.get("/api/oauth/apps/check/{client_id}")
+def check_app_authorization(client_id: str, samar_id: str):
+    try:
+        with engine.connect() as conn:
+            user = conn.execute(
+                text("SELECT id FROM users WHERE samar_id = :sid"),
+                {"sid": samar_id}
+            ).mappings().first()
+            if not user:
+                return {"authorized": False}
+            app = conn.execute(
+                text("SELECT id FROM connected_apps WHERE user_id = :uid AND client_id = :cid"),
+                {"uid": user["id"], "cid": client_id}
+            ).mappings().first()
+            return {"authorized": bool(app)}
+    except Exception as e:
+        print("APP_CHECK_ERROR:", e)
+        return {"authorized": True}
+
 @app.post("/api/oauth/consent/approve")
 def approve_oauth_consent(data: OAuthApproveRequest, current: dict = Depends(get_current_user_and_jti)):
     with engine.connect() as conn:
@@ -717,11 +736,7 @@ def exchange_oauth_token(data: OAuthTokenRequest):
             raise HTTPException(status_code=404, detail="Foydalanuvchi topilmadi.")
 
         token, jti = create_access_token({"sub": user["samar_id"], "user_id": user["id"]})
-        app_name = row["client_id"] or "OAuth Client"
-        conn.execute(
-            text("INSERT INTO sessions (user_id, token_jti, device_name, ip_address) VALUES (:uid, :jti, :dev, 'Samar SSO')"),
-            {"uid": user["id"], "jti": jti, "dev": f"{app_name} (OAuth)"}
-        )
+        # Connected app authorization is tracked in connected_apps table (not hardware sessions)
         conn.commit()
 
     return OAuthTokenResponse(
@@ -1046,18 +1061,41 @@ def get_sessions(current: dict = Depends(get_current_user_and_jti)):
     try:
         with engine.connect() as conn:
             rev_filter = "is_revoked = 0" if is_sqlite else "is_revoked IS FALSE"
-            query = f"SELECT id, token_jti, device_name, ip_address, last_active, is_revoked FROM sessions WHERE user_id = :uid AND {rev_filter} ORDER BY id DESC"
+            query = f"""
+                SELECT id, token_jti, device_name, ip_address, last_active, is_revoked 
+                FROM sessions 
+                WHERE user_id = :uid AND {rev_filter} 
+                  AND device_name NOT LIKE '%OAuth%' 
+                  AND device_name NOT LIKE '%Samar SSO%' 
+                ORDER BY id DESC
+            """
             rows = conn.execute(text(query), {"uid": current["id"]}).mappings().fetchall()
             
         result = []
+        seen_devices = set()
+        
+        # Current session first if found
+        current_jti = current.get("current_jti")
+        
         for r in rows:
+            dev_name = r["device_name"] or "Noma'lum Qurilma"
+            is_curr = (r["token_jti"] == current_jti)
+            
+            # Deduplicate by device_name unless it is the currently active device
+            if dev_name in seen_devices and not is_curr:
+                continue
+            seen_devices.add(dev_name)
+            
             result.append({
                 "id": r["id"],
-                "device_name": r["device_name"],
-                "ip_address": r["ip_address"],
+                "device_name": dev_name,
+                "ip_address": r["ip_address"] or "127.0.0.1",
                 "last_active": str(r["last_active"])[:19] if r["last_active"] else "Hozir",
-                "is_current": (r["token_jti"] == current["current_jti"])
+                "is_current": is_curr
             })
+            
+        # Ensure current device is at the very top
+        result.sort(key=lambda x: 0 if x["is_current"] else 1)
         return result
     except Exception as e:
         print("SESSIONS_FETCH_ERROR:", e)
@@ -1073,6 +1111,17 @@ def revoke_session(session_id: int, current: dict = Depends(get_current_user_and
         )
         conn.commit()
     return {"message": "Qurilma sessiyasi bekor qilindi."}
+
+@app.post("/api/auth/sessions/revoke-all-others")
+def revoke_all_other_sessions(current: dict = Depends(get_current_user_and_jti)):
+    with engine.connect() as conn:
+        rev_val = "1" if is_sqlite else "TRUE"
+        conn.execute(
+            text(f"UPDATE sessions SET is_revoked = {rev_val} WHERE user_id = :uid AND token_jti != :curr_jti"),
+            {"uid": current["id"], "curr_jti": current["current_jti"]}
+        )
+        conn.commit()
+    return {"message": "Boshqa barcha qurilmalardan chiqildi."}
 
 @app.post("/api/auth/logout")
 def logout(current: dict = Depends(get_current_user_and_jti)):
