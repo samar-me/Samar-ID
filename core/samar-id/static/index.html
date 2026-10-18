@@ -701,6 +701,37 @@
             color: var(--text-tertiary);
         }
 
+        /* Security Health Card & Status Chips */
+        .sec-health-card {
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.08) 0%, rgba(94, 92, 230, 0.08) 100%);
+            border: 1px solid rgba(0, 242, 254, 0.22);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+        }
+        .status-chip {
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-tertiary);
+            border: 1px solid var(--border);
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s ease;
+        }
+        .status-chip.active {
+            background: rgba(48, 209, 88, 0.12);
+            color: #34d399;
+            border-color: rgba(52, 211, 153, 0.3);
+        }
+
         /* Bottom Tab Bar (Mobile) */
         .mobile-tab-bar {
             display: none;
@@ -954,29 +985,29 @@
 
                 <form id="authForm" onsubmit="handleAuthSubmit(event)">
                     <div class="form-group" id="authNameRow" style="display: none;">
-                        <label class="form-label" id="lblFullName">To'liq Ism</label>
+                        <label class="form-label" id="lblFullName" data-i18n="lbl_fullname">To'liq Ism</label>
                         <div class="input-box">
-                            <input type="text" class="input-field" id="authFullNameInput" placeholder="Masalan: Samar Rahbar">
+                            <input type="text" class="input-field" id="authFullNameInput" placeholder="Masalan: Samar Rahbar" data-i18n-ph="ph_name">
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" id="lblSamarId">Samar ID</label>
+                        <label class="form-label" id="lblSamarId" data-i18n="lbl_samarid">Samar ID</label>
                         <div class="input-box">
-                            <input type="text" class="input-field" id="authSamarIdInput" placeholder="masalan: samar" required>
+                            <input type="text" class="input-field" id="authSamarIdInput" placeholder="masalan: samar" data-i18n-ph="ph_samarid" required>
                             <span id="domainSuffix" class="domain-tag" style="display: none;">@samar.os</span>
                         </div>
                     </div>
 
                     <div class="form-group" style="margin-bottom: 8px;">
-                        <label class="form-label" id="lblPassword">Parol</label>
+                        <label class="form-label" id="lblPassword" data-i18n="lbl_password">Parol</label>
                         <div class="input-box">
                             <input type="password" class="input-field" id="authPasswordInput" placeholder="••••••••" required>
                         </div>
                     </div>
 
                     <div style="text-align: right; margin-bottom: 16px;" id="forgotPasswordRow">
-                        <button type="button" class="btn-link" onclick="toggleRecoverySheet()" id="btnForgotPass">Parolni unutdingizmi?</button>
+                        <button type="button" class="btn-link" onclick="toggleRecoverySheet()" id="btnForgotPass" data-i18n="forgot_pass">Parolni unutdingizmi?</button>
                     </div>
 
                     <button type="submit" class="btn-primary" id="btnSubmitAuth">
@@ -993,62 +1024,62 @@
 
                 <!-- Recovery Sheet -->
                 <div id="recoverySheet" style="display: none; margin-top: 16px; text-align: left;">
-                    <div style="font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--text-primary);" id="lblRecoveryTitle">Hisobni Qayta Tiklash</div>
+                    <div style="font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--text-primary);" id="lblRecoveryTitle" data-i18n="rec_title">Hisobni Qayta Tiklash</div>
                     
                     <div class="segmented-tabs" style="margin-bottom: 12px;">
-                        <button type="button" class="seg-tab active" id="btnOptGuardian" onclick="switchRecoverySubTab('guardian')">Do'st</button>
-                        <button type="button" class="seg-tab" id="btnOptQr" onclick="switchRecoverySubTab('qr')">QR Kod</button>
-                        <button type="button" class="seg-tab" id="btnOptRecoveryCode" onclick="switchRecoverySubTab('recovery_code')">Zaxira Kodi</button>
+                        <button type="button" class="seg-tab active" id="btnOptGuardian" onclick="switchRecoverySubTab('guardian')" data-i18n="rec_tab_guardian">Do'st</button>
+                        <button type="button" class="seg-tab" id="btnOptQr" onclick="switchRecoverySubTab('qr')" data-i18n="rec_tab_qr">QR Kod</button>
+                        <button type="button" class="seg-tab" id="btnOptRecoveryCode" onclick="switchRecoverySubTab('recovery_code')" data-i18n="rec_tab_code">Zaxira Kodi</button>
                     </div>
 
                     <!-- Subtab Guardian -->
                     <div id="guardianSubView">
-                        <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;" id="txtGuardianHelp">
+                        <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;" id="txtGuardianHelp" data-i18n="rec_guardian_help">
                             Ishonchli do'stingizga 1 martalik tasdiqlash kodi yuboriladi. U bergan kod orqali hisobingizga kirasiz.
                         </p>
                         <div class="form-group">
-                            <label class="form-label">Samar ID</label>
-                            <input type="text" class="input-field" id="recTargetSamarId" placeholder="masalan: samar@samar.os">
+                            <label class="form-label" data-i18n="lbl_samarid">Samar ID</label>
+                            <input type="text" class="input-field" id="recTargetSamarId" placeholder="masalan: samar@samar.os" data-i18n-ph="ph_samarid_full">
                         </div>
                         <div id="guardianStep1">
-                            <button type="button" class="btn-primary" onclick="requestGuardianOTP()" id="btnSendGuardianCode">Do'stga Kod Yuborish</button>
+                            <button type="button" class="btn-primary" onclick="requestGuardianOTP()" id="btnSendGuardianCode" data-i18n="rec_send_code">Do'stga Kod Yuborish</button>
                         </div>
                         <div id="guardianStep2" style="display: none; margin-top: 10px;">
                             <div class="form-group">
-                                <label class="form-label">Do'st tasdiqlash kodi</label>
-                                <input type="text" class="input-field" id="recGuardianOtp" placeholder="6 xonali kod">
+                                <label class="form-label" data-i18n="rec_guardian_otp_label">Do'st tasdiqlash kodi</label>
+                                <input type="text" class="input-field" id="recGuardianOtp" placeholder="6 xonali kod" data-i18n-ph="ph_6digit_code">
                             </div>
-                            <button type="button" class="btn-primary" onclick="verifyGuardianOTP()">Kodni Tasdiqlash</button>
+                            <button type="button" class="btn-primary" onclick="verifyGuardianOTP()" data-i18n="rec_verify_code">Kodni Tasdiqlash</button>
                         </div>
                     </div>
 
                     <!-- Subtab QR -->
                     <div id="qrSubView" style="display: none; text-align: center;">
-                        <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;">
+                        <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;" data-i18n="rec_qr_help">
                             Boshqa faol qurilmangiz orqali ushbu QR kodni skanerlang.
                         </p>
                         <div id="qrContainer" style="display: inline-block; padding: 12px; background: #fff; border-radius: 12px; margin-bottom: 8px;"></div>
-                        <div style="font-size: 11px; color: var(--text-tertiary);">QR kod 2 daqiqa amal qiladi</div>
+                        <div style="font-size: 11px; color: var(--text-tertiary);" data-i18n="rec_qr_expire">QR kod 2 daqiqa amal qiladi</div>
                     </div>
 
                     <!-- Subtab Recovery Code -->
                     <div id="recoveryCodeSubView" style="display: none;">
-                        <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;">
+                        <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;" data-i18n="rec_code_help">
                             Profilingizda saqlab olingan 8 ta favqulodda zaxira kodlaridan birini kiriting.
                         </p>
                         <div class="form-group">
-                            <label class="form-label">Samar ID</label>
-                            <input type="text" class="input-field" id="rcLoginSamarId" placeholder="masalan: samar@samar.os">
+                            <label class="form-label" data-i18n="lbl_samarid">Samar ID</label>
+                            <input type="text" class="input-field" id="rcLoginSamarId" placeholder="masalan: samar@samar.os" data-i18n-ph="ph_samarid_full">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Zaxira Kodi (XXXX-XXXX)</label>
-                            <input type="text" class="input-field" id="rcLoginCodeInput" placeholder="Masalan: ABCD-EFGH" style="font-family: 'JetBrains Mono', monospace; text-transform: uppercase;">
+                            <label class="form-label" data-i18n="rec_code_input_label">Zaxira Kodi (XXXX-XXXX)</label>
+                            <input type="text" class="input-field" id="rcLoginCodeInput" placeholder="Masalan: ABCD-EFGH" data-i18n-ph="ph_rec_code_example" style="font-family: 'JetBrains Mono', monospace; text-transform: uppercase;">
                         </div>
-                        <button type="button" class="btn-primary" onclick="handleRecoveryCodeLogin()">Zaxira Kod bilan Kirish</button>
+                        <button type="button" class="btn-primary" onclick="handleRecoveryCodeLogin()" data-i18n="rec_code_login">Zaxira Kod bilan Kirish</button>
                     </div>
 
                     <div style="text-align: center; margin-top: 14px;">
-                        <button type="button" class="btn-link" onclick="toggleRecoverySheet()">Bekor qilish</button>
+                        <button type="button" class="btn-link" onclick="toggleRecoverySheet()" data-i18n="cancel">Bekor qilish</button>
                     </div>
                 </div>
             </div>
@@ -1063,30 +1094,30 @@
                     <div class="sidebar-nav-list">
                         <button class="sidebar-nav-btn active" id="tabNavProfile" onclick="switchPane('profile')">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
-                            <span id="txtTabProfile">Shaxsiy Profil</span>
+                            <span id="txtTabProfile" data-i18n="personal_info">Shaxsiy Profil</span>
                         </button>
                         <button class="sidebar-nav-btn" id="tabNavSecurity" onclick="switchPane('security')">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                            <span id="txtTabSecurity">Xavfsizlik</span>
+                            <span id="txtTabSecurity" data-i18n="security">Xavfsizlik</span>
                         </button>
                         <button class="sidebar-nav-btn" id="tabNavDevices" onclick="switchPane('devices')">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="12" x="3" y="4" rx="2"/><line x1="2" x2="22" y1="20" y2="20"/></svg>
-                            <span id="txtTabDevices">Qurilmalar</span>
+                            <span id="txtTabDevices" data-i18n="devices">Qurilmalar</span>
                         </button>
                         <button class="sidebar-nav-btn" id="tabNavApps" onclick="switchPane('apps')">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
-                            <span id="txtTabApps">Ulangan Ilovalar</span>
+                            <span id="txtTabApps" data-i18n="apps">Ulangan Ilovalar</span>
                         </button>
                         <button class="sidebar-nav-btn" id="tabNavInbox" onclick="switchPane('inbox')">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-                            <span id="txtTabInbox">Xabarlar</span>
+                            <span id="txtTabInbox" data-i18n="inbox">Xabarlar</span>
                         </button>
                     </div>
 
                     <div style="padding-top: 14px; border-top: 1px solid var(--border);">
                         <button class="btn-danger" onclick="handleLogout()">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                            <span>Tizimdan Chiqish</span>
+                            <span data-i18n="logout">Tizimdan Chiqish</span>
                         </button>
                     </div>
                 </aside>
@@ -1101,7 +1132,7 @@
                             <div class="hero-avatar-wrap">
                                 <img id="dashAvatarImg" class="hero-avatar-img" src="" style="display: none;" alt="User Avatar">
                                 <div id="dashAvatarFallback" class="hero-avatar-fallback">S</div>
-                                <label class="hero-avatar-camera" title="Suratni yangilash">
+                                <label class="hero-avatar-camera" title="Suratni yangilash" data-i18n-title="photo_tooltip">
                                     📷
                                     <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="handleAvatarUpload(event)">
                                 </label>
@@ -1112,12 +1143,12 @@
                             </div>
                             <div class="badge-verified">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                                <span>Daxlsiz Samar ID</span>
+                                <span data-i18n="badge_inviolable">Daxlsiz Samar ID</span>
                             </div>
                         </div>
 
                         <!-- Section: Personal Info -->
-                        <div class="group-section-title" id="secTitlePersonal">Shaxsiy Ma'lumotlar</div>
+                        <div class="group-section-title" id="secTitlePersonal" data-i18n="personal_info">Shaxsiy Ma'lumotlar</div>
                         <form onsubmit="handleProfileUpdate(event)">
                             <div class="group-card">
                                 <div class="group-row">
@@ -1126,8 +1157,8 @@
                                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
                                         </div>
                                         <div class="row-info">
-                                            <div style="font-size: 11px; color: var(--text-tertiary);">To'liq Ism</div>
-                                            <input type="text" class="row-input" id="editFullName" required placeholder="Ismingiz">
+                                            <div style="font-size: 11px; color: var(--text-tertiary);" data-i18n="label_fullname">To'liq Ism</div>
+                                            <input type="text" class="row-input" id="editFullName" required placeholder="Ismingiz" data-i18n-ph="ph_myname">
                                         </div>
                                     </div>
                                 </div>
@@ -1137,8 +1168,8 @@
                                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
                                         </div>
                                         <div class="row-info">
-                                            <div style="font-size: 11px; color: var(--text-tertiary);">Kasb / Ixtisoslik</div>
-                                            <input type="text" class="row-input" id="editSpecialty" placeholder="Masalan: Tizimli Muhandis">
+                                            <div style="font-size: 11px; color: var(--text-tertiary);" data-i18n="label_specialty">Kasb / Ixtisoslik</div>
+                                            <input type="text" class="row-input" id="editSpecialty" placeholder="Masalan: Tizimli Muhandis" data-i18n-ph="ph_specialty">
                                         </div>
                                     </div>
                                 </div>
@@ -1148,8 +1179,8 @@
                                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
                                         </div>
                                         <div class="row-info">
-                                            <div style="font-size: 11px; color: var(--text-tertiary);">Bog'lanish Telefoni</div>
-                                            <input type="text" class="row-input" id="editPhone" placeholder="+998 90 123 45 67">
+                                            <div style="font-size: 11px; color: var(--text-tertiary);" data-i18n="label_phone">Bog'lanish Telefoni</div>
+                                            <input type="text" class="row-input" id="editPhone" placeholder="+998 90 123 45 67" data-i18n-ph="ph_phone">
                                         </div>
                                     </div>
                                 </div>
@@ -1159,8 +1190,8 @@
                                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                         </div>
                                         <div class="row-info">
-                                            <div style="font-size: 11px; color: var(--text-tertiary);">Shaxsiy Qayd (Bio)</div>
-                                            <textarea class="row-input" id="editBio" placeholder="O'zingiz haqingizda qisqacha..." style="min-height: 48px; resize: none;"></textarea>
+                                            <div style="font-size: 11px; color: var(--text-tertiary);" data-i18n="label_bio">Shaxsiy Qayd (Bio)</div>
+                                            <textarea class="row-input" id="editBio" placeholder="O'zingiz haqingizda qisqacha..." data-i18n-ph="ph_bio" style="min-height: 48px; resize: none;"></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -1168,13 +1199,13 @@
                             <div style="margin-bottom: 24px;">
                                 <button type="submit" class="btn-primary" id="btnSaveProfile">
                                     <span id="saveProfileSpinner" class="spinner" style="display: none;"></span>
-                                    <span id="saveProfileText">O'zgarishlarni Saqlash</span>
+                                    <span id="saveProfileText" data-i18n="save_changes">O'zgarishlarni Saqlash</span>
                                 </button>
                             </div>
                         </form>
 
                         <!-- Section: Quick Settings -->
-                        <div class="group-section-title">Tezkor Havolalar</div>
+                        <div class="group-section-title" data-i18n="sec_quick_links">Tezkor Havolalar</div>
                         <div class="group-card">
                             <div class="group-row" onclick="switchPane('security')" style="cursor: pointer;">
                                 <div class="group-row-left">
@@ -1182,8 +1213,8 @@
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                                     </div>
                                     <div class="row-info">
-                                        <div class="row-title">Xavfsizlik va Parol</div>
-                                        <div class="row-desc">SMS, Biometriya va Ishonchli do'st</div>
+                                        <div class="row-title" data-i18n="quick_sec_title">Xavfsizlik va Parol</div>
+                                        <div class="row-desc" data-i18n="quick_sec_desc">SMS, Biometriya va Ishonchli do'st</div>
                                     </div>
                                 </div>
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-tertiary);"><polyline points="9 18 15 12 9 6"/></svg>
@@ -1194,8 +1225,8 @@
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="12" x="3" y="4" rx="2"/><line x1="2" x2="22" y1="20" y2="20"/></svg>
                                     </div>
                                     <div class="row-info">
-                                        <div class="row-title">Ulangan Qurilmalar</div>
-                                        <div class="row-desc">Faol sessiyalarni nazorat qilish</div>
+                                        <div class="row-title" data-i18n="quick_dev_title">Ulangan Qurilmalar</div>
+                                        <div class="row-desc" data-i18n="quick_dev_desc">Faol sessiyalarni nazorat qilish</div>
                                     </div>
                                 </div>
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-tertiary);"><polyline points="9 18 15 12 9 6"/></svg>
@@ -1203,7 +1234,7 @@
                         </div>
 
                         <!-- Data Export Vault -->
-                        <div class="group-section-title">Maxfiylik va Arxiv</div>
+                        <div class="group-section-title" data-i18n="sec_privacy_archive">Maxfiylik va Arxiv</div>
                         <div class="group-card">
                             <div class="group-row">
                                 <div class="group-row-left">
@@ -1211,16 +1242,16 @@
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                                     </div>
                                     <div class="row-info">
-                                        <div class="row-title">Ma'lumotlar Arxivi</div>
-                                        <div class="row-desc">Shaxsiy ma'lumotlarni shifrlangan JSON formatida yuklab olish</div>
+                                        <div class="row-title" data-i18n="vault_title">Ma'lumotlar Arxivi</div>
+                                        <div class="row-desc" data-i18n="vault_desc">Shaxsiy ma'lumotlarni shifrlangan JSON formatida yuklab olish</div>
                                     </div>
                                 </div>
-                                <button type="button" class="btn-inline-action" onclick="exportDataVault()">Eksport</button>
+                                <button type="button" class="btn-inline-action" onclick="exportDataVault()" data-i18n="btn_export">Eksport</button>
                             </div>
                         </div>
 
                         <!-- PWA Install Section -->
-                        <div class="group-section-title">Ilova va Tizim (PWA)</div>
+                        <div class="group-section-title" data-i18n="sec_pwa">Ilova va Tizim (PWA)</div>
                         <div class="group-card" id="pwaCard">
                             <div class="group-row">
                                 <div class="group-row-left">
@@ -1228,11 +1259,11 @@
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
                                     </div>
                                     <div class="row-info">
-                                        <div class="row-title">Samar ID Ilovasi</div>
-                                        <div class="row-desc" id="pwaStatusDesc">Bosh ekranga o'rnatish va avtonom rejim</div>
+                                        <div class="row-title" data-i18n="pwa_title">Samar ID Ilovasi</div>
+                                        <div class="row-desc" id="pwaStatusDesc" data-i18n="pwa_desc">Bosh ekranga o'rnatish va avtonom rejim</div>
                                     </div>
                                 </div>
-                                <button type="button" class="btn-inline-action" id="btnInstallPwaRow" onclick="triggerPwaInstall()">O'rnatish</button>
+                                <button type="button" class="btn-inline-action" id="btnInstallPwaRow" onclick="triggerPwaInstall()" data-i18n="btn_install">O'rnatish</button>
                             </div>
                         </div>
 
@@ -1240,18 +1271,43 @@
                         <div style="margin-top: 14px; margin-bottom: 30px;">
                             <button type="button" class="btn-danger" onclick="handleLogout()">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                                <span>Tizimdan Chiqish</span>
+                                <span data-i18n="logout">Tizimdan Chiqish</span>
                             </button>
                         </div>
                     </div>
 
                     <!-- PANE: SECURITY -->
                     <div id="paneSecurity" style="display: none;">
-                        <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 6px;">Xavfsizlik</h2>
-                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Hisobingizni ruxsatsiz kirishlardan va yo'qotishdan himoyalang.</p>
+                        <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 6px;" data-i18n="sec_main_title">Xavfsizlik</h2>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;" data-i18n="sec_main_sub">Hisobingizni ruxsatsiz kirishlardan va yo'qotishdan himoyalang.</p>
+
+                        <!-- Security Health Score Hero Card -->
+                        <div class="sec-health-card" id="secHealthCard">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(0, 242, 254, 0.15); display: flex; align-items: center; justify-content: center; color: var(--accent);">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 15px; font-weight: 800; color: var(--text-primary);" data-i18n="sec_score_title">Xavfsizlik Holati: Yuqori</div>
+                                        <div style="font-size: 12px; color: var(--text-secondary);" data-i18n="sec_score_sub">Hisobingiz ko'p bosqichli shifrlangan himoyada</div>
+                                    </div>
+                                </div>
+                                <span class="badge-verified" style="font-size: 11px; padding: 4px 10px;" id="secHealthBadge">85% Himoyalangan</span>
+                            </div>
+                            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden;">
+                                <div id="secHealthBar" style="width: 85%; height: 100%; background: linear-gradient(90deg, #30d158, #00f2fe); border-radius: 99px; transition: width 0.5s ease;"></div>
+                            </div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px; font-size: 11px;">
+                                <span class="status-chip active" id="chipPass">✓ Parol</span>
+                                <span class="status-chip" id="chipPhone">○ Telefon 2FA</span>
+                                <span class="status-chip" id="chipPasskey">○ Face ID / Passkey</span>
+                                <span class="status-chip" id="chipRecovery">✓ Zaxira Kodlar</span>
+                            </div>
+                        </div>
 
                         <!-- Group: Kirish Kalitlari -->
-                        <div class="group-section-title">Kirish Kalitlari</div>
+                        <div class="group-section-title" data-i18n="sec_group_keys">Kirish Kalitlari</div>
                         <div class="group-card">
                             <!-- Password Row -->
                             <div class="group-row">
@@ -1260,11 +1316,11 @@
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="16" r="1"/><rect width="18" height="12" x="3" y="10" rx="2"/><path d="M7 10V7a5 5 0 0 1 10 0v3"/></svg>
                                     </div>
                                     <div class="row-info">
-                                        <div class="row-title">Hisob Paroli</div>
-                                        <div class="row-desc">Tizimga kirish uchun asosiy kalit</div>
+                                        <div class="row-title" data-i18n="sec_pass_title">Hisob Paroli</div>
+                                        <div class="row-desc" data-i18n="sec_pass_desc">Tizimga kirish uchun asosiy kalit</div>
                                     </div>
                                 </div>
-                                <button type="button" class="btn-inline-action" onclick="openPasswordModal()">Yangilash</button>
+                                <button type="button" class="btn-inline-action" onclick="openPasswordModal()" data-i18n="btn_update">Yangilash</button>
                             </div>
 
                             <!-- Biometrics / Passkey Row -->
@@ -1275,13 +1331,13 @@
                                     </div>
                                     <div class="row-info">
                                         <div class="row-title">
-                                            <span>Face ID / Passkey</span>
-                                            <span id="passkeyBadgeStatus" class="badge-unverified" style="margin-left: 4px;">O'chirilgan</span>
+                                            <span data-i18n="sec_passkey_title">Face ID / Passkey</span>
+                                            <span id="passkeyBadgeStatus" class="badge-unverified" style="margin-left: 4px;" data-i18n="status_disabled">O'chirilgan</span>
                                         </div>
-                                        <div class="row-desc">Parolsiz biometrik kirish</div>
+                                        <div class="row-desc" data-i18n="sec_passkey_desc">Parolsiz biometrik kirish</div>
                                     </div>
                                 </div>
-                                <button type="button" class="btn-inline-action" id="btnTogglePasskey" onclick="handlePasskeyRegister()">Faollashtirish</button>
+                                <button type="button" class="btn-inline-action" id="btnTogglePasskey" onclick="handlePasskeyRegister()" data-i18n="btn_activate">Faollashtirish</button>
                             </div>
 
                             <!-- Emergency Recovery Codes Row -->
@@ -1291,16 +1347,16 @@
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                                     </div>
                                     <div class="row-info">
-                                        <div class="row-title">Favqulodda Zaxira Kodlari</div>
-                                        <div class="row-desc">Qurilma yo'qolganda kirish uchun 8 ta maxfiy kod</div>
+                                        <div class="row-title" data-i18n="sec_rec_title">Favqulodda Zaxira Kodlari</div>
+                                        <div class="row-desc" data-i18n="sec_rec_desc">Qurilma yo'qolganda kirish uchun 8 ta maxfiy kod</div>
                                     </div>
                                 </div>
-                                <button type="button" class="btn-inline-action" onclick="openRecoveryCodesModal()">Ko'rish</button>
+                                <button type="button" class="btn-inline-action" onclick="openRecoveryCodesModal()" data-i18n="btn_view">Ko'rish</button>
                             </div>
                         </div>
 
                         <!-- Group: Ikki Bosqichli Himoyalash -->
-                        <div class="group-section-title">Ikki Bosqichli Himoyalash (2FA)</div>
+                        <div class="group-section-title" data-i18n="sec_group_2fa">Ikki Bosqichli Himoyalash (2FA)</div>
                         <div class="group-card">
                             <!-- Phone SMS Row -->
                             <div class="group-row">
@@ -1310,13 +1366,13 @@
                                     </div>
                                     <div class="row-info">
                                         <div class="row-title">
-                                            <span>Telefon (SMS)</span>
-                                            <span id="secPhoneBadge" class="badge-unverified" style="margin-left: 4px;">Ulanmagan</span>
+                                            <span data-i18n="sec_phone_title">Telefon (SMS)</span>
+                                            <span id="secPhoneBadge" class="badge-unverified" style="margin-left: 4px;" data-i18n="status_unlinked">Ulanmagan</span>
                                         </div>
-                                        <div class="row-desc" id="secPhoneDesc">SMS tasdiqlash orqali himoyalash</div>
+                                        <div class="row-desc" id="secPhoneDesc" data-i18n="sec_phone_desc_none">SMS tasdiqlash orqali himoyalash</div>
                                     </div>
                                 </div>
-                                <button type="button" class="btn-inline-action" id="btnPhoneAction" onclick="openPhoneModal()">Ulash</button>
+                                <button type="button" class="btn-inline-action" id="btnPhoneAction" onclick="openPhoneModal()" data-i18n="btn_link">Ulash</button>
                             </div>
 
                             <!-- Guardian Row -->
@@ -1327,13 +1383,13 @@
                                     </div>
                                     <div class="row-info">
                                         <div class="row-title">
-                                            <span>Ishonchli Do'st (Guardian)</span>
+                                            <span data-i18n="sec_guardian_title">Ishonchli Do'st (Guardian)</span>
                                             <span id="secGuardianBadge" class="badge-verified" style="display: none; margin-left: 4px;">● Faol</span>
                                         </div>
-                                        <div class="row-desc" id="secGuardianDesc">Parolni unutganda tiklash vakili</div>
+                                        <div class="row-desc" id="secGuardianDesc" data-i18n="sec_guardian_desc_none">Parolni unutganda tiklash vakili</div>
                                     </div>
                                 </div>
-                                <button type="button" class="btn-inline-action" onclick="openGuardianModal()">O'zgartirish</button>
+                                <button type="button" class="btn-inline-action" onclick="openGuardianModal()" data-i18n="btn_change">O'zgartirish</button>
                             </div>
                         </div>
                     </div>
@@ -1431,7 +1487,7 @@
     <div class="modal-overlay" id="modalPasswordOverlay" onclick="handleModalBackdropClick(event, 'modalPasswordOverlay')">
         <div class="modal-box">
             <div class="modal-header">
-                <span class="modal-title">Parolni Yangilash</span>
+                <span class="modal-title" data-i18n="modal_pass_title">Parolni Yangilash</span>
                 <button type="button" class="icon-btn" onclick="closePasswordModal()" style="width: 28px; height: 28px;">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
@@ -1440,18 +1496,18 @@
                 <div id="modalPasswordAlert" class="toast-msg"></div>
                 <form onsubmit="handleModalPasswordSubmit(event)">
                     <div class="form-group">
-                        <label class="form-label">Joriy Parol</label>
+                        <label class="form-label" data-i18n="modal_old_pass">Joriy Parol</label>
                         <input type="password" class="input-field" id="modalOldPassInput" required placeholder="••••••••">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Yangi Parol</label>
-                        <input type="password" class="input-field" id="modalNewPassInput" required placeholder="Kamida 8 belgi">
+                        <label class="form-label" data-i18n="modal_new_pass">Yangi Parol</label>
+                        <input type="password" class="input-field" id="modalNewPassInput" required placeholder="Kamida 8 belgi" data-i18n-ph="ph_min_chars">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Yangi Parolni Tasdiqlang</label>
+                        <label class="form-label" data-i18n="modal_confirm_pass">Yangi Parolni Tasdiqlang</label>
                         <input type="password" class="input-field" id="modalConfirmPassInput" required placeholder="••••••••">
                     </div>
-                    <button type="submit" class="btn-primary" id="btnSavePasswordModal">Saqlash</button>
+                    <button type="submit" class="btn-primary" id="btnSavePasswordModal" data-i18n="btn_save">Saqlash</button>
                 </form>
             </div>
         </div>
@@ -1461,7 +1517,7 @@
     <div class="modal-overlay" id="modalPhoneOverlay" onclick="handleModalBackdropClick(event, 'modalPhoneOverlay')">
         <div class="modal-box">
             <div class="modal-header">
-                <span class="modal-title">Telefon Raqam (SMS Tasdiqlash)</span>
+                <span class="modal-title" data-i18n="modal_phone_title">Telefon Raqam (SMS Tasdiqlash)</span>
                 <button type="button" class="icon-btn" onclick="closePhoneModal()" style="width: 28px; height: 28px;">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
@@ -1470,19 +1526,19 @@
                 <div id="modalPhoneAlert" class="toast-msg"></div>
                 <!-- Step 1: Input Phone -->
                 <div id="phoneStepInput">
-                    <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 14px;">
+                    <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 14px;" data-i18n="modal_phone_desc">
                         Telefon raqamingizga SMS orqali 6 xonali tasdiqlash kodi yuboriladi.
                     </p>
                     <div class="form-group">
-                        <label class="form-label">Telefon Raqam</label>
+                        <label class="form-label" data-i18n="label_phone">Telefon Raqam</label>
                         <input type="tel" class="input-field" id="modalPhoneInput" placeholder="+998 90 123 45 67">
                     </div>
                     <button type="button" class="btn-primary" id="btnSendSmsModal" onclick="handleSendSmsCode()">
                         <span id="btnSendSmsSpinner" class="spinner" style="display: none;"></span>
-                        <span id="btnSendSmsText">SMS Kod Yuborish</span>
+                        <span id="btnSendSmsText" data-i18n="btn_send_sms">SMS Kod Yuborish</span>
                     </button>
                     <div id="phoneUnlinkSection" style="display: none; margin-top: 14px; text-align: center;">
-                        <button type="button" class="btn-link" onclick="handleUnlinkPhone()" style="color: var(--status-red);">Raqamni hisobdan uzish</button>
+                        <button type="button" class="btn-link" onclick="handleUnlinkPhone()" style="color: var(--status-red);" data-i18n="btn_unlink_phone">Raqamni hisobdan uzish</button>
                     </div>
                 </div>
                 <!-- Step 2: Verify Code -->
@@ -1491,16 +1547,16 @@
                         SMS kodi yuborildi. Uni quyida kiriting:
                     </p>
                     <div class="form-group">
-                        <label class="form-label">6 xonali Tasdiqlash Kodi</label>
+                        <label class="form-label" data-i18n="modal_code_label">6 xonali Tasdiqlash Kodi</label>
                         <input type="text" class="input-field" id="modalSmsCodeInput" placeholder="123456" maxlength="6" style="text-align: center; font-size: 18px; letter-spacing: 4px; font-family: 'JetBrains Mono', monospace;">
                     </div>
                     <button type="button" class="btn-primary" id="btnVerifySmsModal" onclick="handleVerifySmsCode()">
                         <span id="btnVerifySmsSpinner" class="spinner" style="display: none;"></span>
-                        <span id="btnVerifySmsText">Kodni Tasdiqlash</span>
+                        <span id="btnVerifySmsText" data-i18n="btn_verify_code">Kodni Tasdiqlash</span>
                     </button>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px;">
-                        <button type="button" class="btn-link" onclick="showPhoneStepInput()">Raqamni o'zgartirish</button>
-                        <button type="button" class="btn-link" id="btnResendSms" onclick="handleSendSmsCode()" disabled>Qayta yuborish (60s)</button>
+                        <button type="button" class="btn-link" onclick="showPhoneStepInput()" data-i18n="btn_change_number">Raqamni o'zgartirish</button>
+                        <button type="button" class="btn-link" id="btnResendSms" onclick="handleSendSmsCode()" disabled data-i18n="btn_resend_sms">Qayta yuborish (60s)</button>
                     </div>
                 </div>
             </div>
@@ -1511,22 +1567,22 @@
     <div class="modal-overlay" id="modalGuardianOverlay" onclick="handleModalBackdropClick(event, 'modalGuardianOverlay')">
         <div class="modal-box">
             <div class="modal-header">
-                <span class="modal-title">Ishonchli Do'st (Guardian)</span>
+                <span class="modal-title" data-i18n="modal_guardian_title">Ishonchli Do'st (Guardian)</span>
                 <button type="button" class="icon-btn" onclick="closeGuardianModal()" style="width: 28px; height: 28px;">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
             </div>
             <div class="modal-body">
                 <div id="modalGuardianAlert" class="toast-msg"></div>
-                <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 14px;">
+                <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 14px;" data-i18n="modal_guardian_desc">
                     Parolni yo'qotganingizda yoki favqulodda vaziyatda hisobni tiklash uchun mas'ul Samar ID foydalanuvchisi.
                 </p>
                 <form onsubmit="handleModalGuardianSubmit(event)">
                     <div class="form-group">
-                        <label class="form-label">Do'stingizning Samar ID manzili</label>
-                        <input type="text" class="input-field" id="modalGuardianInput" required placeholder="masalan: do'st@samar.os">
+                        <label class="form-label" data-i18n="modal_guardian_label">Do'stingizning Samar ID manzili</label>
+                        <input type="text" class="input-field" id="modalGuardianInput" required placeholder="masalan: do'st@samar.os" data-i18n-ph="ph_guardian_id">
                     </div>
-                    <button type="submit" class="btn-primary" id="btnSaveGuardianModal">Saqlash</button>
+                    <button type="submit" class="btn-primary" id="btnSaveGuardianModal" data-i18n="btn_save">Saqlash</button>
                 </form>
             </div>
         </div>
@@ -1536,23 +1592,67 @@
     <div class="modal-overlay" id="modalRecoveryCodesOverlay" onclick="handleModalBackdropClick(event, 'modalRecoveryCodesOverlay')">
         <div class="modal-box">
             <div class="modal-header">
-                <span class="modal-title">Favqulodda Zaxira Kodlari</span>
+                <span class="modal-title" data-i18n="modal_rec_title">Favqulodda Zaxira Kodlari</span>
                 <button type="button" class="icon-btn" onclick="closeRecoveryCodesModal()" style="width: 28px; height: 28px;">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
             </div>
             <div class="modal-body">
-                <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px;">
+                <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px;" data-i18n="modal_rec_desc">
                     Har bir kod faqat bir marta ishlatiladi. Ushbu kodlarni xavfsiz joyda saqlang.
                 </p>
                 <div class="recovery-grid" id="recoveryCodesGrid"></div>
                 <div style="display: flex; gap: 8px; margin-top: 14px;">
-                    <button type="button" class="btn-secondary" onclick="copyAllRecoveryCodes()" style="margin-top: 0; flex: 1;">Nusxalash</button>
-                    <button type="button" class="btn-secondary" onclick="downloadRecoveryCodesTxt()" style="margin-top: 0; flex: 1;">Yuklab olish</button>
+                    <button type="button" class="btn-secondary" onclick="copyAllRecoveryCodes()" style="margin-top: 0; flex: 1;" data-i18n="btn_copy">Nusxalash</button>
+                    <button type="button" class="btn-secondary" onclick="downloadRecoveryCodesTxt()" style="margin-top: 0; flex: 1;" data-i18n="btn_download">Yuklab olish</button>
                 </div>
                 <div style="margin-top: 14px; text-align: center;">
-                    <button type="button" class="btn-link" onclick="handleRegenerateRecoveryCodes()" style="color: var(--status-orange);">Yangi kodlar yaratish</button>
+                    <button type="button" class="btn-link" onclick="handleRegenerateRecoveryCodes()" style="color: var(--status-orange);" data-i18n="btn_regen_codes">Yangi kodlar yaratish</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PWA Install Guide Modal -->
+    <div class="modal-overlay" id="modalPwaOverlay" onclick="handleModalBackdropClick(event, 'modalPwaOverlay')">
+        <div class="modal-box" style="max-width: 440px;">
+            <div class="modal-header">
+                <span class="modal-title" data-i18n="pwa_modal_title">Samar ID Ilovasini O'rnatish</span>
+                <button type="button" class="icon-btn" onclick="closePwaGuideModal()" style="width: 28px; height: 28px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body" style="padding-top: 8px;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="width: 60px; height: 60px; border-radius: 18px; background: rgba(0, 242, 254, 0.1); border: 1px solid rgba(0, 242, 254, 0.3); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;">
+                        <img src="/static/icon.svg" style="width: 36px; height: 36px;" alt="Samar ID">
+                    </div>
+                    <div style="font-size: 16px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px;">Samar ID Sovereign App</div>
+                    <div style="font-size: 12.5px; color: var(--text-secondary);" data-i18n="pwa_modal_sub">Bosh ekranga to'liq mustaqil ilova sifatida o'rnatish</div>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: #000; font-weight: 800; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">1</div>
+                        <div style="font-size: 13px; color: var(--text-primary); line-height: 1.45;" data-i18n="pwa_step_1">
+                            Brauzeringizning yuqori o'ng burchagidagi <strong>uch nuqta (⋮)</strong> yoki Safari'da <strong>Ulashish (⎋)</strong> tugmasini bosing.
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: #000; font-weight: 800; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">2</div>
+                        <div style="font-size: 13px; color: var(--text-primary); line-height: 1.45;" data-i18n="pwa_step_2">
+                            Menyudan <strong>"Bosh ekranga qo'shish"</strong> (Add to Home Screen) yoki <strong>"Ilovani o'rnatish"</strong> (Install App) bandini tanlang.
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: #000; font-weight: 800; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">3</div>
+                        <div style="font-size: 13px; color: var(--text-primary); line-height: 1.45;" data-i18n="pwa_step_3">
+                            Tasdiqlang! Samar ID alohida ilova oynasida, brauzer panellarisiz ishga tushadi.
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-primary" onclick="closePwaGuideModal()" style="margin-top: 0; width: 100%;" data-i18n="pwa_got_it">Tushundim</button>
             </div>
         </div>
     </div>
@@ -1579,35 +1679,180 @@
                 register_btn: "Hisob Yaratish",
                 face_id: "Face ID / Touch ID orqali kirish",
                 forgot_pass: "Parolni unutdingizmi?",
-                personal_info: "Shaxsiy Ma'lumotlar",
+                personal_info: "Shaxsiy Profil",
                 save_changes: "O'zgarishlarni Saqlash",
                 security: "Xavfsizlik",
                 devices: "Qurilmalar",
-                apps: "Ilovalar",
+                apps: "Ulangan Ilovalar",
                 inbox: "Xabarlar",
                 logout: "Tizimdan Chiqish",
+                cancel: "Bekor qilish",
+
+                // Auth form & Recovery
+                lbl_fullname: "To'liq Ism",
+                ph_name: "Masalan: Samar Rahbar",
+                lbl_samarid: "Samar ID",
+                ph_samarid: "masalan: samar",
+                ph_samarid_full: "masalan: samar@samar.os",
+                lbl_password: "Parol",
+                rec_title: "Hisobni Qayta Tiklash",
+                rec_tab_guardian: "Do'st",
+                rec_tab_qr: "QR Kod",
+                rec_tab_code: "Zaxira Kodi",
+                rec_guardian_help: "Ishonchli do'stingizga 1 martalik tasdiqlash kodi yuboriladi. U bergan kod orqali hisobingizga kirasiz.",
+                rec_send_code: "Do'stga Kod Yuborish",
+                rec_guardian_otp_label: "Do'st tasdiqlash kodi",
+                ph_6digit_code: "6 xonali kod",
+                rec_verify_code: "Kodni Tasdiqlash",
+                rec_qr_help: "Boshqa faol qurilmangiz orqali ushbu QR kodni skanerlang.",
+                rec_qr_expire: "QR kod 2 daqiqa amal qiladi",
+                rec_code_help: "Profilingizda saqlab olingan 8 ta favqulodda zaxira kodlaridan birini kiriting.",
+                rec_code_input_label: "Zaxira Kodi (XXXX-XXXX)",
+                ph_rec_code_example: "Masalan: ABCD-EFGH",
+                rec_code_login: "Zaxira Kod bilan Kirish",
+
+                // Profile Pane
+                badge_inviolable: "Daxlsiz Samar ID",
+                photo_tooltip: "Suratni yangilash",
+                label_fullname: "To'liq Ism",
+                ph_myname: "Ismingiz",
+                label_specialty: "Kasb / Ixtisoslik",
+                ph_specialty: "Masalan: Tizimli Muhandis",
+                label_phone: "Bog'lanish Telefoni",
+                ph_phone: "+998 90 123 45 67",
+                label_bio: "Shaxsiy Qayd (Bio)",
+                ph_bio: "O'zingiz haqingizda qisqacha...",
+                sec_quick_links: "Tezkor Havolalar",
+                quick_sec_title: "Xavfsizlik va Parol",
+                quick_sec_desc: "SMS, Biometriya va Ishonchli do'st",
+                quick_dev_title: "Ulangan Qurilmalar",
+                quick_dev_desc: "Faol sessiyalarni nazorat qilish",
+                sec_privacy_archive: "Maxfiylik va Arxiv",
+                vault_title: "Ma'lumotlar Arxivi",
+                vault_desc: "Shaxsiy ma'lumotlarni shifrlangan JSON formatida yuklab olish",
+                btn_export: "Eksport",
+                sec_pwa: "Ilova va Tizim (PWA)",
+                pwa_title: "Samar ID Ilovasi",
+                pwa_desc: "Bosh ekranga o'rnatish va avtonom rejim",
+                btn_install: "O'rnatish",
+                pwa_installed: "O'rnatilgan",
+                pwa_ready: "Ilova o'rnatishga tayyor",
+                pwa_installed_badge: "● Ilova qurilmangizda o'rnatilgan",
+
+                // Security Pane
+                sec_main_title: "Xavfsizlik",
+                sec_main_sub: "Hisobingizni ruxsatsiz kirishlardan va yo'qotishdan himoyalang.",
+                sec_group_keys: "Kirish Kalitlari",
+                sec_pass_title: "Hisob Paroli",
+                sec_pass_desc: "Tizimga kirish uchun asosiy kalit",
+                btn_update: "Yangilash",
+                sec_passkey_title: "Face ID / Passkey",
+                sec_passkey_desc: "Parolsiz biometrik kirish",
+                sec_rec_title: "Favqulodda Zaxira Kodlari",
+                sec_rec_desc: "Qurilma yo'qolganda kirish uchun 8 ta maxfiy kod",
+                btn_view: "Ko'rish",
+                sec_group_2fa: "Ikki Bosqichli Himoyalash (2FA)",
+                sec_phone_title: "Telefon (SMS)",
+                btn_link: "Ulash",
+                btn_change: "O'zgartirish",
+                btn_verify: "Tasdiqlash",
+                sec_guardian_title: "Ishonchli Do'st (Guardian)",
+                sec_guardian_desc_none: "Parolni unutganda tiklash vakili",
+                sec_guardian_desc_set: "Tiklash vakili: ",
+                sec_phone_desc_none: "SMS tasdiqlash orqali himoyalash",
+                sec_phone_desc_active: "SMS xavfsizlik himoyasi faol",
+                sec_phone_desc_pending: "Tasdiqlash kutilmoqda",
+                status_active: "● Faol",
+                status_disabled: "O'chirilgan",
+                status_verified: "● Tasdiqlangan",
+                status_unverified: "Tasdiqlanmagan",
+                status_unlinked: "Ulanmagan",
+                btn_activate: "Faollashtirish",
+
+                // Devices Pane
                 devices_title: "Ulangan Qurilmalar",
                 devices_sub: "Samar ID hisobingiz faol bo'lgan barcha qurilmalar va sessiyalar.",
                 devices_active: "Faol Qurilmalar",
                 devices_loading: "Qurilmalar ro'yxati yuklanmoqda...",
                 btn_refresh: "Ro'yxatni Yangilash",
                 btn_revoke_all_devices: "Boshqa barcha qurilmalardan chiqish",
+                current_device: "● Ushbu Qurilma",
+                no_devices: "Faol qurilmalar topilmadi",
+                unknown_device: "Noma'lum Qurilma",
+                now: "Hozir",
+                err_loading_devices: "Qurilmalarni yuklashda xatolik",
+
+                // Apps Pane
                 apps_title: "Ulangan Ilovalar",
                 apps_sub: "Samar OS ekotizimida profilingizga ulangan xizmatlar va dasturlar.",
                 apps_active: "Ruxsat Berilgan Ilovalar",
                 apps_loading: "Ilovalar yuklanmoqda...",
+                btn_revoke: "Uzish",
+                btn_revoking: "Uzilmoqda...",
+                no_apps: "Ulangan ilovalar yo'q",
+                no_apps_desc: "Samar OS ekotizimidagi ilovalarga kirganingizda, ular bu yerda xavfsiz boshqaruv uchun ko'rinadi.",
+                err_loading_apps: "Ilovalarni yuklashda xatolik",
+                permissions: "Ruxsatlar",
+
+                // Inbox Pane
                 inbox_title: "Xabarlar va Xavfsizlik",
                 inbox_sub: "Tizim bildirishnomalari va SMS xavfsizlik kodlari tarixi.",
                 inbox_clear: "Hammasini tozalash",
+                inbox_clearing: "Tozalanmoqda...",
                 inbox_section: "Bildirishnomalar",
                 inbox_loading: "Xabarlar yuklanmoqda...",
-                btn_revoke: "Uzish",
-                btn_revoking: "Uzilmoqda...",
-                current_device: "● Ushbu Qurilma",
-                no_apps: "Ulangan ilovalar yo'q",
-                no_apps_desc: "Samar OS ekotizimidagi ilovalarga kirganingizda, ular bu yerda xavfsiz boshqaruv uchun ko'rinadi.",
-                no_devices: "Faol qurilmalar topilmadi",
-                no_notifs: "Yangi xabarlar yo'q"
+                no_notifs: "Yangi xabarlar yo'q",
+                system: "Tizim",
+
+                // Modals
+                modal_pass_title: "Parolni Yangilash",
+                modal_old_pass: "Joriy Parol",
+                modal_new_pass: "Yangi Parol",
+                modal_confirm_pass: "Yangi Parolni Tasdiqlang",
+                ph_min_chars: "Kamida 8 belgi",
+                btn_save: "Saqlash",
+                modal_phone_title: "Telefon Raqam (SMS Tasdiqlash)",
+                modal_phone_desc: "Telefon raqamingizga SMS orqali 6 xonali tasdiqlash kodi yuboriladi.",
+                btn_send_sms: "SMS Kod Yuborish",
+                btn_unlink_phone: "Raqamni hisobdan uzish",
+                modal_code_label: "6 xonali Tasdiqlash Kodi",
+                btn_verify_code: "Kodni Tasdiqlash",
+                btn_change_number: "Raqamni o'zgartirish",
+                btn_resend_sms: "Qayta yuborish (60s)",
+                modal_guardian_title: "Ishonchli Do'st (Guardian)",
+                modal_guardian_desc: "Parolni yo'qotganingizda yoki favqulodda vaziyatda hisobni tiklash uchun mas'ul Samar ID foydalanuvchisi.",
+                modal_guardian_label: "Do'stingizning Samar ID manzili",
+                ph_guardian_id: "masalan: do'st@samar.os",
+                modal_rec_title: "Favqulodda Zaxira Kodlari",
+                modal_rec_desc: "Har bir kod faqat bir marta ishlatiladi. Ushbu kodlarni xavfsiz joyda saqlang.",
+                btn_copy: "Nusxalash",
+                btn_download: "Yuklab olish",
+                btn_regen_codes: "Yangi kodlar yaratish",
+
+                // Dialogs & Toasts
+                confirm_unlink_app: "Ushbu ilovani Samar ID hisobingizdan uzishni tasdiqlaysizmi? Uning ma'lumotlarga kirish huquqi darhol to'xtatiladi.",
+                confirm_clear_notifs: "Barcha xabarlar va bildirishnomalarni tozalashni tasdiqlaysizmi?",
+                confirm_logout: "Tizimdan chiqishni tasdiqlaysizmi?",
+                confirm_revoke_sessions: "Ushbu qurilmadan tashqari boshqa barcha qurilmalardan chiqishni xohlaysizmi?",
+                confirm_unlink_phone: "Raqamni hisobdan uzishni tasdiqlaysizmi?",
+                confirm_regen_codes: "Eski kodlar bekor qilinadi. Yangi kodlar yaratilsinmi?",
+                sec_score_title: "Xavfsizlik Holati: Yuqori",
+                sec_score_sub: "Hisobingiz ko'p bosqichli shifrlangan himoyada",
+                sec_protected: "Himoyalangan",
+                pwa_modal_title: "Samar ID Ilovasini O'rnatish",
+                pwa_modal_sub: "Bosh ekranga to'liq mustaqil ilova sifatida o'rnatish",
+                pwa_step_1: "Brauzeringizning yuqori o'ng burchagidagi uch nuqta (⋮) yoki Safari'da Ulashish (⎋) tugmasini bosing.",
+                pwa_step_2: "Menyudan 'Bosh ekranga qo'shish' (Add to Home Screen) yoki 'Ilovani o'rnatish' (Install App) bandini tanlang.",
+                pwa_step_3: "Tasdiqlang! Samar ID alohida ilova oynasida, brauzer panellarisiz ishga tushadi.",
+                pwa_got_it: "Tushundim",
+                pwa_already_installed: "Samar ID allaqachon ilova sifatida ochilgan!",
+                inbox_empty_desc: "Xavfsizlik ogohlantirishlari, yangi kirishlar va SMS kodlar tarixi shu yerda ko'rinadi.",
+                inbox_cleared_success: "Barcha bildirishnomalar tozalandi!",
+                notif_deleted: "Bildirishnoma o'chirildi",
+                app_unlinked_success: "Ilova muvaffaqiyatli uzildi!",
+                app_unlinked_error: "Ilovani uzishda xatolik",
+                session_revoked: "Sessiya to'xtatildi",
+                sessions_revoked_all: "Boshqa barcha qurilmalardan chiqildi"
             },
             en: {
                 lang: "EN",
@@ -1616,37 +1861,182 @@
                 register: "Register",
                 login_btn: "Sign In",
                 register_btn: "Create Account",
-                face_id: "Sign in with Face ID / Passkey",
+                face_id: "Sign in with Face ID / Touch ID",
                 forgot_pass: "Forgot password?",
-                personal_info: "Personal Information",
+                personal_info: "Personal Profile",
                 save_changes: "Save Changes",
                 security: "Security",
                 devices: "Devices",
                 apps: "Connected Apps",
                 inbox: "Inbox",
                 logout: "Sign Out",
+                cancel: "Cancel",
+
+                // Auth form & Recovery
+                lbl_fullname: "Full Name",
+                ph_name: "e.g. John Doe",
+                lbl_samarid: "Samar ID",
+                ph_samarid: "e.g. samar",
+                ph_samarid_full: "e.g. samar@samar.os",
+                lbl_password: "Password",
+                rec_title: "Account Recovery",
+                rec_tab_guardian: "Guardian",
+                rec_tab_qr: "QR Code",
+                rec_tab_code: "Recovery Code",
+                rec_guardian_help: "A 1-time verification code will be sent to your trusted guardian. Sign in using the code they provide.",
+                rec_send_code: "Send Code to Guardian",
+                rec_guardian_otp_label: "Guardian verification code",
+                ph_6digit_code: "6-digit code",
+                rec_verify_code: "Verify Code",
+                rec_qr_help: "Scan this QR code using another active device.",
+                rec_qr_expire: "QR code is valid for 2 minutes",
+                rec_code_help: "Enter one of the 8 emergency recovery codes saved in your profile.",
+                rec_code_input_label: "Recovery Code (XXXX-XXXX)",
+                ph_rec_code_example: "e.g. ABCD-EFGH",
+                rec_code_login: "Sign In with Recovery Code",
+
+                // Profile Pane
+                badge_inviolable: "Sovereign Samar ID",
+                photo_tooltip: "Update photo",
+                label_fullname: "Full Name",
+                ph_myname: "Your name",
+                label_specialty: "Occupation / Specialty",
+                ph_specialty: "e.g. Systems Engineer",
+                label_phone: "Phone Number",
+                ph_phone: "+998 90 123 45 67",
+                label_bio: "Personal Bio",
+                ph_bio: "Briefly about yourself...",
+                sec_quick_links: "Quick Shortcuts",
+                quick_sec_title: "Security & Password",
+                quick_sec_desc: "SMS, Biometrics & Guardian",
+                quick_dev_title: "Connected Devices",
+                quick_dev_desc: "Manage and audit active sessions",
+                sec_privacy_archive: "Privacy & Archive",
+                vault_title: "Data Vault Archive",
+                vault_desc: "Download full encrypted personal data vault in JSON",
+                btn_export: "Export",
+                sec_pwa: "App & System (PWA)",
+                pwa_title: "Samar ID App",
+                pwa_desc: "Install to home screen and offline access",
+                btn_install: "Install",
+                pwa_installed: "Installed",
+                pwa_ready: "App is ready to install",
+                pwa_installed_badge: "● App is installed on this device",
+
+                // Security Pane
+                sec_main_title: "Security",
+                sec_main_sub: "Protect your sovereign account from unauthorized access.",
+                sec_group_keys: "Access Keys & Credentials",
+                sec_pass_title: "Account Password",
+                sec_pass_desc: "Primary master key to authenticate",
+                btn_update: "Update",
+                sec_passkey_title: "Face ID / Passkey",
+                sec_passkey_desc: "Passwordless biometric authentication",
+                sec_rec_title: "Emergency Recovery Codes",
+                sec_rec_desc: "8 emergency codes if access to devices is lost",
+                btn_view: "View",
+                sec_group_2fa: "Two-Factor Authentication (2FA)",
+                sec_phone_title: "Phone (SMS)",
+                btn_link: "Link",
+                btn_change: "Change",
+                btn_verify: "Verify",
+                sec_guardian_title: "Trusted Guardian",
+                sec_guardian_desc_none: "Trusted representative for emergency recovery",
+                sec_guardian_desc_set: "Recovery representative: ",
+                sec_phone_desc_none: "Protect account with SMS verification",
+                sec_phone_desc_active: "SMS security protection active",
+                sec_phone_desc_pending: "Verification pending",
+                status_active: "● Active",
+                status_disabled: "Disabled",
+                status_verified: "● Verified",
+                status_unverified: "Unverified",
+                status_unlinked: "Not linked",
+                btn_activate: "Activate",
+
+                // Devices Pane
                 devices_title: "Connected Devices",
                 devices_sub: "All active devices and sessions authorized on your Samar ID.",
                 devices_active: "Active Devices",
                 devices_loading: "Loading devices list...",
                 btn_refresh: "Refresh List",
                 btn_revoke_all_devices: "Log out from all other devices",
+                current_device: "● This Device",
+                no_devices: "No active devices found",
+                unknown_device: "Unknown Device",
+                now: "Active now",
+                err_loading_devices: "Error loading devices",
+
+                // Apps Pane
                 apps_title: "Connected Applications",
                 apps_sub: "Services and ecosystem apps authorized with your Samar ID.",
                 apps_active: "Authorized Applications",
                 apps_loading: "Loading applications...",
+                btn_revoke: "Disconnect",
+                btn_revoking: "Disconnecting...",
+                no_apps: "No connected applications",
+                no_apps_desc: "When you sign in to ecosystem apps, they will appear here for instant control.",
+                err_loading_apps: "Error loading applications",
+                permissions: "Permissions",
+
+                // Inbox Pane
                 inbox_title: "Inbox & Security",
                 inbox_sub: "System alerts and SMS security history.",
                 inbox_clear: "Clear All",
+                inbox_clearing: "Clearing...",
                 inbox_section: "Notifications",
                 inbox_loading: "Loading notifications...",
-                btn_revoke: "Disconnect",
-                btn_revoking: "Disconnecting...",
-                current_device: "● This Device",
-                no_apps: "No connected applications",
-                no_apps_desc: "When you sign in to ecosystem apps, they will appear here for instant control.",
-                no_devices: "No active devices found",
-                no_notifs: "No new notifications"
+                no_notifs: "No new notifications",
+                system: "System",
+
+                // Modals
+                modal_pass_title: "Update Password",
+                modal_old_pass: "Current Password",
+                modal_new_pass: "New Password",
+                modal_confirm_pass: "Confirm New Password",
+                ph_min_chars: "At least 8 characters",
+                btn_save: "Save",
+                modal_phone_title: "Phone Number (SMS Verification)",
+                modal_phone_desc: "A 6-digit verification code will be sent to your phone via SMS.",
+                btn_send_sms: "Send SMS Code",
+                btn_unlink_phone: "Unlink phone number",
+                modal_code_label: "6-digit Verification Code",
+                btn_verify_code: "Verify Code",
+                btn_change_number: "Change number",
+                btn_resend_sms: "Resend (60s)",
+                modal_guardian_title: "Trusted Guardian",
+                modal_guardian_desc: "A trusted Samar ID user who can help you recover your account if you lose your password.",
+                modal_guardian_label: "Guardian's Samar ID address",
+                ph_guardian_id: "e.g. friend@samar.os",
+                modal_rec_title: "Emergency Recovery Codes",
+                modal_rec_desc: "Each code can only be used once. Store these codes in a safe place.",
+                btn_copy: "Copy All",
+                btn_download: "Download .txt",
+                btn_regen_codes: "Generate new codes",
+
+                // Dialogs & Toasts
+                confirm_unlink_app: "Are you sure you want to disconnect this app? Its access will be revoked immediately.",
+                confirm_clear_notifs: "Are you sure you want to clear all notifications?",
+                confirm_logout: "Are you sure you want to sign out?",
+                confirm_revoke_sessions: "Are you sure you want to log out from all other active devices?",
+                confirm_unlink_phone: "Are you sure you want to unlink your phone number?",
+                confirm_regen_codes: "Old codes will be invalidated. Generate new codes?",
+                sec_score_title: "Security Status: High",
+                sec_score_sub: "Your account is shielded with multi-factor encryption",
+                sec_protected: "Protected",
+                pwa_modal_title: "Install Samar ID App",
+                pwa_modal_sub: "Install to home screen as a standalone application",
+                pwa_step_1: "Tap the three dots (⋮) in the top-right corner of your browser or Share (⎋) in Safari.",
+                pwa_step_2: "Select 'Add to Home Screen' or 'Install App' from the menu.",
+                pwa_step_3: "Confirm! Samar ID will launch as an independent window with no address bar.",
+                pwa_got_it: "Got It",
+                pwa_already_installed: "Samar ID is already running as a standalone app!",
+                inbox_empty_desc: "Security alerts, recent logins, and verification history will appear here.",
+                inbox_cleared_success: "All notifications have been cleared!",
+                notif_deleted: "Notification removed",
+                app_unlinked_success: "Application disconnected successfully!",
+                app_unlinked_error: "Failed to disconnect application",
+                session_revoked: "Session terminated",
+                sessions_revoked_all: "Signed out of all other active devices"
             },
             ru: {
                 lang: "RU",
@@ -1655,37 +2045,182 @@
                 register: "Регистрация",
                 login_btn: "Войти в систему",
                 register_btn: "Создать аккаунт",
-                face_id: "Вход по Face ID / Passkey",
+                face_id: "Вход по Face ID / Touch ID",
                 forgot_pass: "Забыли пароль?",
-                personal_info: "Личная информация",
+                personal_info: "Личный профиль",
                 save_changes: "Сохранить изменения",
                 security: "Безопасность",
                 devices: "Устройства",
                 apps: "Приложения",
                 inbox: "Сообщения",
                 logout: "Выйти из системы",
+                cancel: "Отмена",
+
+                // Auth form & Recovery
+                lbl_fullname: "Полное имя",
+                ph_name: "Например: Иван Иванов",
+                lbl_samarid: "Samar ID",
+                ph_samarid: "например: samar",
+                ph_samarid_full: "например: samar@samar.os",
+                lbl_password: "Пароль",
+                rec_title: "Восстановление аккаунта",
+                rec_tab_guardian: "Доверенное лицо",
+                rec_tab_qr: "QR-код",
+                rec_tab_code: "Резервный код",
+                rec_guardian_help: "Одноразовый код подтверждения будет отправлен вашему доверенному лицу.",
+                rec_send_code: "Отправить код доверенному лицу",
+                rec_guardian_otp_label: "Код подтверждения доверенного лица",
+                ph_6digit_code: "6-значный код",
+                rec_verify_code: "Подтвердить код",
+                rec_qr_help: "Отсканируйте этот QR-код с другого активного устройства.",
+                rec_qr_expire: "QR-код действует 2 минуты",
+                rec_code_help: "Введите один из 8 резервных кодов, сохраненных в вашем профиле.",
+                rec_code_input_label: "Резервный код (XXXX-XXXX)",
+                ph_rec_code_example: "Например: ABCD-EFGH",
+                rec_code_login: "Войти по резервному коду",
+
+                // Profile Pane
+                badge_inviolable: "Суверенный Samar ID",
+                photo_tooltip: "Обновить фото",
+                label_fullname: "Полное имя",
+                ph_myname: "Ваше имя",
+                label_specialty: "Профессия / Специальность",
+                ph_specialty: "Например: Системный инженер",
+                label_phone: "Номер телефона",
+                ph_phone: "+998 90 123 45 67",
+                label_bio: "О себе (Био)",
+                ph_bio: "Кратко о себе...",
+                sec_quick_links: "Быстрый доступ",
+                quick_sec_title: "Безопасность и пароль",
+                quick_sec_desc: "SMS, Биометрия и Доверенное лицо",
+                quick_dev_title: "Подключенные устройства",
+                quick_dev_desc: "Управление активными сессиями",
+                sec_privacy_archive: "Конфиденциальность и архив",
+                vault_title: "Архив личных данных",
+                vault_desc: "Скачать полный архив личных данных в зашифрованном формате JSON",
+                btn_export: "Экспорт",
+                sec_pwa: "Приложение и система (PWA)",
+                pwa_title: "Приложение Samar ID",
+                pwa_desc: "Установка на главный экран и офлайн режим",
+                btn_install: "Установить",
+                pwa_installed: "Установлено",
+                pwa_ready: "Приложение готово к установке",
+                pwa_installed_badge: "● Приложение установлено на устройстве",
+
+                // Security Pane
+                sec_main_title: "Безопасность",
+                sec_main_sub: "Защитите свой аккаунт от несанкционированного доступа и потери данных.",
+                sec_group_keys: "Ключи доступа",
+                sec_pass_title: "Пароль аккаунта",
+                sec_pass_desc: "Основной ключ для входа в систему",
+                btn_update: "Обновить",
+                sec_passkey_title: "Face ID / Passkey",
+                sec_passkey_desc: "Беспарольный биометрический вход",
+                sec_rec_title: "Резервные коды",
+                sec_rec_desc: "8 секретных кодов на случай утери устройства",
+                btn_view: "Посмотреть",
+                sec_group_2fa: "Двухфакторная аутентификация (2FA)",
+                sec_phone_title: "Телефон (SMS)",
+                btn_link: "Привязать",
+                btn_change: "Изменить",
+                btn_verify: "Подтвердить",
+                sec_guardian_title: "Доверенное лицо (Guardian)",
+                sec_guardian_desc_none: "Представитель для восстановления при утере пароля",
+                sec_guardian_desc_set: "Представитель: ",
+                sec_phone_desc_none: "Защита подтверждением по SMS",
+                sec_phone_desc_active: "SMS защита активна",
+                sec_phone_desc_pending: "Ожидает подтверждения",
+                status_active: "● Активен",
+                status_disabled: "Отключено",
+                status_verified: "● Подтвержден",
+                status_unverified: "Не подтвержден",
+                status_unlinked: "Не привязан",
+                btn_activate: "Активировать",
+
+                // Devices Pane
                 devices_title: "Подключенные устройства",
                 devices_sub: "Все активные устройства и сессии вашего аккаунта Samar ID.",
                 devices_active: "Активные устройства",
                 devices_loading: "Загрузка списка устройств...",
                 btn_refresh: "Обновить список",
                 btn_revoke_all_devices: "Выйти со всех остальных устройств",
+                current_device: "● Это устройство",
+                no_devices: "Активные устройства не найдены",
+                unknown_device: "Неизвестное устройство",
+                now: "В сети",
+                err_loading_devices: "Ошибка загрузки устройств",
+
+                // Apps Pane
                 apps_title: "Подключенные приложения",
                 apps_sub: "Сервисы и приложения экосистемы, подключенные к аккаунту.",
                 apps_active: "Авторизованные приложения",
                 apps_loading: "Загрузка приложений...",
+                btn_revoke: "Отключить",
+                btn_revoking: "Отключение...",
+                no_apps: "Нет подключенных приложений",
+                no_apps_desc: "Когда вы входите в приложения экосистемы Samar OS, они появятся здесь.",
+                err_loading_apps: "Ошибка загрузки приложений",
+                permissions: "Разрешения",
+
+                // Inbox Pane
                 inbox_title: "Сообщения и безопасность",
                 inbox_sub: "Системные уведомления и история безопасности.",
                 inbox_clear: "Очистить все",
+                inbox_clearing: "Очистка...",
                 inbox_section: "Уведомления",
                 inbox_loading: "Загрузка сообщений...",
-                btn_revoke: "Отключить",
-                btn_revoking: "Отключение...",
-                current_device: "● Это устройство",
-                no_apps: "Нет подключенных приложений",
-                no_apps_desc: "Когда вы входите в приложения экосистемы Samar OS, они появятся здесь.",
-                no_devices: "Активные устройства не найдены",
-                no_notifs: "Новых сообщений нет"
+                no_notifs: "Новых сообщений нет",
+                system: "Система",
+
+                // Modals
+                modal_pass_title: "Обновление пароля",
+                modal_old_pass: "Текущий пароль",
+                modal_new_pass: "Новый пароль",
+                modal_confirm_pass: "Подтвердите новый пароль",
+                ph_min_chars: "Минимум 8 символов",
+                btn_save: "Сохранить",
+                modal_phone_title: "Номер телефона (SMS)",
+                modal_phone_desc: "На ваш номер будет отправлен 6-значный SMS-код подтверждения.",
+                btn_send_sms: "Отправить SMS-код",
+                btn_unlink_phone: "Отвязать номер",
+                modal_code_label: "6-значный код подтверждения",
+                btn_verify_code: "Подтвердить код",
+                btn_change_number: "Изменить номер",
+                btn_resend_sms: "Повторить (60с)",
+                modal_guardian_title: "Доверенное лицо (Guardian)",
+                modal_guardian_desc: "Пользователь Samar ID, который сможет помочь восстановить доступ при утере пароля.",
+                modal_guardian_label: "Samar ID доверенного лица",
+                ph_guardian_id: "например: friend@samar.os",
+                modal_rec_title: "Резервные коды",
+                modal_rec_desc: "Каждый код может быть использован только один раз. Сохраните их в надежном месте.",
+                btn_copy: "Копировать",
+                btn_download: "Скачать .txt",
+                btn_regen_codes: "Сгенерировать новые",
+
+                // Dialogs & Toasts
+                confirm_unlink_app: "Вы уверены, что хотите отключить это приложение? Его доступ будет прекращен немедленно.",
+                confirm_clear_notifs: "Вы уверены, что хотите очистить все уведомления?",
+                confirm_logout: "Вы уверены, что хотите выйти из системы?",
+                confirm_revoke_sessions: "Вы уверены, что хотите выйти со всех остальных активных устройств?",
+                confirm_unlink_phone: "Вы уверены, что хотите отвязать номер телефона?",
+                confirm_regen_codes: "Старые коды станут недействительными. Сгенерировать новые?",
+                sec_score_title: "Уровень безопасности: Высокий",
+                sec_score_sub: "Ваш аккаунт защищен многофакторным шифрованием",
+                sec_protected: "Защищено",
+                pwa_modal_title: "Установка приложения Samar ID",
+                pwa_modal_sub: "Установите на главный экран как независимое приложение",
+                pwa_step_1: "Нажмите на меню (три точки ⋮ в правом верхнем углу) или кнопку Поделиться (⎋) в Safari.",
+                pwa_step_2: "Выберите пункт 'Добавить на главный экран' или 'Установить приложение'.",
+                pwa_step_3: "Подтвердите! Samar ID запустится в отдельном окне без лишних панелей браузера.",
+                pwa_got_it: "Понятно",
+                pwa_already_installed: "Samar ID уже запущен как отдельное приложение!",
+                inbox_empty_desc: "Здесь будут отображаться оповещения безопасности, новые входы и история SMS-кодов.",
+                inbox_cleared_success: "Все уведомления успешно очищены!",
+                notif_deleted: "Уведомление удалено",
+                app_unlinked_success: "Приложение успешно отключено!",
+                app_unlinked_error: "Ошибка при отключении приложения",
+                session_revoked: "Сессия завершена",
+                sessions_revoked_all: "Выход со всех остальных устройств выполнен"
             }
         };
 
@@ -1731,6 +2266,79 @@
                 const key = el.getAttribute('data-i18n');
                 if (dict[key]) el.innerText = dict[key];
             });
+
+            // Universal data-i18n-ph automated placeholder translator
+            document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+                const key = el.getAttribute('data-i18n-ph');
+                if (dict[key]) el.placeholder = dict[key];
+            });
+
+            // Universal data-i18n-title automated tooltip translator
+            document.querySelectorAll('[data-i18n-title]').forEach(el => {
+                const key = el.getAttribute('data-i18n-title');
+                if (dict[key]) el.title = dict[key];
+            });
+
+            // Update dynamic security cards if logged in
+            updateDynamicSecurityTexts();
+        }
+
+        function updateDynamicSecurityTexts() {
+            if (!currentUser) return;
+            const dict = I18N[currentLang] || I18N.uz;
+
+            let score = 50; // Base: password active
+
+            // Phone Row in Security
+            const phoneBadge = document.getElementById('secPhoneBadge');
+            const phoneDesc = document.getElementById('secPhoneDesc');
+            const btnPhoneAction = document.getElementById('btnPhoneAction');
+            const chipPhone = document.getElementById('chipPhone');
+            if (phoneBadge && phoneDesc && btnPhoneAction) {
+                if (currentUser.phone && currentUser.phone_verified) {
+                    phoneBadge.className = 'badge-verified';
+                    phoneBadge.innerText = dict.status_verified;
+                    phoneDesc.innerText = currentUser.phone + ' • ' + dict.sec_phone_desc_active;
+                    btnPhoneAction.innerText = dict.btn_change;
+                    if (chipPhone) { chipPhone.className = 'status-chip active'; chipPhone.innerText = '✓ Telefon 2FA'; }
+                    score += 25;
+                } else if (currentUser.phone) {
+                    phoneBadge.className = 'badge-unverified';
+                    phoneBadge.innerText = dict.status_unverified;
+                    phoneDesc.innerText = currentUser.phone + ' • ' + dict.sec_phone_desc_pending;
+                    btnPhoneAction.innerText = dict.btn_verify;
+                    if (chipPhone) { chipPhone.className = 'status-chip'; chipPhone.innerText = '○ Telefon (Kutilmoqda)'; }
+                } else {
+                    phoneBadge.className = 'badge-unverified';
+                    phoneBadge.innerText = dict.status_unlinked;
+                    phoneDesc.innerText = dict.sec_phone_desc_none;
+                    btnPhoneAction.innerText = dict.btn_link;
+                    if (chipPhone) { chipPhone.className = 'status-chip'; chipPhone.innerText = '○ Telefon 2FA'; }
+                }
+            }
+
+            // Guardian Row
+            const guardianBadge = document.getElementById('secGuardianBadge');
+            const guardianDesc = document.getElementById('secGuardianDesc');
+            if (guardianBadge && guardianDesc) {
+                if (currentUser.guardian_id) {
+                    guardianBadge.style.display = 'inline-flex';
+                    guardianBadge.innerText = '● ' + currentUser.guardian_id;
+                    guardianDesc.innerText = dict.sec_guardian_desc_set + currentUser.guardian_id;
+                    score += 10;
+                } else {
+                    guardianBadge.style.display = 'none';
+                    guardianDesc.innerText = dict.sec_guardian_desc_none;
+                }
+            }
+
+            // Score meter update
+            const secHealthBadge = document.getElementById('secHealthBadge');
+            const secHealthBar = document.getElementById('secHealthBar');
+            if (secHealthBadge) secHealthBadge.innerText = Math.min(score, 100) + '% ' + (dict.sec_protected || 'Himoyalangan');
+            if (secHealthBar) secHealthBar.style.width = Math.min(score, 100) + '%';
+
+            checkPasskeyStatus();
         }
 
         function syncThemeIcon() {
@@ -1752,11 +2360,77 @@
             syncThemeIcon();
         }
 
+        function showGlobalToast(message, type) {
+            type = type || 'info';
+            let container = document.getElementById('samarGlobalToast');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'samarGlobalToast';
+                container.style.cssText = `
+                    position: fixed;
+                    top: 24px;
+                    right: 24px;
+                    z-index: 999999;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 14px 20px;
+                    border-radius: 14px;
+                    font-size: 13.5px;
+                    font-weight: 600;
+                    box-shadow: 0 12px 36px rgba(0,0,0,0.5);
+                    backdrop-filter: blur(25px);
+                    -webkit-backdrop-filter: blur(25px);
+                    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                    transform: translateY(-20px);
+                    opacity: 0;
+                    pointer-events: none;
+                    max-width: 90vw;
+                `;
+                document.body.appendChild(container);
+            }
+            
+            let bg, color, border, icon;
+            if (type === 'success') {
+                bg = 'rgba(10, 35, 25, 0.94)';
+                color = '#34d399';
+                border = '1px solid rgba(52, 211, 153, 0.35)';
+                icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+            } else if (type === 'error') {
+                bg = 'rgba(45, 15, 20, 0.94)';
+                color = '#f87171';
+                border = '1px solid rgba(248, 113, 113, 0.35)';
+                icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+            } else if (type === 'warning') {
+                bg = 'rgba(45, 30, 10, 0.94)';
+                color = '#fbbf24';
+                border = '1px solid rgba(251, 191, 36, 0.35)';
+                icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+            } else {
+                bg = 'rgba(15, 23, 42, 0.94)';
+                color = 'var(--accent)';
+                border = '1px solid rgba(0, 242, 254, 0.35)';
+                icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+            }
+            
+            container.style.background = bg;
+            container.style.color = color;
+            container.style.border = border;
+            container.innerHTML = `${icon}<span>${escapeHtml(String(message))}</span>`;
+            container.style.opacity = '1';
+            container.style.transform = 'translateY(0)';
+            container.style.pointerEvents = 'auto';
+            
+            clearTimeout(window._toastTimeout);
+            window._toastTimeout = setTimeout(() => {
+                container.style.opacity = '0';
+                container.style.transform = 'translateY(-20px)';
+                container.style.pointerEvents = 'none';
+            }, 3500);
+        }
+
         function showToast(elementId, message, type) {
             type = type || 'error';
-            const el = document.getElementById(elementId);
-            if (!el) return;
-            // Safely convert any type to string (handles FastAPI validation arrays/objects)
             var msg;
             if (!message && message !== 0) {
                 msg = type === 'error' ? 'Xatolik yuz berdi' : 'Muvaffaqiyatli';
@@ -1769,10 +2443,26 @@
             } else {
                 msg = String(message);
             }
+
+            const el = document.getElementById(elementId);
+            if (!el || elementId === 'toastProfile' || elementId === 'globalToast') {
+                showGlobalToast(msg, type);
+                return;
+            }
             el.className = 'toast-msg ' + type;
             el.innerText = msg;
             el.style.display = 'block';
             setTimeout(function() { el.style.display = 'none'; }, 5000);
+        }
+
+        function openPwaGuideModal() {
+            const overlay = document.getElementById('modalPwaOverlay');
+            if (overlay) overlay.style.display = 'flex';
+        }
+
+        function closePwaGuideModal() {
+            const overlay = document.getElementById('modalPwaOverlay');
+            if (overlay) overlay.style.display = 'none';
         }
 
         function switchAuthMode(mode) {
@@ -2022,43 +2712,12 @@
             document.getElementById('editPhone').value = user.phone || '';
             document.getElementById('editBio').value = user.bio || '';
 
-            // Phone Row in Security
-            const phoneBadge = document.getElementById('secPhoneBadge');
-            const phoneDesc = document.getElementById('secPhoneDesc');
-            const btnPhoneAction = document.getElementById('btnPhoneAction');
-            if (user.phone && user.phone_verified) {
-                phoneBadge.className = 'badge-verified';
-                phoneBadge.innerText = '● Tasdiqlangan';
-                phoneDesc.innerText = user.phone + ' • SMS xavfsizlik himoyasi faol';
-                btnPhoneAction.innerText = "O'zgartirish";
-            } else if (user.phone) {
-                phoneBadge.className = 'badge-unverified';
-                phoneBadge.innerText = 'Tasdiqlanmagan';
-                phoneDesc.innerText = user.phone + ' • Tasdiqlash kutilmoqda';
-                btnPhoneAction.innerText = 'Tasdiqlash';
-            } else {
-                phoneBadge.className = 'badge-unverified';
-                phoneBadge.innerText = 'Ulanmagan';
-                phoneDesc.innerText = 'SMS tasdiqlash orqali himoyalash';
-                btnPhoneAction.innerText = 'Ulash';
-            }
-
-            // Guardian Row
-            const guardianBadge = document.getElementById('secGuardianBadge');
-            const guardianDesc = document.getElementById('secGuardianDesc');
-            if (user.guardian_id) {
-                guardianBadge.style.display = 'inline-flex';
-                guardianBadge.innerText = '● ' + user.guardian_id;
-                guardianDesc.innerText = 'Tiklash vakili: ' + user.guardian_id;
-            } else {
-                guardianBadge.style.display = 'none';
-                guardianDesc.innerText = 'Parolni unutganda tiklash vakili';
-            }
+            // Dynamic security row texts (phone, guardian, passkey)
+            updateDynamicSecurityTexts();
 
             // Cache ID
             if (user.samar_id) localStorage.setItem('samar_last_id', user.samar_id);
 
-            checkPasskeyStatus();
             loadNotifications();
         }
 
@@ -2349,6 +3008,7 @@
         async function checkPasskeyStatus() {
             const token = localStorage.getItem('samar_token');
             if (!token) return;
+            const dict = I18N[currentLang] || I18N.uz;
             try {
                 const res = await fetch('/api/auth/passkeys/status', {
                     headers: { 'Authorization': 'Bearer ' + token }
@@ -2360,12 +3020,12 @@
                     if (badge) {
                         if (data.has_passkey) {
                             badge.className = 'badge-verified';
-                            badge.innerText = '● Faol' + (data.device_name ? ` (${data.device_name})` : '');
-                            if (btn) btn.innerText = "Yangilash";
+                            badge.innerText = dict.status_active + (data.device_name ? ` (${data.device_name})` : '');
+                            if (btn) btn.innerText = dict.btn_update;
                         } else {
                             badge.className = 'badge-unverified';
-                            badge.innerText = "O'chirilgan";
-                            if (btn) btn.innerText = "Faollashtirish";
+                            badge.innerText = dict.status_disabled;
+                            if (btn) btn.innerText = dict.btn_activate;
                         }
                     }
                 }
@@ -2384,53 +3044,71 @@
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.detail);
                 document.getElementById('passkeyBadgeStatus').className = 'badge-verified';
-                document.getElementById('passkeyBadgeStatus').innerText = '● Faol';
+                const dict = I18N[currentLang] || I18N.uz;
+                document.getElementById('passkeyBadgeStatus').innerText = dict.status_active;
                 alert("Passkey / Face ID muvaffaqiyatli faollashtirildi!");
             } catch (err) {
                 alert(err.message);
             }
         }
 
+        function getDeviceIconSvg(deviceName) {
+            const d = (deviceName || '').toLowerCase();
+            if (d.includes('phone') || d.includes('android') || d.includes('iphone')) {
+                return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>';
+            }
+            if (d.includes('ipad') || d.includes('tablet')) {
+                return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><line x1="12" x2="12.01" y1="18" y2="18"/></svg>';
+            }
+            if (d.includes('mac') || d.includes('laptop')) {
+                return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/></svg>';
+            }
+            return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>';
+        }
+
         // Devices
         async function loadDevices() {
             const token = localStorage.getItem('samar_token');
             const container = document.getElementById('devicesListContainer');
+            const dict = I18N[currentLang] || I18N.uz;
             try {
                 const res = await fetch('/api/auth/sessions', {
                     headers: { 'Authorization': 'Bearer ' + token }
                 });
                 const sessions = await res.json();
                 if (!sessions || !sessions.length) {
-                    const dict = I18N[currentLang] || I18N.uz;
-                    container.innerHTML = `<div style="padding:24px;text-align:center;color:var(--text-tertiary);">${dict.no_devices}</div>`;
+                    container.innerHTML = `<div style="padding:36px 20px;text-align:center;color:var(--text-tertiary);"><div style="font-size:32px;margin-bottom:8px;">💻</div><div style="font-size:14px;font-weight:700;color:var(--text-primary);">${dict.no_devices}</div></div>`;
                     return;
                 }
-                const dict = I18N[currentLang] || I18N.uz;
-                container.innerHTML = sessions.map(s => `
-                    <div class="group-row">
-                        <div class="group-row-left">
-                            <div class="row-icon-box" style="background: rgba(10, 132, 255, 0.15); color: var(--accent);">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="12" x="3" y="4" rx="2"/><line x1="2" x2="22" y1="20" y2="20"/></svg>
+                container.innerHTML = sessions.map(s => {
+                    const icon = getDeviceIconSvg(s.device_name);
+                    const iconColor = s.is_current ? 'var(--status-green)' : 'var(--accent)';
+                    const iconBg = s.is_current ? 'rgba(48, 209, 88, 0.15)' : 'rgba(10, 132, 255, 0.15)';
+                    return `
+                    <div class="group-row" style="padding: 14px 16px;">
+                        <div class="group-row-left" style="gap: 14px;">
+                            <div class="row-icon-box" style="background: ${iconBg}; color: ${iconColor};">
+                                ${icon}
                             </div>
                             <div class="row-info">
-                                <div class="row-title">
-                                    <span>${escapeHtml(s.device_name || 'Noma\'lum Qurilma')}</span>
-                                    ${s.is_current ? `<span class="badge-verified" style="margin-left:6px;">${dict.current_device}</span>` : ''}
+                                <div class="row-title" style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-weight: 700;">${escapeHtml(s.device_name || dict.unknown_device)}</span>
+                                    ${s.is_current ? `<span class="badge-verified" style="font-size:11px;padding:2px 8px;border-radius:6px;background:rgba(48,209,88,0.12);border:1px solid rgba(48,209,88,0.25);">${dict.current_device}</span>` : ''}
                                 </div>
-                                <div class="row-desc">${escapeHtml(s.ip_address || '127.0.0.1')} • ${escapeHtml(s.last_active || 'Hozir')}</div>
+                                <div class="row-desc" style="margin-top: 2px;">IP: ${escapeHtml(s.ip_address || '127.0.0.1')} • ${escapeHtml(s.last_active || dict.now)}</div>
                             </div>
                         </div>
-                        ${!s.is_current ? `<button type="button" class="btn-inline-action" style="color:var(--status-red);" onclick="revokeSession('${s.id}', this)">${dict.btn_revoke}</button>` : ''}
+                        ${!s.is_current ? `<button type="button" class="btn-inline-action" style="color:var(--status-red);border-color:rgba(255,69,58,0.25);" onclick="revokeSession('${s.id}', this)">${dict.btn_revoke}</button>` : ''}
                     </div>
-                `).join('');
+                `;}).join('');
             } catch (_) {
-                container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--status-red);">Qurilmalarni yuklashda xatolik</div>';
+                container.innerHTML = `<div style="padding:20px;text-align:center;color:var(--status-red);">${dict.err_loading_devices}</div>`;
             }
         }
 
         async function revokeSession(id, btn) {
-            if (!confirm("Ushbu qurilma sessiyasini to'xtatmoqchimisiz?")) return;
             const dict = I18N[currentLang] || I18N.uz;
+            if (!confirm(dict.confirm_revoke_sessions || "Ushbu sessiyani to'xtatmoqchimisiz?")) return;
             if (btn) {
                 btn.innerText = dict.btn_revoking;
                 btn.disabled = true;
@@ -2441,10 +3119,10 @@
                     method: 'DELETE',
                     headers: { 'Authorization': 'Bearer ' + token }
                 });
-                showToast('toastProfile', 'Qurilma sessiyasi uzildi', 'success');
+                showGlobalToast(dict.session_revoked || "Sessiya to'xtatildi", 'success');
                 await loadDevices();
             } catch (_) {
-                showToast('toastProfile', 'Xatolik yuz berdi', 'error');
+                showGlobalToast(dict.err_general || "Xatolik yuz berdi", 'error');
                 if (btn) {
                     btn.innerText = dict.btn_revoke;
                     btn.disabled = false;
@@ -2453,11 +3131,12 @@
         }
 
         async function revokeAllOtherSessions() {
-            if (!confirm("Ushbu qurilmadan tashqari boshqa barcha qurilmalardan chiqishni xohlaysizmi?")) return;
+            const dict = I18N[currentLang] || I18N.uz;
+            if (!confirm(dict.confirm_revoke_sessions)) return;
             const btn = document.getElementById('btnRevokeAllSessions');
             const origText = btn ? btn.innerText : '';
             if (btn) {
-                btn.innerText = "Chiqilmoqda...";
+                btn.innerText = dict.btn_revoking;
                 btn.disabled = true;
             }
             const token = localStorage.getItem('samar_token');
@@ -2467,11 +3146,11 @@
                     headers: { 'Authorization': 'Bearer ' + token }
                 });
                 if (res.ok) {
-                    showToast('toastProfile', 'Boshqa barcha qurilmalardan chiqildi!', 'success');
+                    showGlobalToast(dict.sessions_revoked_all || "Boshqa barcha qurilmalardan chiqildi", 'success');
                 }
                 await loadDevices();
             } catch (_) {
-                showToast('toastProfile', 'Xatolik yuz berdi', 'error');
+                showGlobalToast(dict.err_general || "Xatolik yuz berdi", 'error');
             } finally {
                 if (btn) {
                     btn.innerText = origText;
@@ -2492,8 +3171,10 @@
                 const apps = await res.json();
                 if (!apps || !apps.length) {
                     container.innerHTML = `
-                        <div style="padding: 36px 20px; text-align: center; color: var(--text-tertiary);">
-                            <div style="font-size: 34px; margin-bottom: 10px;">🛡️</div>
+                        <div style="padding: 40px 20px; text-align: center; color: var(--text-tertiary);">
+                            <div style="width: 56px; height: 56px; border-radius: 18px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 26px;">
+                                🔌
+                            </div>
                             <div style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">${dict.no_apps}</div>
                             <div style="font-size: 12.5px; max-width: 340px; margin: 0 auto; color: var(--text-secondary); line-height: 1.5;">${dict.no_apps_desc}</div>
                         </div>
@@ -2503,29 +3184,29 @@
                 container.innerHTML = apps.map(app => {
                     const scopesText = Array.isArray(app.scopes) ? app.scopes.join(', ') : (app.scopes || 'profile');
                     return `
-                    <div class="app-item">
-                        <div class="group-row-left">
-                            <div class="row-icon-box" style="background: rgba(94, 92, 230, 0.15); color: #5e5ce6;">
+                    <div class="app-item" style="padding: 14px 16px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+                        <div class="group-row-left" style="gap: 14px;">
+                            <div class="row-icon-box" style="background: rgba(0, 242, 254, 0.12); color: var(--accent);">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
                             </div>
                             <div class="row-info">
-                                <div class="row-title" style="font-weight: 700;">${escapeHtml(app.app_name)}</div>
-                                <div class="row-desc">Ruxsatlar: ${escapeHtml(scopesText)}</div>
+                                <div class="row-title" style="font-weight: 700; font-size: 14px;">${escapeHtml(app.app_name)}</div>
+                                <div class="row-desc" style="margin-top: 2px;">${dict.permissions}: ${escapeHtml(scopesText)}</div>
                             </div>
                         </div>
-                        <button type="button" class="btn-inline-action" style="color:var(--status-red);" onclick="revokeApp('${app.client_id}', this)">${dict.btn_revoke}</button>
+                        <button type="button" class="btn-inline-action" style="color:var(--status-red);border-color:rgba(255,69,58,0.25);" onclick="revokeApp('${app.client_id}', this)">${dict.btn_revoke}</button>
                     </div>
                 `;}).join('');
             } catch (_) {
-                container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--status-red);">Ilovalarni yuklashda xatolik</div>';
+                container.innerHTML = `<div style="padding:20px;text-align:center;color:var(--status-red);">${dict.err_loading_apps}</div>`;
             }
         }
 
         async function revokeApp(clientId, btn) {
-            if (!confirm("Ushbu ilovani Samar ID hisobingizdan uzishni tasdiqlaysizmi? Uning ma'lumotlarga kirish huquqi darhol to'xtatiladi.")) {
+            const dict = I18N[currentLang] || I18N.uz;
+            if (!confirm(dict.confirm_unlink_app)) {
                 return;
             }
-            const dict = I18N[currentLang] || I18N.uz;
             if (btn) {
                 btn.innerText = dict.btn_revoking;
                 btn.disabled = true;
@@ -2537,13 +3218,13 @@
                     headers: { 'Authorization': 'Bearer ' + token }
                 });
                 if (res.ok) {
-                    showToast('toastProfile', 'Ilova muvaffaqiyatli uzildi!', 'success');
+                    showGlobalToast(dict.app_unlinked_success || "Ilova muvaffaqiyatli uzildi!", 'success');
                 } else {
-                    showToast('toastProfile', 'Ilovani uzishda xatolik', 'error');
+                    showGlobalToast(dict.app_unlinked_error || "Ilovani uzishda xatolik", 'error');
                 }
                 await loadConnectedApps();
             } catch (_) {
-                showToast('toastProfile', 'Serverga ulanib bo\'lmadi', 'error');
+                showGlobalToast("Serverga ulanib bo'lmadi", 'error');
                 if (btn) {
                     btn.innerText = dict.btn_revoke;
                     btn.disabled = false;
@@ -2565,61 +3246,80 @@
                 const notifs = await res.json();
                 const unreadCount = (notifs || []).filter(n => !n.is_read).length;
                 if (unreadCount > 0) {
-                    dot.style.display = 'block';
-                    mBadge.style.display = 'block';
-                    mBadge.innerText = unreadCount;
+                    if (dot) dot.style.display = 'block';
+                    if (mBadge) { mBadge.style.display = 'block'; mBadge.innerText = unreadCount; }
                 } else {
-                    dot.style.display = 'none';
-                    mBadge.style.display = 'none';
+                    if (dot) dot.style.display = 'none';
+                    if (mBadge) mBadge.style.display = 'none';
                 }
 
                 if (!notifs || !notifs.length) {
-                    container.innerHTML = `<div style="padding:32px 20px;text-align:center;color:var(--text-tertiary);"><div style="font-size:28px;margin-bottom:8px;">🔔</div><div>${dict.no_notifs}</div></div>`;
+                    container.innerHTML = `
+                        <div style="padding: 48px 20px; text-align: center; color: var(--text-tertiary);">
+                            <div style="width: 56px; height: 56px; border-radius: 18px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 26px;">
+                                🔔
+                            </div>
+                            <div style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">${dict.no_notifs}</div>
+                            <div style="font-size: 12.5px; color: var(--text-secondary); max-width: 320px; margin: 0 auto; line-height: 1.5;">${dict.inbox_empty_desc || "Xavfsizlik ogohlantirishlari va bildirishnomalar shu yerda ko'rinadi."}</div>
+                        </div>
+                    `;
                     return;
                 }
                 container.innerHTML = notifs.map(n => {
                     const isWarn = n.type === 'warning' || n.type === 'security';
                     const iconColor = isWarn ? '#ff9f0a' : 'var(--accent)';
                     const iconBg = isWarn ? 'rgba(255, 159, 10, 0.15)' : 'rgba(0, 242, 254, 0.12)';
-                    const typeBadge = isWarn ? '<span style="font-size:10px;padding:2px 7px;border-radius:5px;background:rgba(255,159,10,0.18);color:#ff9f0a;font-weight:700;">Xavfsizlik</span>' : '<span style="font-size:10px;padding:2px 7px;border-radius:5px;background:rgba(0,242,254,0.12);color:var(--accent);font-weight:700;">Tizim</span>';
+                    const typeBadge = isWarn ? `<span style="font-size:10px;padding:2px 7px;border-radius:5px;background:rgba(255,159,10,0.18);color:#ff9f0a;font-weight:700;">${dict.security}</span>` : `<span style="font-size:10px;padding:2px 7px;border-radius:5px;background:rgba(0,242,254,0.12);color:var(--accent);font-weight:700;">${dict.system}</span>`;
                     return `
-                    <div class="notif-item ${!n.is_read ? 'unread' : ''}" style="display:flex;align-items:flex-start;gap:12px;padding:14px;border-bottom:1px solid var(--border);">
+                    <div class="notif-item ${!n.is_read ? 'unread' : ''}" style="display:flex;align-items:flex-start;gap:14px;padding:16px;border-bottom:1px solid var(--border);transition:all 0.2s ease;">
                         <div class="row-icon-box" style="background: ${iconBg}; color: ${iconColor}; margin-top: 2px; flex-shrink:0;">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                         </div>
                         <div class="row-info" style="flex:1;">
-                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
                                 <span style="font-weight:700;font-size:13.5px;color:var(--text-primary);">${escapeHtml(n.title)}</span>
                                 ${typeBadge}
                             </div>
-                            <div style="color:var(--text-secondary);font-size:12.5px;line-height:1.45;">${escapeHtml(n.message)}</div>
-                            <div style="font-size:11px;color:var(--text-tertiary);margin-top:6px;">${escapeHtml(n.created_at || n.timestamp || 'Hozir')}</div>
+                            <div style="color:var(--text-secondary);font-size:12.5px;line-height:1.5;">${escapeHtml(n.message)}</div>
+                            <div style="font-size:11px;color:var(--text-tertiary);margin-top:6px;">${escapeHtml(n.created_at || n.timestamp || dict.now)}</div>
                         </div>
-                        <button type="button" class="btn-link" style="color:var(--text-tertiary);padding:4px 8px;font-size:14px;" onclick="deleteNotification(${n.id})">✕</button>
+                        <button type="button" class="btn-link" style="color:var(--text-tertiary);padding:4px 8px;font-size:15px;border-radius:6px;" onclick="deleteNotification(${n.id}, this)">✕</button>
                     </div>
                 `;}).join('');
             } catch (_) {
-                if (container) container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--status-red);">Yuklashda xatolik</div>';
+                if (container) container.innerHTML = `<div style="padding:20px;text-align:center;color:var(--status-red);">${dict.inbox_loading}</div>`;
             }
         }
 
-        async function deleteNotification(id) {
+        async function deleteNotification(id, el) {
             const token = localStorage.getItem('samar_token');
+            const dict = I18N[currentLang] || I18N.uz;
+            if (el) {
+                const item = el.closest('.notif-item');
+                if (item) {
+                    item.style.opacity = '0.3';
+                    item.style.pointerEvents = 'none';
+                }
+            }
             try {
                 await fetch('/api/notifications/' + id, {
                     method: 'DELETE',
                     headers: { 'Authorization': 'Bearer ' + token }
                 });
+                showGlobalToast(dict.notif_deleted || "Bildirishnoma o'chirildi", 'info');
+                await loadNotifications();
+            } catch (_) {
                 loadNotifications();
-            } catch (_) {}
+            }
         }
 
         async function clearAllNotifications() {
-            if (!confirm("Barcha xabarlar va bildirishnomalarni tozalashni tasdiqlaysizmi?")) return;
+            const dict = I18N[currentLang] || I18N.uz;
+            if (!confirm(dict.confirm_clear_notifs)) return;
             const btn = document.getElementById('btnClearAllNotifs');
             const origText = btn ? btn.innerText : '';
             if (btn) {
-                btn.innerText = 'Tozalanmoqda...';
+                btn.innerText = dict.inbox_clearing;
                 btn.disabled = true;
             }
             const token = localStorage.getItem('samar_token');
@@ -2628,10 +3328,10 @@
                     method: 'POST',
                     headers: { 'Authorization': 'Bearer ' + token }
                 });
-                showToast('toastProfile', 'Barcha xabarlar tozalandi', 'success');
+                showGlobalToast(dict.inbox_cleared_success || "Barcha bildirishnomalar tozalandi!", 'success');
                 await loadNotifications();
             } catch (_) {
-                showToast('toastProfile', 'Xatolik yuz berdi', 'error');
+                showGlobalToast("Xatolik yuz berdi", 'error');
             } finally {
                 if (btn) {
                     btn.innerText = origText;
@@ -2665,7 +3365,8 @@
         }
 
         async function handleLogout() {
-            if (!confirm("Tizimdan chiqishni tasdiqlaysizmi?")) return;
+            const dict = I18N[currentLang] || I18N.uz;
+            if (!confirm(dict.confirm_logout)) return;
             const token = localStorage.getItem('samar_token');
             try {
                 if (token) {
@@ -2708,16 +3409,15 @@
                     }
                 } catch (_) {}
             }
-            // Not authenticated — force Uzbek language and hide tab bar
+            // Not authenticated — load saved or default language
             document.documentElement.classList.remove('has-token');
             if (splash) splash.style.display = 'none';
             document.body.classList.remove('is-logged-in');
             document.getElementById('mobileBottomNav').style.display = 'none';
             document.getElementById('authSection').style.display = 'flex';
-            // Reset language to Uzbek (don't keep stale ru/en from old session)
-            currentLang = 'uz';
-            localStorage.setItem('samar_lang', 'uz');
-            setLanguage('uz');
+            const savedLang = localStorage.getItem('samar_lang') || 'uz';
+            currentLang = savedLang;
+            setLanguage(savedLang);
             switchAuthMode('login');
         }
 
@@ -2741,7 +3441,8 @@
             const headerBtn = document.getElementById('btnPwaInstall');
             if (headerBtn) headerBtn.style.display = 'inline-flex';
             const statusDesc = document.getElementById('pwaStatusDesc');
-            if (statusDesc) statusDesc.innerText = 'Ilova o\'rnatishga tayyor';
+            const dict = I18N[currentLang] || I18N.uz;
+            if (statusDesc) statusDesc.innerText = dict.pwa_ready;
         });
 
         window.addEventListener('appinstalled', () => {
@@ -2749,26 +3450,23 @@
             const headerBtn = document.getElementById('btnPwaInstall');
             if (headerBtn) headerBtn.style.display = 'none';
             const statusDesc = document.getElementById('pwaStatusDesc');
-            if (statusDesc) statusDesc.innerText = '● Ilova qurilmangizda o\'rnatilgan';
+            const dict = I18N[currentLang] || I18N.uz;
+            if (statusDesc) statusDesc.innerText = dict.pwa_installed_badge;
             const btnRow = document.getElementById('btnInstallPwaRow');
             if (btnRow) {
-                btnRow.innerText = 'O\'rnatilgan';
+                btnRow.innerText = dict.pwa_installed;
                 btnRow.disabled = true;
             }
             showToast('toastProfile', 'Samar ID muvaffaqiyatli o\'rnatildi!', 'success');
         });
 
         async function triggerPwaInstall() {
+            const dict = I18N[currentLang] || I18N.uz;
             if (!deferredPwaPrompt) {
                 if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-                    showToast('toastProfile', 'Samar ID allaqachon ilova sifatida ochilgan!', 'info');
+                    showGlobalToast(dict.pwa_already_installed || 'Samar ID allaqachon ilova sifatida ochilgan!', 'info');
                 } else {
-                    const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
-                    if (isIos) {
-                        alert("iOS Safari'da o'rnatish uchun:\n1. Pastdagi 'Ulashish' (Share ⎋) tugmasini bosing.\n2. 'Bosh ekranga qo'shish' (Add to Home Screen ⊞) ni tanlang.");
-                    } else {
-                        alert("Ilovani o'rnatish uchun:\n1. Brauzer menyusini (⋮) oching.\n2. 'Ilovani o'rnatish' (Install app) yoki 'Bosh ekranga qo'shish' ni bosing.");
-                    }
+                    openPwaGuideModal();
                 }
                 return;
             }
@@ -2776,13 +3474,15 @@
             const { outcome } = await deferredPwaPrompt.userChoice;
             if (outcome === 'accepted') {
                 deferredPwaPrompt = null;
+                showGlobalToast(dict.pwa_installed_badge || 'Samar ID o\'rnatildi!', 'success');
             }
         }
 
         // Initialize on load
         document.addEventListener('DOMContentLoaded', () => {
             syncThemeIcon();
-            setLanguage(currentLang);
+            const savedLang = localStorage.getItem('samar_lang') || 'uz';
+            setLanguage(savedLang);
             checkSession();
         });
     </script>

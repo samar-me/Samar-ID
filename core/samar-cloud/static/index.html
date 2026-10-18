@@ -889,7 +889,19 @@
                     alert('Server bilan ulanish uzildi');
                 }
             }
-        }
+        // Global Auth Interceptor to instantly handle revoked access from Samar ID
+        const _origFetch = window.fetch;
+        window.fetch = async function(...args) {
+            const response = await _origFetch.apply(this, args);
+            if (response.status === 401) {
+                const url = typeof args[0] === 'string' ? args[0] : (args[0]?.url || '');
+                if (!url.includes('/api/auth/oauth') && !url.includes('/api/auth/samar-id/callback')) {
+                    localStorage.removeItem('samar_cloud_token');
+                    showAuthView();
+                }
+            }
+            return response;
+        };
 
         async function checkAuth() {
             const token = localStorage.getItem('samar_cloud_token');

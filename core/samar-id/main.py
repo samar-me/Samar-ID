@@ -60,17 +60,69 @@ def parse_device_info(user_agent: str):
     if not user_agent:
         return "Noma'lum Qurilma", "device"
     ua = user_agent.lower()
+    
+    browser = ""
+    if "edg/" in ua:
+        browser = " (Edge)"
+    elif "chrome/" in ua or "crios/" in ua:
+        browser = " (Chrome)"
+    elif "firefox/" in ua or "fxios/" in ua:
+        browser = " (Firefox)"
+    elif "safari/" in ua and "version/" in ua:
+        browser = " (Safari)"
+
     if "windows" in ua:
-        return "Windows 11 / PC", "windows"
+        return f"Windows PC{browser}", "windows"
     elif "android" in ua:
-        return "Android Smartfon", "android"
-    elif "iphone" in ua or "ios" in ua:
-        return "Apple iPhone", "apple"
+        return f"Android Smartfon{browser}", "android"
+    elif "iphone" in ua:
+        return f"Apple iPhone{browser}", "apple"
+    elif "ipad" in ua:
+        return f"Apple iPad{browser}", "apple"
     elif "macintosh" in ua or "mac os" in ua:
-        return "macOS Workstation", "apple"
+        return f"macOS Workstation{browser}", "apple"
     elif "linux" in ua:
-        return "Samar Linux OS", "linux"
-    return "Web Terminal", "browser"
+        return f"Linux Workstation{browser}", "linux"
+    return f"Web Terminal{browser}", "browser"
+
+def normalize_device_name(dev: str) -> str:
+    if not dev:
+        return "Windows PC (Chrome)"
+    d = dev.strip()
+    # Clean up legacy naming variants
+    if "windows" in d.lower():
+        if "edge" in d.lower():
+            return "Windows PC (Edge)"
+        elif "firefox" in d.lower():
+            return "Windows PC (Firefox)"
+        return "Windows PC (Chrome)"
+    elif "android" in d.lower():
+        return "Android Smartfon (Chrome)"
+    elif "iphone" in d.lower():
+        return "Apple iPhone (Safari)"
+    elif "ipad" in d.lower():
+        return "Apple iPad (Safari)"
+    elif "mac" in d.lower():
+        return "macOS Workstation"
+    elif "linux" in d.lower():
+        return "Linux Workstation"
+    return d
+
+def get_device_key(dev: str) -> str:
+    d = (dev or "").lower()
+    if "windows" in d:
+        return "windows"
+    if "android" in d:
+        return "android"
+    if "iphone" in d:
+        return "iphone"
+    if "ipad" in d:
+        return "ipad"
+    if "mac" in d:
+        return "mac"
+    if "linux" in d:
+        return "linux"
+    return d
 
 def get_current_user_and_jti(credentials: HTTPAuthorizationCredentials = Depends(security_scheme)):
     token = credentials.credentials
@@ -217,6 +269,11 @@ def login(login_data: UserLogin, request: Request):
         device_name, _ = parse_device_info(request.headers.get("user-agent", ""))
         ip = request.client.host if request.client else "127.0.0.1"
         
+        rev_val = "1" if is_sqlite else "TRUE"
+        conn.execute(
+            text(f"UPDATE sessions SET is_revoked = {rev_val} WHERE user_id = :uid AND device_name = :dev"),
+            {"uid": user_dict["id"], "dev": device_name}
+        )
         conn.execute(
             text("INSERT INTO sessions (user_id, token_jti, device_name, ip_address) VALUES (:uid, :jti, :dev, :ip)"),
             {"uid": user_dict["id"], "jti": jti, "dev": device_name, "ip": ip}
@@ -1060,42 +1117,75 @@ async def upload_avatar(file: UploadFile = File(...), current: dict = Depends(ge
 def get_sessions(current: dict = Depends(get_current_user_and_jti)):
     try:
         with engine.connect() as conn:
+            rev_val = "1" if is_sqlite else "TRUE"
+            # Permanently mark any app-level or QR tokens as revoked from hardware device list
+            conn.execute(
+                text(f"""
+                    UPDATE sessions SET is_revoked = {rev_val} 
+                    WHERE user_id = :uid AND (
+                        device_name LIKE '%OAuth%' 
+                        OR device_name LIKE '%Samar Cloud%' 
+                        OR device_name LIKE '%SSO%' 
+                        OR device_name LIKE '%QR%'
+                    )
+                """),
+                {"uid": current["id"]}
+            )
+            conn.commit()
+
             rev_filter = "is_revoked = 0" if is_sqlite else "is_revoked IS FALSE"
             query = f"""
                 SELECT id, token_jti, device_name, ip_address, last_active, is_revoked 
                 FROM sessions 
                 WHERE user_id = :uid AND {rev_filter} 
                   AND device_name NOT LIKE '%OAuth%' 
-                  AND device_name NOT LIKE '%Samar SSO%' 
+                  AND device_name NOT LIKE '%Samar Cloud%' 
+                  AND device_name NOT LIKE '%SSO%' 
                 ORDER BY id DESC
             """
             rows = conn.execute(text(query), {"uid": current["id"]}).mappings().fetchall()
             
-        result = []
-        seen_devices = set()
-        
-        # Current session first if found
         current_jti = current.get("current_jti")
         
+        curr_row = None
+        other_rows = []
         for r in rows:
-            dev_name = r["device_name"] or "Noma'lum Qurilma"
-            is_curr = (r["token_jti"] == current_jti)
-            
-            # Deduplicate by device_name unless it is the currently active device
-            if dev_name in seen_devices and not is_curr:
+            if r["token_jti"] == current_jti:
+                curr_row = r
+            else:
+                other_rows.append(r)
+        
+        result = []
+        seen_keys = set()
+        
+        # 1. Current device is always primary (#1)
+        if curr_row:
+            dev_name = normalize_device_name(curr_row["device_name"])
+            dev_key = get_device_key(dev_name)
+            seen_keys.add(dev_key)
+            result.append({
+                "id": curr_row["id"],
+                "device_name": dev_name,
+                "ip_address": curr_row["ip_address"] or "127.0.0.1",
+                "last_active": "Hozir (Ushbu qurilma)",
+                "is_current": True
+            })
+        
+        # 2. Add other distinct physical devices (strictly 1 entry per hardware type)
+        for r in other_rows:
+            dev_name = normalize_device_name(r["device_name"])
+            dev_key = get_device_key(dev_name)
+            if dev_key in seen_keys:
                 continue
-            seen_devices.add(dev_name)
-            
+            seen_keys.add(dev_key)
             result.append({
                 "id": r["id"],
                 "device_name": dev_name,
                 "ip_address": r["ip_address"] or "127.0.0.1",
-                "last_active": str(r["last_active"])[:19] if r["last_active"] else "Hozir",
-                "is_current": is_curr
+                "last_active": str(r["last_active"])[:16] if r["last_active"] else "Yaqinda",
+                "is_current": False
             })
             
-        # Ensure current device is at the very top
-        result.sort(key=lambda x: 0 if x["is_current"] else 1)
         return result
     except Exception as e:
         print("SESSIONS_FETCH_ERROR:", e)

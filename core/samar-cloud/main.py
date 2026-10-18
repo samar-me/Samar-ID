@@ -68,20 +68,28 @@ async def verify_samar_id_app_authorization(samar_id: str) -> bool:
     import time
     now = time.time()
     cached = _app_auth_cache.get(samar_id)
-    if cached and (now - cached[1] < 10):
-        return cached[0]
-    
-    try:
-        async with httpx.AsyncClient(timeout=3.0) as client:
-            res = await client.get(f"{SAMAR_ID_URL}/api/oauth/apps/check/samar_cloud", params={"samar_id": samar_id})
-            if res.status_code == 200:
-                is_auth = res.json().get("authorized", True)
-                _app_auth_cache[samar_id] = (is_auth, now)
-                return is_auth
-    except Exception:
-        if cached:
-            return cached[0]
+    # Check cache only for positive results, and max 3 seconds for rapid sync
+    if cached and (now - cached[1] < 3) and cached[0]:
         return True
+    
+    # Candidate endpoints: local loopback first (ultra-fast <2ms), then configured URL
+    candidates = ["http://127.0.0.1:8000"]
+    if SAMAR_ID_URL and SAMAR_ID_URL not in candidates:
+        candidates.append(SAMAR_ID_URL)
+        
+    for base_url in candidates:
+        try:
+            async with httpx.AsyncClient(timeout=1.5) as client:
+                res = await client.get(f"{base_url}/api/oauth/apps/check/samar_cloud", params={"samar_id": samar_id})
+                if res.status_code == 200:
+                    is_auth = res.json().get("authorized", False)
+                    _app_auth_cache[samar_id] = (is_auth, now)
+                    return is_auth
+        except Exception:
+            continue
+
+    if cached:
+        return cached[0]
     return True
 
 async def get_current_user(
