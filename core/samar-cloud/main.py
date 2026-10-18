@@ -48,8 +48,10 @@ ALGORITHM = "HS256"
 
 security = HTTPBearer(auto_error=False)
 
-# Initialize database
+# Initialize database and upload directory
 init_db()
+LOCAL_UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads")
+os.makedirs(LOCAL_UPLOAD_DIR, exist_ok=True)
 
 # ----------------- JWT & AUTH HELPERS -----------------
 def create_access_token(user_id: int, samar_id: str) -> str:
@@ -485,8 +487,8 @@ async def upload_file(
         "size": size,
         "file_type": mime_type,
         "category": category,
-        "drive_file_id": upload_res.get("drive_file_id"),
-        "thumbnail_url": upload_res.get("thumbnail_link"),
+        "drive_file_id": drive_file_id,
+        "thumbnail_url": thumbnail_url,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
 

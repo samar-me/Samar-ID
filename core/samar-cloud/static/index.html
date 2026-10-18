@@ -1045,7 +1045,7 @@
                 if (f.category === 'code') icon = '💻';
 
                 const thumb = isImage 
-                    ? `/api/files/${f.id}/stream`
+                    ? `/api/files/${f.id}/stream?token=${encodeURIComponent(token || '')}`
                     : null;
 
                 return `
@@ -1066,7 +1066,7 @@
                         <button type="button" class="action-icon-btn fav ${f.is_favorite ? 'active' : ''}" onclick="toggleFav(${f.id})" title="Sevimlilar">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="${f.is_favorite ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                         </button>
-                        <a href="/api/files/${f.id}/download" class="action-icon-btn" title="Yuklab olish" download>
+                        <a href="/api/files/${f.id}/download?token=${encodeURIComponent(token || '')}" class="action-icon-btn" title="Yuklab olish" download>
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                         </a>
                         <button type="button" class="action-icon-btn" onclick="deleteFileItem(${f.id})" title="O'chirish" style="color:var(--status-red);">
@@ -1107,7 +1107,7 @@
                         <div class="moments-grid">
                             ${g.items.map(item => `
                                 <div class="moment-item" onclick="openPreview(${item.id}, '${escapeHtml(item.name)}', '${item.file_type}', 'image')">
-                                    <img src="/api/files/${item.id}/stream" class="moment-img" alt="${escapeHtml(item.name)}" loading="lazy">
+                                    <img src="/api/files/${item.id}/stream?token=${encodeURIComponent(token || '')}" class="moment-img" alt="${escapeHtml(item.name)}" loading="lazy">
                                     <div class="moment-overlay">
                                         <div>${escapeHtml(item.name)}</div>
                                         ${item.exif_camera ? `<div>📷 ${escapeHtml(item.exif_camera)}</div>` : ''}
@@ -1122,10 +1122,12 @@
 
         // ==================== PREVIEW MODAL ====================
         function openPreview(fileId, name, mime, category) {
+            const token = localStorage.getItem('samar_cloud_token');
             const overlay = document.getElementById('previewModal');
             const mediaBox = document.getElementById('modalMediaContainer');
             const infoBox = document.getElementById('modalMediaInfo');
-            const streamUrl = `/api/files/${fileId}/stream`;
+            const streamUrl = `/api/files/${fileId}/stream?token=${encodeURIComponent(token || '')}`;
+            const downloadUrl = `/api/files/${fileId}/download?token=${encodeURIComponent(token || '')}`;
 
             if (category === 'image') {
                 mediaBox.innerHTML = `<img src="${streamUrl}" class="lightbox-media" alt="${name}">`;
@@ -1145,14 +1147,14 @@
                     <div style="padding:40px;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;text-align:center;">
                         <div style="font-size:42px;margin-bottom:12px;">📄</div>
                         <div style="font-size:16px;font-weight:700;margin-bottom:14px;">${name}</div>
-                        <a href="/api/files/${fileId}/download" class="btn-upload" style="display:inline-flex;">Faylni Yuklab Olish</a>
+                        <a href="${downloadUrl}" class="btn-upload" style="display:inline-flex;">Faylni Yuklab Olish</a>
                     </div>
                 `;
             }
 
             infoBox.innerHTML = `
                 <span>${name}</span>
-                <a href="/api/files/${fileId}/download" style="color:var(--accent);text-decoration:none;font-weight:600;" download>Yuklab Olish ⬇</a>
+                <a href="${downloadUrl}" style="color:var(--accent);text-decoration:none;font-weight:600;" download>Yuklab Olish ⬇</a>
             `;
             overlay.style.display = 'flex';
         }
@@ -1173,6 +1175,7 @@
             const files = e.target.files;
             if (!files || !files.length) return;
             await uploadFilesBatch(Array.from(files));
+            e.target.value = '';
         }
 
         async function uploadFilesBatch(fileList) {
@@ -1183,13 +1186,18 @@
                 if (currentFolderId) form.append('folder_id', currentFolderId);
 
                 try {
-                    await fetch('/api/files/upload', {
+                    const res = await fetch('/api/files/upload', {
                         method: 'POST',
                         headers: { 'Authorization': 'Bearer ' + token },
                         body: form
                     });
+                    if (!res.ok) {
+                        const err = await res.json().catch(() => ({}));
+                        alert(err.detail || "Fayl yuklashda xatolik yuz berdi");
+                    }
                 } catch (e) {
                     console.error('Upload error:', e);
+                    alert("Fayl yuklashda serverga ulanib bo'lmadi");
                 }
             }
             loadDriveStatus();
