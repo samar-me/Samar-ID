@@ -1,0 +1,32 @@
+{
+  "name": "Samar Cloud & Moments — 5 TB Shaxsiy Bulut",
+  "short_name": "Samar Cloud",
+  "description": "Samar OS 5 TB xavfsiz shaxsiy fayl va foto arxiv xotirasi",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#080b12",
+  "theme_color": "#080b12",
+  "categories": ["productivity", "utilities", "photos"],
+  "icons": [
+    {
+      "src": "/static/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Mening Fayllarim",
+      "url": "/#files",
+      "description": "Barcha bulutdagi hujjatlar va fayllar"
+    },
+    {
+      "name": "Moments Galereya",
+      "url": "/#moments",
+      "description": "Fotosuratlar va videolar xronologiyasi"
+    }
+  ]
+}

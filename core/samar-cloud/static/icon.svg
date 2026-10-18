@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="cloudBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#080b12"/>
+      <stop offset="100%" stop-color="#040609"/>
+    </linearGradient>
+    <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="50%" stop-color="#4facfe"/>
+      <stop offset="100%" stop-color="#0072ff"/>
+    </linearGradient>
+    <linearGradient id="cloudBody" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#141c2e"/>
+      <stop offset="100%" stop-color="#0d131f"/>
+    </linearGradient>
+    <filter id="cloudGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="128" fill="url(#cloudBg)"/>
+
+  <!-- Orbital Data Ring -->
+  <circle cx="256" cy="256" r="200" fill="none" stroke="#182336" stroke-width="3" stroke-dasharray="14 8"/>
+  <circle cx="256" cy="256" r="175" fill="none" stroke="url(#cyanGrad)" stroke-width="2" opacity="0.3"/>
+
+  <!-- Sovereign Cloud Body -->
+  <path d="M 170 340 L 350 340 C 388 340 420 308 420 270 C 420 234 394 204 360 200 C 352 148 308 110 256 110 C 210 110 170 140 156 182 C 122 188 96 218 96 254 C 96 294 126 340 170 340 Z" 
+        fill="url(#cloudBody)" stroke="url(#cyanGrad)" stroke-width="6" filter="url(#cloudGlow)"/>
+
+  <!-- Central Quantum Core (Sync Node) -->
+  <circle cx="256" cy="245" r="28" fill="#0d1522" stroke="#00f2fe" stroke-width="3"/>
+  <polygon points="256,225 272,245 256,265 240,245" fill="url(#cyanGrad)" filter="url(#cloudGlow)"/>
+  <circle cx="256" cy="245" r="5" fill="#ffffff"/>
+
+  <!-- Data Streams -->
+  <line x1="256" y1="280" x2="256" y2="340" stroke="#00f2fe" stroke-width="3" stroke-dasharray="6 4"/>
+  <circle cx="256" cy="340" r="5" fill="#00f2fe"/>
+</svg>

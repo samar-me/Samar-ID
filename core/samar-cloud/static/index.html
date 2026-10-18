@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Samar Cloud & Moments — 5 TB Sovereign Vault</title>
+    <link rel="icon" type="image/svg+xml" href="/static/icon.svg">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#080b12">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #080b12;
+            --bg-surface: #0e131f;
+            --bg-card: rgba(18, 25, 40, 0.75);
+            --bg-card-hover: rgba(26, 36, 58, 0.85);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(0, 242, 254, 0.35);
+            --accent: #00f2fe;
+            --accent-glow: rgba(0, 242, 254, 0.25);
+            --accent-purple: #7f00ff;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --text-tertiary: #64748b;
+            --status-green: #30d158;
+            --status-red: #ff453a;
+            --status-orange: #ff9f0a;
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 8px;
+            --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg-base);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 10%, rgba(0, 242, 254, 0.06) 0%, transparent 45%),
+                radial-gradient(circle at 85% 90%, rgba(127, 0, 255, 0.06) 0%, transparent 45%);
+        }
+
+        /* Top Navigation Header */
+        .app-header {
+            height: 64px;
+            background: rgba(8, 11, 18, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+        .header-logo {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            box-shadow: 0 4px 14px var(--accent-glow);
+        }
+        .brand-title {
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .brand-badge {
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: rgba(0, 242, 254, 0.12);
+            color: var(--accent);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .header-search {
+            flex: 1;
+            max-width: 460px;
+            margin: 0 20px;
+            position: relative;
+        }
+        .search-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 9px 14px 9px 38px;
+            font-size: 13.5px;
+            color: #fff;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .search-input:focus {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
+        }
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            pointer-events: none;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .btn-upload {
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
+            color: #030a16;
+            border: none;
+            padding: 9px 16px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            cursor: pointer;
+            box-shadow: 0 4px 14px var(--accent-glow);
+            transition: all 0.2s;
+        }
+        .btn-upload:hover {
+            transform: translateY(-1.5px);
+            box-shadow: 0 6px 20px rgba(0, 242, 254, 0.4);
+        }
+        .drive-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .drive-badge.active {
+            border-color: rgba(48, 209, 88, 0.3);
+            color: var(--status-green);
+        }
+        .drive-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--status-green);
+        }
+
+        .user-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 10px 5px 6px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            font-size: 12.5px;
+            font-weight: 600;
+        }
+        .user-avatar-sm {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00f2fe, #7f00ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 12px;
+            object-fit: cover;
+        }
+        .btn-logout {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 6px;
+            border-radius: 8px;
+            transition: color 0.2s;
+        }
+        .btn-logout:hover { color: var(--status-red); }
+
+        /* Main Workspace Layout */
+        .workspace-layout {
+            display: flex;
+            flex: 1;
+            min-height: calc(100vh - 64px);
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 250px;
+            border-right: 1px solid var(--border);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: rgba(14, 19, 31, 0.5);
+        }
+        .nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .nav-item-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: 12px;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+        .nav-item-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .nav-item-btn.active {
+            background: rgba(0, 242, 254, 0.1);
+            color: var(--accent);
+            border-color: rgba(0, 242, 254, 0.25);
+        }
+
+        /* Storage Quota Card in Sidebar */
+        .storage-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-top: 20px;
+        }
+        .storage-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+        .storage-bar-bg {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .storage-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00f2fe, #7f00ff);
+            width: 1%;
+            border-radius: 3px;
+            transition: width 0.4s ease;
+        }
+        .storage-text {
+            font-size: 11.5px;
+            color: var(--text-tertiary);
+            line-height: 1.4;
+        }
+
+        /* Main Content Viewport */
+        .content-area {
+            flex: 1;
+            padding: 28px 36px;
+            overflow-y: auto;
+        }
+
+        /* Section Titles & Toolbars */
+        .view-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        .view-title {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.4px;
+        }
+        .view-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--border-hover);
+        }
+
+        /* Breadcrumbs */
+        .breadcrumbs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-tertiary);
+            margin-bottom: 20px;
+        }
+        .breadcrumb-item {
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .breadcrumb-item:hover { color: var(--accent); }
+        .breadcrumb-item.active { color: var(--text-primary); font-weight: 700; cursor: default; }
+
+        /* Folders Row */
+        .folders-section-title {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-bottom: 12px;
+        }
+        .folders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 14px;
+            margin-bottom: 30px;
+        }
+        .folder-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .folder-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-hover);
+            background: var(--bg-card-hover);
+        }
+        .folder-icon {
+            font-size: 24px;
+        }
+        .folder-name {
+            font-size: 13.5px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Files Grid */
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+        }
+        .file-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        .file-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--border-hover);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+        .file-thumb-box {
+            height: 130px;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .file-thumb-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .file-icon-placeholder {
+            font-size: 42px;
+            opacity: 0.85;
+        }
+        .file-details {
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .file-name {
+            font-size: 13.5px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-primary);
+        }
+        .file-meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11.5px;
+            color: var(--text-tertiary);
+        }
+        .file-actions-row {
+            padding: 8px 14px 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+        .action-icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-tertiary);
+            padding: 5px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+        }
+        .action-icon-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .action-icon-btn.fav.active {
+            color: #ff2d55;
+        }
+
+        /* Moments / Photo Gallery Timeline */
+        .moments-group {
+            margin-bottom: 36px;
+        }
+        .moments-date-header {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .moments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+        }
+        .moment-item {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            transition: all 0.25s;
+        }
+        .moment-item:hover {
+            transform: scale(1.02);
+            border-color: var(--accent);
+            box-shadow: 0 8px 24px rgba(0, 242, 254, 0.25);
+            z-index: 2;
+        }
+        .moment-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .moment-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 8px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            opacity: 0;
+            transition: opacity 0.2s;
+            font-size: 11px;
+            color: #fff;
+        }
+        .moment-item:hover .moment-overlay { opacity: 1; }
+
+        /* Fullscreen Drag & Drop Overlay */
+        #dropOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(8, 11, 18, 0.92);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+            border: 3px dashed var(--accent);
+            margin: 16px;
+            border-radius: var(--radius-lg);
+            pointer-events: none;
+        }
+        .drop-icon-pulse {
+            width: 80px;
+            height: 80px;
+            color: var(--accent);
+            animation: pulseGlow 1.5s infinite ease-in-out;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px var(--accent)); }
+            50% { transform: scale(1.1); filter: drop-shadow(0 0 30px var(--accent)); }
+        }
+
+        /* Lightbox & Preview Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(24px);
+            z-index: 1100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .lightbox-card {
+            max-width: 90vw;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        .lightbox-close {
+            position: absolute;
+            top: -44px;
+            right: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .lightbox-media {
+            max-width: 85vw;
+            max-height: 75vh;
+            border-radius: 12px;
+            object-fit: contain;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        }
+        .lightbox-info {
+            margin-top: 14px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        /* Auth View (SSO Login) */
+        #authSection {
+            display: none;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .auth-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 440px;
+            padding: 40px 32px;
+            text-align: center;
+            backdrop-filter: blur(24px);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), 0 0 30px var(--accent-glow);
+        }
+        .auth-logo {
+            width: 72px;
+            height: 72px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px var(--accent-glow);
+            animation: pulseLogo 2s infinite ease-in-out;
+        }
+        @keyframes pulseLogo {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .auth-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        .auth-sub {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        /* Empty State */
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--text-tertiary);
+        }
+        .empty-icon { font-size: 48px; margin-bottom: 12px; }
+        .empty-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+        .empty-desc { font-size: 13px; max-width: 320px; margin: 0 auto; color: var(--text-secondary); }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .header-search { display: none; }
+            .content-area { padding: 18px 16px; }
+            .files-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+            .file-thumb-box { height: 100px; }
+            .moments-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 6px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Drag & Drop Visual Target -->
+    <div id="dropOverlay">
+        <svg class="drop-icon-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div style="font-size: 20px; font-weight: 800; color: #fff;">Fayllarni bu yerga tashlang</div>
+        <div style="font-size: 13px; color: var(--text-secondary);">5 TB xavfsiz shaxsiy bulutingizga yuklanadi</div>
+    </div>
+
+    <!-- ==================== AUTH VIEW (SSO with Samar ID) ==================== -->
+    <section id="authSection">
+        <div class="auth-card">
+            <img src="/static/icon.svg" class="auth-logo" alt="Samar Cloud">
+            <h1 class="auth-title">Samar Cloud & Moments</h1>
+            <p class="auth-sub">5 TB shaxsiy daxlsiz bulut xotirasi va foto galereyasi</p>
+            <div id="ssoBtnContainer" style="display: flex; justify-content: center;">
+                <button type="button" class="btn-upload" style="padding: 14px 24px; font-size: 15px;" onclick="startSamarIdSso()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L20 6.5C20 15 14.5 20.5 12 22C9.5 20.5 4 15 4 6.5L12 2Z"/></svg>
+                    <span>Samar ID orqali kirish</span>
+                </button>
+            </div>
+            <div style="margin-top: 24px; font-size: 12px; color: var(--text-tertiary);">
+                Samar OS Sovereign Identity &amp; Storage Protocol
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== DASHBOARD VIEW ==================== -->
+    <div id="dashboardSection" style="display: none; flex-direction: column; min-height: 100vh;">
+        
+        <!-- App Header -->
+        <header class="app-header">
+            <a class="header-brand" onclick="switchNav('files')">
+                <img src="/static/icon.svg" class="header-logo" alt="Samar Cloud">
+                <div class="brand-title">
+                    <span>Samar Cloud</span>
+                    <span class="brand-badge">5 TB</span>
+                </div>
+            </a>
+
+            <!-- Search -->
+            <div class="header-search">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input type="text" class="search-input" id="searchBox" placeholder="Fayllar va fotolarni qidirish..." oninput="handleSearch(this.value)">
+            </div>
+
+            <!-- Actions -->
+            <div class="header-actions">
+                <button type="button" class="btn-upload" onclick="triggerFileInput()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <span>Yuklash</span>
+                </button>
+                <input type="file" id="fileUploadInput" multiple style="display: none;" onchange="handleFileSelected(event)">
+
+                <a id="driveBadge" class="drive-badge active" href="/api/drive/connect" title="Google Drive 5 TB Holati">
+                    <span class="drive-dot"></span>
+                    <span id="driveBadgeText">5.0 TB Faol</span>
+                </a>
+
+                <div class="user-pill">
+                    <div class="user-avatar-sm" id="userAvatar">S</div>
+                    <span id="userSamarId">@samar.os</span>
+                </div>
+
+                <button type="button" class="btn-logout" onclick="logout()" title="Chiqish">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Layout -->
+        <div class="workspace-layout">
+            
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <ul class="nav-list">
+                    <li>
+                        <button type="button" class="nav-item-btn active" id="navFiles" onclick="switchNav('files')">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
+                            <span>Mening Fayllarim</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="nav-item-btn" id="navMoments" onclick="switchNav('moments')">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                            <span>Moments (Galereya)</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="nav-item-btn" id="navFavs" onclick="switchNav('favorites')">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            <span>Sevimlilar</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="nav-item-btn" id="navTrash" onclick="switchNav('trash')">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                            <span>Savat</span>
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- 5 TB Storage Indicator -->
+                <div class="storage-card">
+                    <div class="storage-title-row">
+                        <span>5 TB BULUT XOTIRA</span>
+                        <span id="storagePercentTxt">0%</span>
+                    </div>
+                    <div class="storage-bar-bg">
+                        <div class="storage-bar-fill" id="storageBarFill"></div>
+                    </div>
+                    <div class="storage-text" id="storageUsageTxt">Yuklanmoqda...</div>
+                </div>
+            </aside>
+
+            <!-- Content Area -->
+            <main class="content-area">
+                
+                <!-- Breadcrumbs & Toolbar -->
+                <div class="view-header">
+                    <div>
+                        <div class="breadcrumbs" id="breadcrumbs">
+                            <span class="breadcrumb-item active">Mening Fayllarim</span>
+                        </div>
+                        <h1 class="view-title" id="viewTitle">Barcha Fayllar</h1>
+                    </div>
+                    <div class="view-actions">
+                        <button type="button" class="btn-secondary" onclick="openNewFolderModal()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+                            <span>Yangi Papka</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Folders Grid -->
+                <div id="foldersContainer">
+                    <div class="folders-section-title">Papkalar</div>
+                    <div class="folders-grid" id="foldersList"></div>
+                </div>
+
+                <!-- Files Section -->
+                <div id="filesContainer">
+                    <div class="folders-section-title" id="filesSectionTitle">Fayllar</div>
+                    <div class="files-grid" id="filesList"></div>
+                </div>
+
+                <!-- Moments Timeline Section (Hidden by default) -->
+                <div id="momentsContainer" style="display: none;"></div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Lightbox / Preview Modal -->
+    <div class="modal-overlay" id="previewModal" onclick="closePreviewModal(event)">
+        <div class="lightbox-card">
+            <button type="button" class="lightbox-close" onclick="closePreviewModal(null)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div id="modalMediaContainer"></div>
+            <div class="lightbox-info" id="modalMediaInfo"></div>
+        </div>
+    </div>
+
+    <!-- ==================== JAVASCRIPT ==================== -->
+    <script>
+        const SAMAR_ID_URL = 'https://samar-id.onrender.com';
+        const CLIENT_ID = 'samar_cloud';
+
+        let currentUser = null;
+        let currentNav = 'files'; // 'files' | 'moments' | 'favorites' | 'trash'
+        let currentFolderId = null;
+        let driveQuota = null;
+
+        // SSO Callback handling on redirect
+        async function handleUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            if (code) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+                try {
+                    const res = await fetch('/api/auth/sso/callback', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ code: code, redirect_uri: window.location.origin })
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.access_token) {
+                        localStorage.setItem('samar_cloud_token', data.access_token);
+                    } else {
+                        alert(data.detail || 'Samar ID bilan ulanishda xatolik');
+                    }
+                } catch (e) {
+                    alert('Server bilan ulanish uzildi');
+                }
+            }
+        }
+
+        async function checkAuth() {
+            const token = localStorage.getItem('samar_cloud_token');
+            if (!token) {
+                showAuthView();
+                return;
+            }
+            try {
+                const res = await fetch('/api/auth/me', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                if (res.ok) {
+                    currentUser = await res.json();
+                    showDashboardView();
+                } else {
+                    localStorage.removeItem('samar_cloud_token');
+                    showAuthView();
+                }
+            } catch (e) {
+                showAuthView();
+            }
+        }
+
+        function showAuthView() {
+            document.getElementById('authSection').style.display = 'flex';
+            document.getElementById('dashboardSection').style.display = 'none';
+        }
+
+        function showDashboardView() {
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'flex';
+            document.getElementById('userSamarId').innerText = currentUser.samar_id;
+            if (currentUser.avatar_path) {
+                document.getElementById('userAvatar').innerHTML = `<img src="${currentUser.avatar_path}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+            } else {
+                document.getElementById('userAvatar').innerText = (currentUser.full_name || currentUser.samar_id || 'S')[0].toUpperCase();
+            }
+            loadDriveStatus();
+            loadContent();
+        }
+
+        function startSamarIdSso() {
+            const redirectUri = encodeURIComponent(window.location.origin);
+            const authUrl = `${SAMAR_ID_URL}/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUri}&scope=profile,email&state=samar_cloud_init`;
+            window.location.href = authUrl;
+        }
+
+        function logout() {
+            if (confirm("Samar Cloud'dan chiqishni tasdiqlaysizmi?")) {
+                localStorage.removeItem('samar_cloud_token');
+                location.reload();
+            }
+        }
+
+        // ==================== STORAGE & DRIVE STATUS ====================
+        async function loadDriveStatus() {
+            const token = localStorage.getItem('samar_cloud_token');
+            try {
+                const res = await fetch('/api/drive/status', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                driveQuota = data;
+                const percent = data.percent_used || 0;
+                document.getElementById('storageBarFill').style.width = Math.max(1, percent) + '%';
+                document.getElementById('storagePercentTxt').innerText = percent + '%';
+                document.getElementById('storageUsageTxt').innerText = `${data.used_formatted} / ${data.total_formatted} ishlatildi`;
+
+                const badge = document.getElementById('driveBadge');
+                const badgeTxt = document.getElementById('driveBadgeText');
+                if (data.connected) {
+                    badge.className = 'drive-badge active';
+                    badgeTxt.innerText = `5.0 TB Faol (${data.account_email || 'Ulangan'})`;
+                    badge.href = '#';
+                    badge.onclick = (e) => { e.preventDefault(); alert(`Google Drive 5 TB hisobi ulandi!\nE-pochta: ${data.account_email}\nJami xotira: ${data.total_formatted}\nIshlatildi: ${data.used_formatted}`); };
+                } else {
+                    badge.className = 'drive-badge';
+                    badgeTxt.innerText = '5 TB ni Ulash';
+                    if (data.auth_url) {
+                        badge.href = data.auth_url;
+                        badge.onclick = null;
+                    }
+                }
+            } catch (_) {}
+        }
+
+        // ==================== NAVIGATION & VIEWS ====================
+        function switchNav(nav) {
+            currentNav = nav;
+            currentFolderId = null;
+            document.querySelectorAll('.nav-item-btn').forEach(btn => btn.classList.remove('active'));
+            if (nav === 'files') document.getElementById('navFiles').classList.add('active');
+            if (nav === 'moments') document.getElementById('navMoments').classList.add('active');
+            if (nav === 'favorites') document.getElementById('navFavs').classList.add('active');
+            if (nav === 'trash') document.getElementById('navTrash').classList.add('active');
+
+            const foldersSec = document.getElementById('foldersContainer');
+            const filesSec = document.getElementById('filesContainer');
+            const momentsSec = document.getElementById('momentsContainer');
+
+            if (nav === 'moments') {
+                foldersSec.style.display = 'none';
+                filesSec.style.display = 'none';
+                momentsSec.style.display = 'block';
+                document.getElementById('viewTitle').innerText = 'Moments (Foto & Video Arxiv)';
+                loadMoments();
+            } else {
+                foldersSec.style.display = (nav === 'files' && !currentFolderId) ? 'block' : 'none';
+                filesSec.style.display = 'block';
+                momentsSec.style.display = 'none';
+                if (nav === 'files') document.getElementById('viewTitle').innerText = 'Barcha Fayllar';
+                if (nav === 'favorites') document.getElementById('viewTitle').innerText = 'Sevimlilar';
+                if (nav === 'trash') document.getElementById('viewTitle').innerText = 'Savat';
+                loadContent();
+            }
+        }
+
+        async function loadContent() {
+            const token = localStorage.getItem('samar_cloud_token');
+            const filesContainer = document.getElementById('filesList');
+            const foldersContainer = document.getElementById('foldersList');
+
+            // Load folders
+            if (currentNav === 'files' && !currentFolderId) {
+                try {
+                    const fRes = await fetch('/api/folders', {
+                        headers: { 'Authorization': 'Bearer ' + token }
+                    });
+                    const folders = await fRes.json();
+                    if (folders && folders.length) {
+                        foldersContainer.innerHTML = folders.map(f => `
+                            <div class="folder-card" onclick="openFolder(${f.id}, '${escapeHtml(f.name)}')">
+                                <span class="folder-icon" style="color:${f.color || '#00f2fe'};">📁</span>
+                                <span class="folder-name">${escapeHtml(f.name)}</span>
+                            </div>
+                        `).join('');
+                        document.getElementById('foldersContainer').style.display = 'block';
+                    } else {
+                        document.getElementById('foldersContainer').style.display = 'none';
+                    }
+                } catch (_) {}
+            } else {
+                document.getElementById('foldersContainer').style.display = 'none';
+            }
+
+            // Load files
+            let url = '/api/files?';
+            if (currentNav === 'trash') url += 'is_trashed=true&';
+            if (currentNav === 'favorites') url += 'is_favorite=true&';
+            if (currentFolderId) url += `folder_id=${currentFolderId}&`;
+
+            try {
+                const res = await fetch(url, {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const files = await res.json();
+                renderFiles(files);
+            } catch (_) {
+                filesContainer.innerHTML = '<div class="empty-state"><div class="empty-desc">Fayllarni yuklashda xatolik</div></div>';
+            }
+        }
+
+        function renderFiles(files) {
+            const container = document.getElementById('filesList');
+            if (!files || !files.length) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-icon">☁️</div>
+                        <div class="empty-title">Fayllar topilmadi</div>
+                        <div class="empty-desc">Yuqoridagi 'Yuklash' tugmasi yoki fayllarni ekranga tashlash orqali yuklang.</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = files.map(f => {
+                const isImage = f.category === 'image';
+                const isVideo = f.category === 'video';
+                const isAudio = f.category === 'audio';
+                const isPdf = f.file_type === 'application/pdf';
+
+                let icon = '📄';
+                if (isImage) icon = '🖼️';
+                if (isVideo) icon = '🎥';
+                if (isAudio) icon = '🎵';
+                if (isPdf) icon = '📕';
+                if (f.category === 'archive') icon = '📦';
+                if (f.category === 'code') icon = '💻';
+
+                const thumb = (isImage && f.drive_file_id) 
+                    ? `/api/files/${f.id}/stream`
+                    : null;
+
+                return `
+                <div class="file-card">
+                    <div class="file-thumb-box" onclick="openPreview(${f.id}, '${escapeHtml(f.name)}', '${f.file_type}', '${f.category}')">
+                        ${thumb 
+                            ? `<img src="${thumb}" class="file-thumb-img" alt="${escapeHtml(f.name)}" loading="lazy">` 
+                            : `<span class="file-icon-placeholder">${icon}</span>`}
+                    </div>
+                    <div class="file-details">
+                        <div class="file-name" title="${escapeHtml(f.name)}">${escapeHtml(f.name)}</div>
+                        <div class="file-meta-row">
+                            <span>${formatBytes(f.size)}</span>
+                            <span>${formatDate(f.created_at)}</span>
+                        </div>
+                    </div>
+                    <div class="file-actions-row">
+                        <button type="button" class="action-icon-btn fav ${f.is_favorite ? 'active' : ''}" onclick="toggleFav(${f.id})" title="Sevimlilar">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="${f.is_favorite ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        </button>
+                        <a href="/api/files/${f.id}/download" class="action-icon-btn" title="Yuklab olish" download>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        </a>
+                        <button type="button" class="action-icon-btn" onclick="deleteFileItem(${f.id})" title="O'chirish" style="color:var(--status-red);">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>
+                        </button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        // ==================== SAMAR MOMENTS ====================
+        async function loadMoments() {
+            const token = localStorage.getItem('samar_cloud_token');
+            const container = document.getElementById('momentsContainer');
+            try {
+                const res = await fetch('/api/moments', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const groups = await res.json();
+                if (!groups || !groups.length) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📸</div>
+                            <div class="empty-title">Hali suratlar yo'q</div>
+                            <div class="empty-desc">Yuklangan fotosuratlar va videolar bu yerda Apple Photos uslubidagi xotiralar mozaikasiga aylanadi.</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = groups.map(g => `
+                    <div class="moments-group">
+                        <div class="moments-date-header">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                            <span>${escapeHtml(g.group_title)}</span>
+                        </div>
+                        <div class="moments-grid">
+                            ${g.items.map(item => `
+                                <div class="moment-item" onclick="openPreview(${item.id}, '${escapeHtml(item.name)}', '${item.file_type}', 'image')">
+                                    <img src="/api/files/${item.id}/stream" class="moment-img" alt="${escapeHtml(item.name)}" loading="lazy">
+                                    <div class="moment-overlay">
+                                        <div>${escapeHtml(item.name)}</div>
+                                        ${item.exif_camera ? `<div>📷 ${escapeHtml(item.exif_camera)}</div>` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (_) {}
+        }
+
+        // ==================== PREVIEW MODAL ====================
+        function openPreview(fileId, name, mime, category) {
+            const overlay = document.getElementById('previewModal');
+            const mediaBox = document.getElementById('modalMediaContainer');
+            const infoBox = document.getElementById('modalMediaInfo');
+            const streamUrl = `/api/files/${fileId}/stream`;
+
+            if (category === 'image') {
+                mediaBox.innerHTML = `<img src="${streamUrl}" class="lightbox-media" alt="${name}">`;
+            } else if (category === 'video') {
+                mediaBox.innerHTML = `<video src="${streamUrl}" class="lightbox-media" controls autoplay style="max-height:75vh;"></video>`;
+            } else if (category === 'audio') {
+                mediaBox.innerHTML = `
+                    <div style="background:rgba(255,255,255,0.05);padding:30px;border-radius:14px;border:1px solid var(--border);text-align:center;">
+                        <div style="font-size:48px;margin-bottom:12px;">🎵</div>
+                        <audio src="${streamUrl}" controls autoplay style="width:300px;"></audio>
+                    </div>
+                `;
+            } else if (mime === 'application/pdf') {
+                mediaBox.innerHTML = `<iframe src="${streamUrl}" style="width:80vw;height:80vh;border-radius:12px;border:none;"></iframe>`;
+            } else {
+                mediaBox.innerHTML = `
+                    <div style="padding:40px;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;text-align:center;">
+                        <div style="font-size:42px;margin-bottom:12px;">📄</div>
+                        <div style="font-size:16px;font-weight:700;margin-bottom:14px;">${name}</div>
+                        <a href="/api/files/${fileId}/download" class="btn-upload" style="display:inline-flex;">Faylni Yuklab Olish</a>
+                    </div>
+                `;
+            }
+
+            infoBox.innerHTML = `
+                <span>${name}</span>
+                <a href="/api/files/${fileId}/download" style="color:var(--accent);text-decoration:none;font-weight:600;" download>Yuklab Olish ⬇</a>
+            `;
+            overlay.style.display = 'flex';
+        }
+
+        function closePreviewModal(e) {
+            if (!e || e.target.id === 'previewModal') {
+                document.getElementById('previewModal').style.display = 'none';
+                document.getElementById('modalMediaContainer').innerHTML = '';
+            }
+        }
+
+        // ==================== UPLOAD & DRAG/DROP ====================
+        function triggerFileInput() {
+            document.getElementById('fileUploadInput').click();
+        }
+
+        async function handleFileSelected(e) {
+            const files = e.target.files;
+            if (!files || !files.length) return;
+            await uploadFilesBatch(Array.from(files));
+        }
+
+        async function uploadFilesBatch(fileList) {
+            const token = localStorage.getItem('samar_cloud_token');
+            for (let f of fileList) {
+                const form = new FormData();
+                form.append('file', f);
+                if (currentFolderId) form.append('folder_id', currentFolderId);
+
+                try {
+                    await fetch('/api/files/upload', {
+                        method: 'POST',
+                        headers: { 'Authorization': 'Bearer ' + token },
+                        body: form
+                    });
+                } catch (e) {
+                    console.error('Upload error:', e);
+                }
+            }
+            loadDriveStatus();
+            if (currentNav === 'moments') loadMoments();
+            else loadContent();
+        }
+
+        // Drag & Drop handlers
+        let dragCounter = 0;
+        window.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            dragCounter++;
+            document.getElementById('dropOverlay').style.display = 'flex';
+        });
+        window.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dragCounter--;
+            if (dragCounter <= 0) {
+                dragCounter = 0;
+                document.getElementById('dropOverlay').style.display = 'none';
+            }
+        });
+        window.addEventListener('dragover', (e) => e.preventDefault());
+        window.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            dragCounter = 0;
+            document.getElementById('dropOverlay').style.display = 'none';
+            if (e.dataTransfer && e.dataTransfer.files) {
+                await uploadFilesBatch(Array.from(e.dataTransfer.files));
+            }
+        });
+
+        // ==================== ACTIONS ====================
+        async function toggleFav(id) {
+            const token = localStorage.getItem('samar_cloud_token');
+            await fetch(`/api/files/${id}/favorite`, {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            loadContent();
+        }
+
+        async function deleteFileItem(id) {
+            if (!confirm("Faylni o'chirishni xohlaysizmi?")) return;
+            const token = localStorage.getItem('samar_cloud_token');
+            await fetch(`/api/files/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            loadDriveStatus();
+            loadContent();
+        }
+
+        async function openNewFolderModal() {
+            const name = prompt("Yangi papka nomini kiriting:");
+            if (!name || !name.trim()) return;
+            const token = localStorage.getItem('samar_cloud_token');
+            await fetch('/api/folders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ name: name.trim(), parent_id: currentFolderId })
+            });
+            loadContent();
+        }
+
+        function openFolder(id, name) {
+            currentFolderId = id;
+            document.getElementById('breadcrumbs').innerHTML = `
+                <span class="breadcrumb-item" onclick="switchNav('files')">Mening Fayllarim</span>
+                <span>/</span>
+                <span class="breadcrumb-item active">${escapeHtml(name)}</span>
+            `;
+            loadContent();
+        }
+
+        function handleSearch(q) {
+            const token = localStorage.getItem('samar_cloud_token');
+            fetch(`/api/files?search=${encodeURIComponent(q)}`, {
+                headers: { 'Authorization': 'Bearer ' + token }
+            }).then(r => r.json()).then(renderFiles);
+        }
+
+        // ==================== UTILS ====================
+        function formatBytes(bytes) {
+            if (!bytes || bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function formatDate(dStr) {
+            if (!dStr) return '';
+            try {
+                const dt = new Date(dStr);
+                return dt.toLocaleDateString('uz-UZ', { month: 'short', day: 'numeric' });
+            } catch (_) { return ''; }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+        }
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            });
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', async () => {
+            await handleUrlParams();
+            await checkAuth();
+        });
+    </script>
+</body>
+</html>
