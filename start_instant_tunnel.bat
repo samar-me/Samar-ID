@@ -3,15 +3,13 @@ title Instant Public Tunnel — Samar Home Server
 color 0B
 cls
 echo =======================================================================
-echo          TEZKOR INTERNET TUNNELI (SSH 443 — BLOKLANMAYDIGAN)
+echo          TEZKOR INTERNET TUNNELI (PAROLSIZ — 100%% BEPUL)
 echo =======================================================================
 echo.
-echo Tunnel ulanmoqda...
-echo.
-echo Agar "Are you sure you want to continue connecting (yes/no/[fingerprint])?"
-echo deb so'rasa, klaviaturadan "yes" deb Enter bosing!
+echo Server butun dunyoga ulanmoqda...
+echo Agar birinchi marta (yes/no) deb so'rasa, "yes" deb Enter bosing!
 echo.
 echo =======================================================================
 echo.
-ssh -o StrictHostKeyChecking=accept-new -p 443 -R0:localhost:8001 a.pinggy.io
+ssh -o StrictHostKeyChecking=accept-new -R 80:localhost:8001 nokey@localhost.run
 pause
