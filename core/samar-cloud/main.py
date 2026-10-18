@@ -18,9 +18,10 @@ try:
 except Exception:
     HAS_PILLOW = False
 import httpx
+from jose import jwt, JWTError
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 
 from database import init_db, engine, is_sqlite
 from drive_service import drive_manager
@@ -59,12 +60,23 @@ def create_access_token(user_id: int, samar_id: str) -> str:
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
-def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)):
-    if not credentials:
+def get_current_user(
+    request: Request,
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    token: Optional[str] = Query(None)
+):
+    token_str = None
+    if credentials and credentials.credentials:
+        token_str = credentials.credentials
+    elif token:
+        token_str = token
+    elif "samar_cloud_token" in request.cookies:
+        token_str = request.cookies.get("samar_cloud_token")
+
+    if not token_str:
         raise HTTPException(status_code=401, detail="Tizimga kirilmagan (Not authenticated)")
-    token = credentials.credentials
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token_str, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = int(payload.get("sub"))
         samar_id = payload.get("samar_id")
     except (JWTError, ValueError):
@@ -143,7 +155,7 @@ def detect_category(mime_type: str, filename: str) -> str:
 
 # ----------------- SAMAR ID SSO AUTH -----------------
 @app.post("/api/auth/sso/callback")
-async def sso_callback(data: dict):
+async def sso_callback(data: dict, response: Response):
     code = data.get("code")
     redirect_uri = data.get("redirect_uri")
     if not code:
@@ -214,6 +226,14 @@ async def sso_callback(data: dict):
 
     # 4. Generate Samar Cloud session token
     cloud_token = create_access_token(user_id, samar_id)
+    response.set_cookie(
+        key="samar_cloud_token",
+        value=cloud_token,
+        max_age=30 * 24 * 3600,
+        httponly=False,
+        samesite="lax",
+        secure=False
+    )
     return {
         "access_token": cloud_token,
         "token_type": "bearer",
@@ -230,20 +250,54 @@ async def sso_callback(data: dict):
 def get_me(user: dict = Depends(get_current_user)):
     return user
 
-# ----------------- GOOGLE DRIVE 5TB STATUS & SETUP -----------------
-@app.get("/api/drive/status")
-def get_drive_status(request: Request, user: dict = Depends(get_current_user)):
-    status = drive_manager.get_storage_quota()
-    if not status.get("connected"):
-        redirect_uri = str(request.base_url).rstrip("/") + "/api/drive/callback"
-        try:
-            status["auth_url"] = drive_manager.get_auth_url(redirect_uri)
-        except Exception:
-            status["auth_url"] = None
-    return status
+# ----------------- STORAGE QUOTA (100 GB PER USER) -----------------
+USER_STORAGE_LIMIT_BYTES = 100 * 1024 * 1024 * 1024 # 100 GB per Samar ID user
 
-@app.get("/api/drive/connect")
-def connect_drive(request: Request):
+def format_storage_bytes(b: int) -> str:
+    if b >= 1024**4: return f"{b / (1024**4):.1f} TB"
+    if b >= 1024**3: return f"{b / (1024**3):.1f} GB"
+    if b >= 1024**2: return f"{b / (1024**2):.1f} MB"
+    if b >= 1024: return f"{b / 1024:.1f} KB"
+    return f"{b} B"
+
+@app.get("/api/storage/quota")
+@app.get("/api/drive/status")
+def get_user_storage_quota(user: dict = Depends(get_current_user)):
+    with engine.connect() as conn:
+        used_bytes = conn.execute(
+            text("SELECT COALESCE(SUM(size), 0) FROM files WHERE user_id = :uid AND is_trashed = 0"),
+            {"uid": user["id"]}
+        ).scalar() or 0
+
+        files_count = conn.execute(
+            text("SELECT COUNT(*) FROM files WHERE user_id = :uid AND is_trashed = 0"),
+            {"uid": user["id"]}
+        ).scalar() or 0
+
+        photos_count = conn.execute(
+            text("SELECT COUNT(*) FROM files WHERE user_id = :uid AND category = 'image' AND is_trashed = 0"),
+            {"uid": user["id"]}
+        ).scalar() or 0
+
+    free_bytes = max(0, USER_STORAGE_LIMIT_BYTES - used_bytes)
+    percent_used = round((used_bytes / USER_STORAGE_LIMIT_BYTES) * 100, 2)
+
+    return {
+        "connected": True,
+        "total_bytes": USER_STORAGE_LIMIT_BYTES,
+        "used_bytes": used_bytes,
+        "free_bytes": free_bytes,
+        "used_formatted": format_storage_bytes(used_bytes),
+        "total_formatted": "100.0 GB",
+        "percent_used": percent_used,
+        "files_count": files_count,
+        "photos_count": photos_count,
+        "user_samar_id": user["samar_id"]
+    }
+
+# Master Google Drive connection (Admin backend only)
+@app.get("/api/admin/drive/connect")
+def admin_connect_drive(request: Request):
     redirect_uri = str(request.base_url).rstrip("/") + "/api/drive/callback"
     auth_url = drive_manager.get_auth_url(redirect_uri)
     return RedirectResponse(auth_url)
@@ -346,18 +400,49 @@ async def upload_file(
     user: dict = Depends(get_current_user)
 ):
     content = await file.read()
-    filename = file.filename or "fayl_" + str(uuid.uuid4())[:8]
+    filename = file.filename or ("fayl_" + str(uuid.uuid4())[:8])
     size = len(content)
+
+    # 1. Enforce 100 GB personal storage quota
+    with engine.connect() as conn:
+        current_usage = conn.execute(
+            text("SELECT COALESCE(SUM(size), 0) FROM files WHERE user_id = :uid AND is_trashed = 0"),
+            {"uid": user["id"]}
+        ).scalar() or 0
+
+    if current_usage + size > USER_STORAGE_LIMIT_BYTES:
+        raise HTTPException(
+            status_code=400,
+            detail="Xotira to'ldi! Sizga ajratilgan 100 GB shaxsiy bulut xotirasi limiti tugadi."
+        )
+
     mime_type = file.content_type or mimetypes.guess_type(filename)[0] or "application/octet-stream"
     category = detect_category(mime_type, filename)
 
-    # Extract EXIF if image
+    # 2. Extract EXIF if image
     exif = {}
     if category == "image":
         exif = extract_exif(content)
 
-    # Upload to 5TB Google Drive
-    upload_res = drive_manager.upload_file(content, filename, mime_type)
+    # 3. Save locally in user's isolated folder
+    user_upload_dir = os.path.join(LOCAL_UPLOAD_DIR, str(user["id"]))
+    os.makedirs(user_upload_dir, exist_ok=True)
+    file_prefix = uuid.uuid4().hex[:8]
+    safe_disk_filename = f"{file_prefix}_{filename}"
+    local_path = os.path.join(user_upload_dir, safe_disk_filename)
+    with open(local_path, "wb") as f:
+        f.write(content)
+
+    # 4. Optional master cloud backup (if Google Drive is connected by admin)
+    drive_file_id = None
+    thumbnail_url = None
+    if drive_manager.is_connected():
+        try:
+            drive_res = drive_manager.upload_file(content, filename, mime_type)
+            drive_file_id = drive_res.get("drive_file_id")
+            thumbnail_url = drive_res.get("thumbnail_link")
+        except Exception as e:
+            print(f"[Upload] Master Drive backup notice: {e}")
 
     with engine.connect() as conn:
         insert_query = """
@@ -377,9 +462,9 @@ async def upload_file(
             "ftype": mime_type,
             "cat": category,
             "sz": size,
-            "did": upload_res.get("drive_file_id"),
-            "spath": upload_res.get("storage_path"),
-            "thumb": upload_res.get("thumbnail_link"),
+            "did": drive_file_id,
+            "spath": local_path,
+            "thumb": thumbnail_url,
             "cam": exif.get("camera"),
             "dt": exif.get("date"),
             "w": exif.get("width"),

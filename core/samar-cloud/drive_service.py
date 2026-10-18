@@ -10,6 +10,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Allow HTTP callback on localhost for OAuth
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
 SCOPES = [
     'https://www.googleapis.com/auth/drive',
     'https://www.googleapis.com/auth/drive.file'

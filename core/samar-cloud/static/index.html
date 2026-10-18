@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Samar Cloud & Moments — 5 TB Sovereign Vault</title>
+    <title>Samar Cloud & Moments — 100 GB Shaxsiy Bulut</title>
     <link rel="icon" type="image/svg+xml" href="/static/icon.svg">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#080b12">
@@ -685,7 +685,7 @@
     <div id="dropOverlay">
         <svg class="drop-icon-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         <div style="font-size: 20px; font-weight: 800; color: #fff;">Fayllarni bu yerga tashlang</div>
-        <div style="font-size: 13px; color: var(--text-secondary);">5 TB xavfsiz shaxsiy bulutingizga yuklanadi</div>
+        <div style="font-size: 13px; color: var(--text-secondary);">100 GB xavfsiz shaxsiy bulutingizga yuklanadi</div>
     </div>
 
     <!-- ==================== AUTH VIEW (SSO with Samar ID) ==================== -->
@@ -693,7 +693,7 @@
         <div class="auth-card">
             <img src="/static/icon.svg" class="auth-logo" alt="Samar Cloud">
             <h1 class="auth-title">Samar Cloud & Moments</h1>
-            <p class="auth-sub">5 TB shaxsiy daxlsiz bulut xotirasi va foto galereyasi</p>
+            <p class="auth-sub">Har bir foydalanuvchiga 100 GB shaxsiy bulut xotirasi va foto galereyasi</p>
             <div id="ssoBtnContainer" style="display: flex; justify-content: center;">
                 <button type="button" class="btn-upload" style="padding: 14px 24px; font-size: 15px;" onclick="startSamarIdSso()">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L20 6.5C20 15 14.5 20.5 12 22C9.5 20.5 4 15 4 6.5L12 2Z"/></svg>
@@ -715,7 +715,7 @@
                 <img src="/static/icon.svg" class="header-logo" alt="Samar Cloud">
                 <div class="brand-title">
                     <span>Samar Cloud</span>
-                    <span class="brand-badge">5 TB</span>
+                    <span class="brand-badge">100 GB</span>
                 </div>
             </a>
 
@@ -732,11 +732,6 @@
                     <span>Yuklash</span>
                 </button>
                 <input type="file" id="fileUploadInput" multiple style="display: none;" onchange="handleFileSelected(event)">
-
-                <a id="driveBadge" class="drive-badge active" href="/api/drive/connect" title="Google Drive 5 TB Holati">
-                    <span class="drive-dot"></span>
-                    <span id="driveBadgeText">5.0 TB Faol</span>
-                </a>
 
                 <div class="user-pill">
                     <div class="user-avatar-sm" id="userAvatar">S</div>
@@ -781,16 +776,16 @@
                     </li>
                 </ul>
 
-                <!-- 5 TB Storage Indicator -->
+                <!-- 100 GB Storage Indicator -->
                 <div class="storage-card">
                     <div class="storage-title-row">
-                        <span>5 TB BULUT XOTIRA</span>
+                        <span>BULUT XOTIRA (100 GB)</span>
                         <span id="storagePercentTxt">0%</span>
                     </div>
                     <div class="storage-bar-bg">
                         <div class="storage-bar-fill" id="storageBarFill"></div>
                     </div>
-                    <div class="storage-text" id="storageUsageTxt">Yuklanmoqda...</div>
+                    <div class="storage-text" id="storageUsageTxt">0 B / 100.0 GB ishlatildi</div>
                 </div>
             </aside>
 
@@ -934,31 +929,15 @@
         async function loadDriveStatus() {
             const token = localStorage.getItem('samar_cloud_token');
             try {
-                const res = await fetch('/api/drive/status', {
+                const res = await fetch('/api/storage/quota', {
                     headers: { 'Authorization': 'Bearer ' + token }
                 });
                 const data = await res.json();
                 driveQuota = data;
                 const percent = data.percent_used || 0;
-                document.getElementById('storageBarFill').style.width = Math.max(1, percent) + '%';
+                document.getElementById('storageBarFill').style.width = Math.min(100, Math.max(1, percent)) + '%';
                 document.getElementById('storagePercentTxt').innerText = percent + '%';
                 document.getElementById('storageUsageTxt').innerText = `${data.used_formatted} / ${data.total_formatted} ishlatildi`;
-
-                const badge = document.getElementById('driveBadge');
-                const badgeTxt = document.getElementById('driveBadgeText');
-                if (data.connected) {
-                    badge.className = 'drive-badge active';
-                    badgeTxt.innerText = `5.0 TB Faol (${data.account_email || 'Ulangan'})`;
-                    badge.href = '#';
-                    badge.onclick = (e) => { e.preventDefault(); alert(`Google Drive 5 TB hisobi ulandi!\nE-pochta: ${data.account_email}\nJami xotira: ${data.total_formatted}\nIshlatildi: ${data.used_formatted}`); };
-                } else {
-                    badge.className = 'drive-badge';
-                    badgeTxt.innerText = '5 TB ni Ulash';
-                    if (data.auth_url) {
-                        badge.href = data.auth_url;
-                        badge.onclick = null;
-                    }
-                }
             } catch (_) {}
         }
 
@@ -1065,7 +1044,7 @@
                 if (f.category === 'archive') icon = '📦';
                 if (f.category === 'code') icon = '💻';
 
-                const thumb = (isImage && f.drive_file_id) 
+                const thumb = isImage 
                     ? `/api/files/${f.id}/stream`
                     : null;
 

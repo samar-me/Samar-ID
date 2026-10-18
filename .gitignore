@@ -12,7 +12,8 @@ core/samar-id/uploads/avatars/*
 !core/samar-id/uploads/avatars/.gitkeep
 core/samar-cloud/.env
 core/samar-cloud/token.json
-core/samar-cloud/samar_cloud.db
+*.db
 core/samar-cloud/uploads/*
 !core/samar-cloud/uploads/.gitkeep
+
 
